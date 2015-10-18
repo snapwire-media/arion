@@ -1,14 +1,18 @@
 # Arion
+<img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
+Arion batch creates beautiful looking thumbnails and extracts valuable image information. 
+* Batch generate thumbnails with one call
+* Apply output sharpening on each thumbnail
+* Resize with height priority, width priority, or square crop
+* Apply user-defined watermark
+* Get md5 hash of pixel data
 
-Arion is a tool written in C++ that efficiently creates beautiful looking thumbnail images. 
-It batch generates as many thumbnail sizes as desired and has the ability to apply sharpening to each one. 
-It also has the ability to produce cropped thumbnails and apply a user-defined watermark. 
-Each parameter is completely configurable via an JSON input and Arion can be called through any language that can execute shell commands.
+Each parameter is completely configurable via an JSON input and **Arion** can be called through any language that can execute shell commands. 
 
 ## Installation
 Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system.
 
-Requirements
+**Requirements**
 * CMake
 * EXIV2 0.25+
 * OpenCV 3.0+
@@ -20,7 +24,7 @@ Requirements
   * system
 
 **Install EXIV2**
-Download the archive from http://www.exiv2.org/download.html
+Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
 ```bash
 cd ~/
