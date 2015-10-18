@@ -1,6 +1,6 @@
 # Arion
 <img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
-Arion batch creates beautiful looking thumbnails and extracts valuable image information. 
+Arion extracts important metadata and creates beautiful thumbnails from your images. 
 * Batch generate thumbnails with one call
 * Apply output sharpening on each thumbnail
 * Resize with height priority, width priority, or square crop
