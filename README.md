@@ -65,11 +65,35 @@ sudo make install
 
 **Build Arion**
 
-This will create the final executable
+This will create the final executable. You will need to create a new build directory and run CMake to generate the makefile.  CMake will let you know if any dependencies are missing.  
 
 ```bash
 mkdir build
 cd build
-cmake ../
+cmake ../src/
 make
+```
+
+**Run Examples**
+
+There are two example images provided and a wide range of example operations via a shell script. 
+
+```bash
+cd examples
+./examples.sh
+```
+
+The output will look like this
+
+```bash
+Running example operations on horizontal image
+
+{
+  "result" : true,
+  "time" : 0.17,
+  "height" : 864,
+  "width" : 1296,
+  "md5" : "636ee0572d42df5e3764372cb08d6ade",
+  
+  ...
 ```
