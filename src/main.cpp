@@ -1,8 +1,8 @@
 //------------------------------------------------------------------------------
 //
-// Resizer
+// Arion
 //
-// A utility for importing, resizing, extracting meta-data, and exporting images.
+// Extract metadata and creates beautiful thumbnails from your images.
 //
 // ------------
 //   main.cpp

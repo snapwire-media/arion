@@ -7,6 +7,7 @@
 
 #include <sys/time.h>
 
+// Boost
 #include <boost/exception/info.hpp>
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/all.hpp>
@@ -398,7 +399,7 @@ bool Resize::run(Mat& image)
 
       Mat watermarkRoi = watermark(roi);
 
-      overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), 0.05);
+      Utils::overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), 0.05);
 
     }
 
@@ -459,52 +460,6 @@ bool Resize::run(Mat& image)
 
   return true;
 
-}
-
-/*
- * overlayImage: copies a transparent 4-channel image over a solid background image.
- * Original source: http://jepsonsblog.blogspot.com.br/2012/10/overlay-transparent-image-in-opencv.html
- *
- * background: must be 3-channel BGR.
- * foreground: must be 4-channel RGBA.
- * output: the destination Mat.
- * location: offset starting point.
- */
-void Resize::overlayImage(const cv::Mat &background, const cv::Mat &foreground, cv::Mat &output, cv::Point2i location, double blend) const
-{
-  background.copyTo(output);
-  double blendConstant = blend / 255.0;
-
-  // start at the row indicated by location, or at row 0 if location.y is negative.
-  for (int y = std::max(location.y, 0); y < background.rows; ++y)
-  {
-    int fY = y - location.y; // because of the translation
-
-    // we are done or we have processed all rows of the foreground image.
-    if (fY >= foreground.rows)
-      break;
-
-    // start at the column indicated by location, or at column 0 if location.x is negative.
-    for (int x = std::max(location.x, 0); x < background.cols; ++x)
-    {
-      int fX = x - location.x; // because of the translation.
-
-      // we are done with this row if the column is outside of the foreground image.
-      if (fX >= foreground.cols)
-        break;
-
-      // determine the opacity of the foreground pixel, using its fourth (alpha) channel.
-      double opacity = blendConstant * ((double) foreground.data[fY * foreground.step + fX * foreground.channels() + 3]);
-
-      // and now combine the background and foreground pixel, using the opacity, but only if opacity > 0.
-      for (int c = 0; opacity > 0 && c < output.channels(); ++c)
-      {
-        unsigned char foregroundPx = foreground.data[fY * foreground.step + fX * foreground.channels() + c];
-        unsigned char backgroundPx = background.data[y * background.step + x * background.channels() + c];
-        output.data[y * output.step + output.channels() * x + c] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
-      }
-    }
-  }
 }
 
 //------------------------------------------------------------------------------
