@@ -2,7 +2,7 @@
 //
 // Arion
 //
-// Extract metadata and creates beautiful thumbnails from your images.
+// Extract metadata and create beautiful thumbnails from your images.
 //
 // ------------
 //   main.cpp
