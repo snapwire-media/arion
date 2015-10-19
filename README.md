@@ -24,6 +24,7 @@ Currently this tool needs to be compiled from source to work on your host system
   * system
 
 **Install EXIV2**
+
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
 ```bash
@@ -43,14 +44,17 @@ sudo make install
 ```
 
 **Install Boost**
-This package doesn't require a particularly new Boost version (1.46) so the package maintainers version should work.
+
+Boost version 1.46+ is required to build Arion.  This is not a particularly new version so the package maintainers version will usually work.
 
 ```bash
 sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
 ```
 
 **Install OpenCV**
-Download the archive from http://opencv.org/downloads.html
+
+Arion requires OpenCV 3.0+ which must be compiled from source.  Download the archive from http://opencv.org/downloads.html
+
 ```bash
 mkdir build
 cd build
@@ -59,8 +63,10 @@ make
 sudo make install
 ```
 
-**Build Resizer**
+**Build Arion**
+
 This will create the final executable
+
 ```bash
 mkdir build
 cd build
