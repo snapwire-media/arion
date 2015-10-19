@@ -7,7 +7,7 @@ Arion extracts metadata and creates beautiful thumbnails from your images.
 * Apply user-defined watermark
 * Get md5 hash of pixel data
 
-Each parameter is completely configurable via an JSON input and **Arion** can be called through any language that can execute shell commands. 
+Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the [API Documentation](../../wiki/API-Documentation) for more details.
 
 ## Installation
 Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system.
