@@ -446,7 +446,7 @@ bool Resize::run(Mat& image)
         }
       }
 
-        outputImageExiv->writeMetadata();
+      outputImageExiv->writeMetadata();
 
     }
     catch(Exiv2::AnyError& e)
@@ -496,9 +496,9 @@ void Resize::outputStatus(ostream& s, unsigned indent) const
   {
     s << p << "  \"result\" : true," << endl;
     s << p << "  \"output_url\" : \"file://" << mOutputFile << "\"," << endl;
-    s << p << "  \"output_height\" : \"" << mImageResized.rows << "\"," << endl;
-    s << p << "  \"output_width\" : \"" << mImageResized.cols << "\"," << endl;
-    s << p << "  \"time\" : \"" << mOperationTime << "\"" << endl;
+    s << p << "  \"output_height\" : " << mImageResized.rows << "," << endl;
+    s << p << "  \"output_width\" : " << mImageResized.cols << "," << endl;
+    s << p << "  \"time\" : " << mOperationTime << endl;
   }
   else
   {
