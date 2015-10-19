@@ -76,13 +76,11 @@ class Resize
     void outputStatus(std::ostream& s, unsigned indent) const;
     void setExifData(const Exiv2::ExifData* exifData);
     void setXmpData(const Exiv2::XmpData* xmpData);
-    std::string type2str(int type);
 
   private:
 
     int getAspectHeight(int resizeWidth, double aspect) const;
     int getAspectWidth(int resizeHeight, double aspect) const;
-    void overlayImage(const cv::Mat &background, const cv::Mat &foreground, cv::Mat &output, cv::Point2i location, double blend) const;
 
     boost::property_tree::ptree mParams;
 
