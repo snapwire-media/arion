@@ -72,6 +72,7 @@ Resize::Resize(const ptree& params) :
     mpExifData(0),
     mpXmpData(0),
     mWatermarkFile(),
+    mWatermarkAmount(0.05),
     mOperationTime(0)
 {
 
@@ -198,6 +199,15 @@ Resize::Resize(const ptree& params) :
     {
       mWatermarkFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
     }
+  }
+  catch (boost::exception& e)
+  {
+    // Not required
+  }
+
+  try
+  {
+    mWatermarkAmount = params.get<float>("watermark_amount");
   }
   catch (boost::exception& e)
   {
@@ -406,7 +416,7 @@ bool Resize::run(Mat& image)
 
       Mat watermarkRoi = watermark(roi);
 
-      Utils::overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), 0.05);
+      Utils::overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), mWatermarkAmount);
 
     }
 

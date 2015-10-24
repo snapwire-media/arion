@@ -93,6 +93,7 @@ class Resize
     float mSharpenRadius;
     bool mPreserveMeta;
     std::string mWatermarkFile;
+    float mWatermarkAmount;
     std::string mOutputFile;
 
     double mOperationTime;
