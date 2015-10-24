@@ -132,8 +132,7 @@ Resize::Resize(const ptree& params) :
   }
   catch (boost::exception& e)
   {
-    cerr << "ERROR: Could not read the resize operation preserve_meta flag" << endl;
-    return;
+    // Not required
   }
 
   try
