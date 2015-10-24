@@ -65,6 +65,7 @@
                 "sharpen_radius": 0.6,
                 "quality": 80,
                 "watermark_url":"file://../examples/images/watermark.png",
+		"watermark_amount": 0.06,
                 "output_url": "file://../examples/image-2-800-watermark.jpg"
             }
         }

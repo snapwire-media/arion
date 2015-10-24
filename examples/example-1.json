@@ -13,7 +13,6 @@
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.5,
                 "quality": 85,
-                "watermark":false,
                 "output_url": "file://../examples/image-1-230.jpg"
             }
         },
@@ -27,7 +26,6 @@
                 "sharpen_amount": 100,
                 "sharpen_radius": 0.6,
                 "quality": 75,
-                "watermark":true,
                 "output_url": "file://../examples/image-1-640.jpg"
             }
         },
@@ -41,7 +39,6 @@
                 "sharpen_amount": 100,
                 "sharpen_radius": 0.6,
                 "quality": 75,
-                "watermark":true,
                 "output_url": "file://../examples/image-1-800.jpg"
             }
         }
