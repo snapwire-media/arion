@@ -7,14 +7,14 @@ Arion extracts metadata and creates beautiful thumbnails from your images.
 * Apply user-defined watermark
 * Get md5 hash of pixel data
 
-Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the [API Documentation](../../wiki/API-Documentation) for more details.
+Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the **[API Documentation](../../wiki/API-Documentation)** for more details.
 
 ## Why Arion?
 While there are several tools available to generate thumbnails and read image metadata here's what Arion has to offer:
 * **Performance** - use a single command to batch generate thumbnails
 * **Aesthetics** - independently control output sharpening and JPEG quality on each thumbnail
 * **Functionality** - easily apply watermarks and preserve image metadata on thumbnails
-* **Compatability** - call from any framework that executes shell commands (see [examples](../../wiki/Examples))
+* **Compatability** - call from any framework that executes shell commands (see **[examples](../../wiki/Examples)**)
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
