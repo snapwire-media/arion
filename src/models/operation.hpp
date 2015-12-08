@@ -42,7 +42,7 @@
 enum
 {
   OperationTypeResize = 0,
-  OperationTypeMetadata = 1
+  OperationTypeReadmeta = 1
 };
 
 //------------------------------------------------------------------------------

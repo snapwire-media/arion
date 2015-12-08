@@ -64,9 +64,9 @@ Operation::Operation(const ptree& pt) : mType()
   {
     mType = OperationTypeResize;
   }
-  else if (type == "metadata")
+  else if (type == "readmeta")
   {
-    mType = OperationTypeMetadata;
+    mType = OperationTypeReadmeta;
   }
   else
   {

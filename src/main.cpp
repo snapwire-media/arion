@@ -535,7 +535,7 @@ void run(const string& inputJson)
 
           break;
         }
-        case OperationTypeMetadata:
+        case OperationTypeReadmeta:
         {
           Readmeta r(operation.getParams());
 

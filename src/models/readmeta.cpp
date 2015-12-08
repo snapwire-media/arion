@@ -73,12 +73,13 @@ Readmeta::Readmeta(const ptree& params) :
     mpIptcData(0),
     mPropertyReleased(false),
     mModelReleased(false),
+    mReadInfo(false),
     mCaption(""),
     mCopyright("")
 {
   try
   {
-    mReadInfo = params.get<bool>("read_info");
+    mReadInfo = params.get<bool>("info");
   }
   catch (boost::exception& e)
   {

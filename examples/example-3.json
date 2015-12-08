@@ -1,0 +1,12 @@
+{
+    "input_url": "file://../examples/images/image-3.jpg",
+    "correct_rotation":true,
+    "operations": [
+        {
+            "type": "readmeta",
+            "params": {
+                "info": true
+            }
+        }
+    ]
+}
