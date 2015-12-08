@@ -71,6 +71,7 @@ Resize::Resize(const ptree& params) :
     mErrorMessage(),
     mpExifData(0),
     mpXmpData(0),
+    mpIptcData(0),
     mWatermarkFile(),
     mWatermarkAmount(0.05),
     mOperationTime(0)
@@ -228,6 +229,8 @@ bool Resize::getPreserveMeta() const
   return mPreserveMeta;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool Resize::getStatus() const
 {
   return mStatus;
@@ -245,6 +248,13 @@ void Resize::setExifData(const Exiv2::ExifData* exifData)
 void Resize::setXmpData(const Exiv2::XmpData* xmpData)
 {
   mpXmpData = xmpData;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setIptcData(const Exiv2::IptcData* iptcData)
+{
+  mpIptcData = iptcData;
 }
 
 //------------------------------------------------------------------------------

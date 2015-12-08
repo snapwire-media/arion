@@ -41,7 +41,8 @@
 
 enum
 {
-  OperationTypeResize = 0
+  OperationTypeResize = 0,
+  OperationTypeMetadata = 1
 };
 
 //------------------------------------------------------------------------------

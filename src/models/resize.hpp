@@ -76,6 +76,7 @@ class Resize
     void outputStatus(std::ostream& s, unsigned indent) const;
     void setExifData(const Exiv2::ExifData* exifData);
     void setXmpData(const Exiv2::XmpData* xmpData);
+    void setIptcData(const Exiv2::IptcData* iptcData);
 
   private:
 
@@ -106,6 +107,7 @@ class Resize
 
     const Exiv2::ExifData* mpExifData;
     const Exiv2::XmpData* mpXmpData;
+    const Exiv2::IptcData* mpIptcData;
 
 };
 

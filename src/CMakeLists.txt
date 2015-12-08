@@ -9,11 +9,12 @@ FIND_PACKAGE( OpenSSL )
 
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES( ${OPENSSL_INCLUDE_DIR} )
-INCLUDE_DIRECTORIES( ${ARION_SOURCE_DIR} ) 
+INCLUDE_DIRECTORIES( ${ARION_SOURCE_DIR} )
 
 ADD_EXECUTABLE( arion main.cpp 
                       models/operation.cpp 
                       models/resize.cpp
+                      models/readmeta.cpp
                       utils/utils.cpp )
 
 TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )

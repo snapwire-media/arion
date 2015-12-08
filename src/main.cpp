@@ -42,6 +42,7 @@
 // Local
 #include "models/operation.hpp"
 #include "models/resize.hpp"
+#include "models/readmeta.hpp"
 #include "utils/utils.hpp"
 
 // Boost
@@ -285,6 +286,30 @@ void xmpDebug(Exiv2::XmpData& xmpData)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void iptcDebug(Exiv2::IptcData &iptcData)
+{
+  cout << "Has IPTC!" << endl;
+  
+  Exiv2::IptcData::iterator end = iptcData.end();
+  
+  for (Exiv2::IptcData::iterator md = iptcData.begin(); md != end; ++md) 
+  {
+    std::cout << std::setw(44) << std::setfill(' ') << std::left
+              << md->key() << " "
+              << "0x" << std::setw(4) << std::setfill('0') << std::right
+              << std::hex << md->tag() << " "
+              << std::setw(9) << std::setfill(' ') << std::left
+              << md->typeName() << " "
+              << std::dec << std::setw(3)
+              << std::setfill(' ') << std::right
+              << md->count() << "  "
+              << std::dec << md->value()
+              << std::endl;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void run(const string& inputJson)
 {
   boost::timer::cpu_timer timer;
@@ -292,6 +317,8 @@ void run(const string& inputJson)
   vector<Operation> operations;
   bool hasValidExif = false;
   bool hasValidXmp = false;
+  bool hasValidIptc = false;
+  
   //----------------------------------
   //       Parse JSON Input
   //----------------------------------
@@ -392,6 +419,17 @@ void run(const string& inputJson)
           xmpDebug(xmpData);
 #endif
         }
+        
+        Exiv2::IptcData& iptcData = imageExiv->iptcData();
+
+        if (!iptcData.empty())
+        {
+          hasValidIptc = true;
+
+#if DEBUG
+          iptcDebug(iptcData);
+#endif
+        }
       }
     }
     catch (Exiv2::AnyError& e)
@@ -468,6 +506,11 @@ void run(const string& inputJson)
           {
             r.setXmpData(&imageExiv->xmpData());
           }
+          
+          if (hasValidIptc)
+          {
+            r.setIptcData(&imageExiv->iptcData());
+          }
 
           bool result = r.run(sourceImage);
 
@@ -490,6 +533,48 @@ void run(const string& inputJson)
             exitWithError("Operation failed", &oss);
           }
 
+          break;
+        }
+        case OperationTypeMetadata:
+        {
+          Readmeta r(operation.getParams());
+
+          if (hasValidExif)
+          {
+            r.setExifData(&imageExiv->exifData());
+          }
+
+          if (hasValidXmp)
+          {
+            r.setXmpData(&imageExiv->xmpData());
+          }
+          
+          if (hasValidIptc)
+          {
+            r.setIptcData(&imageExiv->iptcData());
+          }
+
+          bool result = r.run();
+
+          if (operationCount > 0)
+          {
+            // Make sure it's valid JSON
+            oss << "," << endl;
+          }
+
+          if (result)
+          {
+            // Operation success!
+            r.outputStatus(oss, 2);
+          }
+          else
+          {
+            // Operation failure
+            r.outputStatus(oss, 2);
+            oss << endl << "  ]" << endl;
+            exitWithError("Operation failed", &oss);
+          }
+          
           break;
         }
         default:
@@ -567,6 +652,3 @@ int main(int argc, char* argv[])
 
   return 0;
 }
-
-
-

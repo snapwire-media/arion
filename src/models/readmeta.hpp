@@ -1,3 +1,6 @@
+#ifndef READMETA_HPP
+#define READMETA_HPP
+
 //------------------------------------------------------------------------------
 //
 // Copyright (c) 2015 Paul Filitchkin, Snapwire
@@ -31,67 +34,74 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/operation.hpp"
-
-#include <iostream>
 #include <string>
-#include <ostream>
+#include <vector>
 
-#include <boost/exception/info.hpp>
-#include <boost/exception/error_info.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/foreach.hpp>
+#include <boost/property_tree/ptree.hpp>
 
-using boost::property_tree::ptree;
-using namespace std;
+// OpenCV
+#include <opencv2/core/core.hpp>
 
-class OperationTypeException: public std::exception
+// Exiv2
+#include <exiv2/exiv2.hpp>
+
+enum
 {
-  virtual const char* what() const throw()
-  {
-    return "Invalid operation type";
-  }
-} OperationTypeException;
+  ReadmetaStatusDidNotTry = 0,
+  ReadmetaStatusPending = 1,
+  ReadmetaStatusSuccess = 2,
+  ReadmetaStatusError = 3,
+};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::Operation(const ptree& pt) : mType()
+class Readmeta
 {
-  // "type" is not optional, throws execption if missing
-  string type = pt.get<std::string>("type");
+  public:
 
-  if (type == "resize")
-  {
-    mType = OperationTypeResize;
-  }
-  else if (type == "metadata")
-  {
-    mType = OperationTypeMetadata;
-  }
-  else
-  {
-    // Type not supported...
-    throw OperationTypeException;
-  }
+    Readmeta(const boost::property_tree::ptree& params);
 
-  // Get all of the params for this operation
-  // "params" is not optional, throws execption if missing
-  const ptree& paramsNode = pt.get_child("params");
+    bool run();
+    
+    bool getStatus() const;
+    
+    void outputStatus(std::ostream& s, unsigned indent) const;
+    
+    void setExifData(const Exiv2::ExifData* exifData);
+    void setXmpData(const Exiv2::XmpData* xmpData);
+    void setIptcData(const Exiv2::IptcData* iptcData);
 
-  // Make a copy from the const reference
-  mParams = ptree(paramsNode);
-}
+  private:
+    
+    //-------------------
+    //  Private methods
+    //-------------------
+    void readIptc();
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-const unsigned Operation::getType() const
-{
-  return mType;
-}
+    //---------------
+    //    Params
+    //---------------
+    boost::property_tree::ptree mParams;
+    bool mReadInfo;
+    
+    int mStatus;
+    std::string mErrorMessage;
+    
+    //---------------
+    //     Info
+    //---------------
+    std::vector<std::string> mKeywords;
+    std::string mCaption;
+    std::string mCopyright;
+    bool mModelReleased;
+    bool mPropertyReleased;
+    
+    double mOperationTime;
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-ptree Operation::getParams() const
-{
-  return mParams;
-}
+    const Exiv2::ExifData* mpExifData;
+    const Exiv2::XmpData* mpXmpData;
+    const Exiv2::IptcData* mpIptcData;
+
+};
+
+#endif // READMETA_HPP

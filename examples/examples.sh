@@ -16,3 +16,11 @@ echo
 
 ../build/arion --input "$example_2_input"
 
+example_3_input=`cat example-3.json`
+
+echo
+echo 'Running example operations on image with IPTC data'
+echo
+
+../build/arion --input "$example_3_input"
+
