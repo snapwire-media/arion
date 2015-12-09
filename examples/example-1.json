@@ -35,11 +35,17 @@
                 "width": 800,
                 "height": 1000,
                 "type": "width",
-                "preserve_meta": false,
+                "preserve_meta": true,
                 "sharpen_amount": 100,
                 "sharpen_radius": 0.6,
                 "quality": 75,
                 "output_url": "file://../examples/image-1-800.jpg"
+            }
+        },
+        {
+          "type": "readmeta",
+            "params": {
+                "info": true
             }
         }
     ]

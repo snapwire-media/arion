@@ -1,3 +1,8 @@
+*.cpp~
+*.hpp~
+*.json~
+*.sh~
+examples/image-*
 build
 MakeLists.txt~
 README.md~

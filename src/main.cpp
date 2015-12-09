@@ -2,7 +2,7 @@
 //
 // Arion
 //
-// Extract metadata and create beautiful thumbnails from your images.
+// Extract metadata and create beautiful thumbnails of your images.
 //
 // ------------
 //   main.cpp
@@ -90,13 +90,13 @@ void exitWithError(string errorMessage, stringstream* pAdditionalInfo = NULL)
 {
   cout << "{" << endl;
 
-  cout << "  \"result\" : false," << endl;
-  cout << "  \"error_message\" : \"" << errorMessage << "\"";
+  cout << "  \"result\": false," << endl;
+  cout << "  \"error_message\": \"" << errorMessage << "\"";
 
   if (pAdditionalInfo)
   {
     cout << "," << endl;
-    cout << "  \"info\" : " << endl;
+    cout << "  \"info\": " << endl;
     cout << pAdditionalInfo->str() << endl;
   }
   else
@@ -119,16 +119,16 @@ void exitWithSuccess(double time,
 {
   cout << "{" << endl;
 
-  cout << "  \"result\" : true," << endl;
-  cout << "  \"time\" : "   << time << "," << endl;
-  cout << "  \"height\" : " << height << "," << endl;
-  cout << "  \"width\" : "  << width << "," << endl;
-  cout << "  \"md5\" : "    << "\"" << md5 << "\"";
+  cout << "  \"result\": true," << endl;
+  cout << "  \"time\": "   << time << "," << endl;
+  cout << "  \"height\": " << height << "," << endl;
+  cout << "  \"width\": "  << width << "," << endl;
+  cout << "  \"md5\": "    << "\"" << md5 << "\"";
 
   if (pAdditionalInfo)
   {
     cout << "," << endl;
-    cout << "  \"info\" : " << endl;
+    cout << "  \"info\": " << endl;
     cout << pAdditionalInfo->str() << endl;
   }
   else
@@ -333,7 +333,7 @@ void run(const string& inputJson)
   cv::Mat sourceImage;
   char* md5;
 
-  Exiv2::Image::AutoPtr imageExiv;
+  Exiv2::Image::AutoPtr exivImage;
 
   try
   {
@@ -385,13 +385,13 @@ void run(const string& inputJson)
 
     try
     {
-      imageExiv = Exiv2::ImageFactory::open(imageFilePath.c_str());
+      exivImage = Exiv2::ImageFactory::open(imageFilePath.c_str());
 
-      if (imageExiv.get() != 0)
+      if (exivImage.get() != 0)
       {
-        imageExiv->readMetadata();
+        exivImage->readMetadata();
 
-        Exiv2::ExifData& exifData = imageExiv->exifData();
+        Exiv2::ExifData& exifData = exivImage->exifData();
 
         if (!exifData.empty())
         {
@@ -408,7 +408,7 @@ void run(const string& inputJson)
           }
         }
 
-        Exiv2::XmpData& xmpData = imageExiv->xmpData();
+        Exiv2::XmpData& xmpData = exivImage->xmpData();
 
         if (!xmpData.empty())
         {
@@ -420,7 +420,7 @@ void run(const string& inputJson)
 #endif
         }
         
-        Exiv2::IptcData& iptcData = imageExiv->iptcData();
+        Exiv2::IptcData& iptcData = exivImage->iptcData();
 
         if (!iptcData.empty())
         {
@@ -499,17 +499,17 @@ void run(const string& inputJson)
 
           if (hasValidExif)
           {
-            r.setExifData(&imageExiv->exifData());
+            r.setExifData(&exivImage->exifData());
           }
 
           if (hasValidXmp)
           {
-            r.setXmpData(&imageExiv->xmpData());
+            r.setXmpData(&exivImage->xmpData());
           }
           
           if (hasValidIptc)
           {
-            r.setIptcData(&imageExiv->iptcData());
+            r.setIptcData(&exivImage->iptcData());
           }
 
           bool result = r.run(sourceImage);
@@ -541,17 +541,17 @@ void run(const string& inputJson)
 
           if (hasValidExif)
           {
-            r.setExifData(&imageExiv->exifData());
+            r.setExifData(&exivImage->exifData());
           }
 
           if (hasValidXmp)
           {
-            r.setXmpData(&imageExiv->xmpData());
+            r.setXmpData(&exivImage->xmpData());
           }
           
           if (hasValidIptc)
           {
-            r.setIptcData(&imageExiv->iptcData());
+            r.setIptcData(&exivImage->iptcData());
           }
 
           bool result = r.run();

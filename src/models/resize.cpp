@@ -450,25 +450,40 @@ bool Resize::run(Mat& image)
   //--------------------------------
   //  Inherit EXIF data if needed
   //--------------------------------
-  if (mPreserveMeta && (mpExifData || mpXmpData))
+  if (mPreserveMeta && (mpExifData || mpXmpData || mpIptcData))
   {
     try
     {
-      Exiv2::Image::AutoPtr outputImageExiv = Exiv2::ImageFactory::open(mOutputFile.c_str());
+      // NOTE: writing metadata is split out into separate data types for future
+      //       functionality where we may want to inject certain input data into
+      //       these formats
+      Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
 
-      if (mpExifData)
+      if (outputExivImage.get() != 0)
       {
-        if (outputImageExiv.get() != 0)
+        if (mpExifData)
         {
           // Output image inherits input EXIF data
-          outputImageExiv->setExifData(*mpExifData);
+          outputExivImage->setExifData(*mpExifData);
+        }
+
+        if (mpXmpData)
+        {
+          // Output image inherits input XMP data
+          outputExivImage->setXmpData(*mpXmpData);
+        }
+
+        if (mpIptcData)
+        {
+          // Output image inherits input IPTC data
+          outputExivImage->setIptcData(*mpIptcData);
         }
       }
 
-      outputImageExiv->writeMetadata();
+      outputExivImage->writeMetadata();
 
     }
-    catch(Exiv2::AnyError& e)
+    catch (Exiv2::AnyError& e)
     {
       mStatus = ResizeStatusError;
       mErrorMessage = e.what();
@@ -509,26 +524,26 @@ void Resize::outputStatus(ostream& s, unsigned indent) const
   string p = string(indent, ' ');
 
   s << p << "{" << endl;
-  s << p << "  \"type\" : \"resize\"," << endl;
+  s << p << "  \"type\": \"resize\"," << endl;
 
   if (mStatus == ResizeStatusSuccess)
   {
-    s << p << "  \"result\" : true," << endl;
-    s << p << "  \"output_url\" : \"file://" << mOutputFile << "\"," << endl;
-    s << p << "  \"output_height\" : " << mImageResized.rows << "," << endl;
-    s << p << "  \"output_width\" : " << mImageResized.cols << "," << endl;
-    s << p << "  \"time\" : " << mOperationTime << endl;
+    s << p << "  \"result\": true," << endl;
+    s << p << "  \"output_url\": \"file://" << mOutputFile << "\"," << endl;
+    s << p << "  \"output_height\": " << mImageResized.rows << "," << endl;
+    s << p << "  \"output_width\": " << mImageResized.cols << "," << endl;
+    s << p << "  \"time\": " << mOperationTime << endl;
   }
   else
   {
-    s << p << "  \"result\" : false," << endl;
+    s << p << "  \"result\": false," << endl;
 
     if ((mStatus == ResizeStatusError) &&  !mErrorMessage.empty())
     {
-      s << p << "  \"error_message\" : \"" << mErrorMessage << "\"," << endl;
+      s << p << "  \"error_message\": \"" << mErrorMessage << "\"," << endl;
     }
 
-    s << p << "  \"output_url\" : \"file://" << mOutputFile << "\"" << endl;
+    s << p << "  \"output_url\": \"file://" << mOutputFile << "\"" << endl;
   }
 
   s << p << "}";
