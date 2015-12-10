@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 
+// Boost
 #include <boost/property_tree/ptree.hpp>
 
 // OpenCV
@@ -77,6 +78,55 @@ class Resize
     void setExifData(const Exiv2::ExifData* exifData);
     void setXmpData(const Exiv2::XmpData* xmpData);
     void setIptcData(const Exiv2::IptcData* iptcData);
+    
+    // Defined in header due to: 
+    // http://stackoverflow.com/questions/4011679/seperating-template-class-into-multiple-files-yields-linking-issues
+    template <typename Writer>
+    void Serialize(Writer& writer) const
+    {
+      writer.StartObject();
+  
+      // Result
+      writer.String("type");
+      writer.String("resize");
+
+      // Output URL
+      writer.String("output_url");
+      writer.String("file://" + mOutputFile);
+
+      if (mStatus == ResizeStatusSuccess)
+      {
+        // Result
+        writer.String("result");
+        writer.Bool(true);
+
+        // Time
+        writer.String("time");
+        writer.Double(mOperationTime);
+
+        // Dimensions
+        writer.String("output_height");
+        writer.Uint(mImageResized.rows);
+        writer.String("output_width");
+        writer.Uint(mImageResized.cols);
+
+      }
+      else
+      {
+        // Result
+        writer.String("result");
+        writer.Bool(false);
+
+        // Error message
+        if ((mStatus == ResizeStatusError) &&  !mErrorMessage.empty())
+        {
+          writer.String("error_message");
+          writer.String(mErrorMessage);
+        }
+      }
+
+      writer.EndObject();
+    }
 
   private:
 

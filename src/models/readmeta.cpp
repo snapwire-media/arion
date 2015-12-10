@@ -169,12 +169,7 @@ void Readmeta::readIptc()
   {
     return;
   }
-  
-//Iptc.Application2.City                       0x005a String      3  Bol
-//Iptc.Application2.ProvinceState              0x005f String     30  Splitsko-dalmatinska županija
-//Iptc.Application2.CountryCode                0x0064 String      2  HR
-//Iptc.Application2.CountryName                0x0065 String      7  Croatia
-  
+
   const string iptcCaptionKey       = "Iptc.Application2.Caption";
   const string iptcKeywordsKey      = "Iptc.Application2.Keywords";
   const string iptcCopyrightKey     = "Iptc.Application2.Copyright";
@@ -235,82 +230,7 @@ void Readmeta::readIptc()
     }
   }
   
-  
-  //Xmp.photoshop.City                           XmpText     3  Bol
+//Xmp.photoshop.City                           XmpText     3  Bol
 //Xmp.photoshop.State                          XmpText    30  Splitsko-dalmatinska županija
 //Xmp.photoshop.Country                        XmpText     7  Croatia
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Readmeta::outputStatus(ostream& s, unsigned indent) const
-{
-  string p = string(indent, ' ');
-
-  s << p << "{" << endl;
-  s << p << "  \"type\": \"metadata\"," << endl;
-
-  if (mStatus == ReadmetaStatusSuccess)
-  {
-    s << p << "  \"result\": true," << endl;
-    s << p << "  \"time\": " << mOperationTime;
-    
-    if (mReadInfo)
-    {
-      s << "," << endl;
-      s << p << "  \"model_released\": " << (mModelReleased ? "true" : "false") << "," << endl;
-      s << p << "  \"property_released\": " << (mPropertyReleased ? "true" : "false") << "," << endl;
-      s << p << "  \"copyright\": \"" << mCopyright << "\"," << endl;
-      s << p << "  \"city\": \"" << mCity << "\"," << endl;
-      s << p << "  \"province_state\": \"" << mProvinceState << "\"," << endl;
-      s << p << "  \"country_name\": \"" << mCountryName << "\"," << endl;
-      s << p << "  \"country_code\": \"" << mCountryCode << "\"," << endl;
-      s << p << "  \"caption\": \"" << mCaption << "\"";
-
-      if (!mKeywords.empty())
-      {
-        int keyword_count = 0;
-
-        s << "," << endl;
-        s << p << "  \"keywords\": [";
-
-        BOOST_FOREACH (const string& keyword, mKeywords)
-        {
-          if (keyword_count > 0)
-          {
-            s << ',';
-          }
-
-          s << "\"" << keyword << "\"";
-
-          keyword_count++;
-        }
-
-        s << "]" << endl;
-      }
-      else
-      {
-        s << endl;
-      }
-    }
-    else
-    {
-      s << endl;
-    }
-  }
-  else
-  {
-    s << p << "  \"result\": false," << endl;
-
-    if ((mStatus == ReadmetaStatusError) && !mErrorMessage.empty())
-    {
-      s << p << "  \"error_message\": \"" << mErrorMessage << "\"," << endl;
-    }
-  }
-
-  s << p << "}";
-
-  // NOTE: Tried doing property tree -> JSON, but this doesn't quite work...
-  //       In addition BOOST outputs everything as a string
-
 }

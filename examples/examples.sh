@@ -19,7 +19,7 @@ echo
 example_3_input=`cat example-3.json`
 
 echo
-echo 'Running example operations on image with IPTC data'
+echo 'Running metadata read operation on image with IPTC data'
 echo
 
 ../build/arion --input "$example_3_input"

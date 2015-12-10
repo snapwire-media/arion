@@ -57,7 +57,7 @@ class OperationTypeException: public std::exception
 //------------------------------------------------------------------------------
 Operation::Operation(const ptree& pt) : mType()
 {
-  // "type" is not optional, throws execption if missing
+  // "type" is not optional, throws exception if missing or unknown
   string type = pt.get<std::string>("type");
 
   if (type == "resize")

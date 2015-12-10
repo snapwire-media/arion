@@ -45,6 +45,11 @@
 #include "models/readmeta.hpp"
 #include "utils/utils.hpp"
 
+// Local Third party
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/prettywriter.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
+
 // Boost
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -73,6 +78,7 @@
 using namespace boost::program_options;
 using namespace boost::filesystem;
 using boost::property_tree::ptree;
+using namespace rapidjson;
 using namespace std;
 
 #define DEBUG 0
@@ -86,26 +92,30 @@ void showHelp(options_description& desc)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void exitWithError(string errorMessage, stringstream* pAdditionalInfo = NULL)
+void exitWithError(string errorMessage)
 {
-  cout << "{" << endl;
+  StringBuffer s;
+    
+  #ifdef JSON_PRETTY_OUTPUT
+    PrettyWriter<StringBuffer> writer(s);
+  #else
+    Writer<StringBuffer> writer(s);
+  #endif
 
-  cout << "  \"result\": false," << endl;
-  cout << "  \"error_message\": \"" << errorMessage << "\"";
+  writer.StartObject();
 
-  if (pAdditionalInfo)
-  {
-    cout << "," << endl;
-    cout << "  \"info\": " << endl;
-    cout << pAdditionalInfo->str() << endl;
-  }
-  else
-  {
-    cout << endl;
-  }
+  // Result
+  writer.String("result");
+  writer.Bool(false);
 
-  cout << "}" << endl;
+  // Error message
+  writer.String("error_message");
+  writer.String(errorMessage);
 
+  writer.EndObject();
+
+  cout << s.GetString() << endl;
+  
   exit(-1);
 }
 
@@ -117,27 +127,66 @@ void exitWithSuccess(double time,
                      int width, 
                      stringstream* pAdditionalInfo = NULL)
 {
-  cout << "{" << endl;
+//  cout << "{" << endl;
+//
+//  cout << "  \"result\": true," << endl;
+//  cout << "  \"time\": "   << time << "," << endl;
+//  cout << "  \"height\": " << height << "," << endl;
+//  cout << "  \"width\": "  << width << "," << endl;
+//  cout << "  \"md5\": "    << "\"" << md5 << "\"";
+//
+//  if (pAdditionalInfo)
+//  {
+//    cout << "," << endl;
+//    cout << "  \"info\": " << endl;
+//    cout << pAdditionalInfo->str() << endl;
+//  }
+//  else
+//  {
+//    cout << endl;
+//  }
+//
+//  cout << "}" << endl;
+// 
 
-  cout << "  \"result\": true," << endl;
-  cout << "  \"time\": "   << time << "," << endl;
-  cout << "  \"height\": " << height << "," << endl;
-  cout << "  \"width\": "  << width << "," << endl;
-  cout << "  \"md5\": "    << "\"" << md5 << "\"";
+  StringBuffer s;
+    
+  #ifdef JSON_PRETTY_OUTPUT
+    PrettyWriter<StringBuffer> writer(s);
+  #else
+    Writer<StringBuffer> writer(s);
+  #endif
 
+  writer.StartObject();
+
+  // Result
+  writer.String("result");
+  writer.Bool(true);
+
+  // Time
+  writer.String("time");
+  writer.Double(time);   
+
+  // Dimensions
+  writer.String("height");
+  writer.Uint(height);
+  writer.String("width");
+  writer.Uint(width);
+  
+  writer.String("md5");
+  writer.String(md5);
+  
+  // Additional info
   if (pAdditionalInfo)
   {
-    cout << "," << endl;
-    cout << "  \"info\": " << endl;
-    cout << pAdditionalInfo->str() << endl;
-  }
-  else
-  {
-    cout << endl;
+    writer.String("info");
+    writer.String(pAdditionalInfo->str());
   }
 
-  cout << "}" << endl;
+  writer.EndObject();
 
+  cout << s.GetString() << endl;
+  
   exit(0);
 }
 
@@ -481,12 +530,32 @@ void run(const string& inputJson)
   //----------------------------------
   //       Execute operations
   //----------------------------------
+  StringBuffer s;
+    
+  #ifdef JSON_PRETTY_OUTPUT
+    PrettyWriter<StringBuffer> writer(s);
+  #else
+    Writer<StringBuffer> writer(s);
+  #endif
 
-  stringstream oss;
-  oss << "  [" << endl;
+  writer.StartObject();
 
-  int operationCount = 0;
-
+  // Dimensions
+  writer.String("height");
+  writer.Uint(sourceImage.rows);
+  writer.String("width");
+  writer.Uint(sourceImage.cols);
+  
+  // md5 of pixels
+  writer.String("md5");
+  writer.String(md5);
+  
+  int total_operations = 0;
+  int failed_operations = 0;
+  
+  writer.String("info");
+  writer.StartArray();
+  
   BOOST_FOREACH (Operation& operation, operations)
   {
     try
@@ -512,26 +581,14 @@ void run(const string& inputJson)
             r.setIptcData(&exivImage->iptcData());
           }
 
-          bool result = r.run(sourceImage);
-
-          if (operationCount > 0)
+          if (!r.run(sourceImage))
           {
-            // Make sure it's valid JSON
-            oss << "," << endl;
+            failed_operations++;
           }
-
-          if (result)
-          {
-            // Operation success!
-            r.outputStatus(oss, 2);
-          }
-          else
-          {
-            // Operation failure
-            r.outputStatus(oss, 2);
-            oss << endl << "  ]" << endl;
-            exitWithError("Operation failed", &oss);
-          }
+          
+          total_operations++;
+ 
+          r.Serialize(writer);
 
           break;
         }
@@ -554,27 +611,15 @@ void run(const string& inputJson)
             r.setIptcData(&exivImage->iptcData());
           }
 
-          bool result = r.run();
-
-          if (operationCount > 0)
+          if (!r.run())
           {
-            // Make sure it's valid JSON
-            oss << "," << endl;
-          }
-
-          if (result)
-          {
-            // Operation success!
-            r.outputStatus(oss, 2);
-          }
-          else
-          {
-            // Operation failure
-            r.outputStatus(oss, 2);
-            oss << endl << "  ]" << endl;
-            exitWithError("Operation failed", &oss);
+            failed_operations++;
           }
           
+          total_operations++;
+          
+          r.Serialize(writer);
+
           break;
         }
         default:
@@ -586,21 +631,44 @@ void run(const string& inputJson)
     }
     catch (std::exception& e)
     {
-      oss << endl << "  ]" << endl;
-      exitWithError(e.what(), &oss);
+      // Break out of the standard output and exit with error
+      exitWithError(e.what());
     }
-
-    // Got through this operation, increment...
-    operationCount++;
   }
-
-  oss << endl << "  ]" << endl;
+  
+  writer.EndArray();
 
   typedef boost::chrono::duration<double> sec; // seconds, stored with a double
   sec seconds = boost::chrono::nanoseconds(timer.elapsed().user + timer.elapsed().system);
+  
+  // Result of command (all operations must succeed to get true)
+  writer.String("result");
+  
+  if (failed_operations == 0)
+  {
+    writer.Bool(true);
+  }
+  else
+  {
+    writer.Bool(false);
+  }
+  
+  // Operation stats
+  writer.String("total_operations");
+  writer.Uint(total_operations);
+  
+  writer.String("failed_operations");
+  writer.Uint(failed_operations);
 
-  exitWithSuccess(seconds.count(), md5, sourceImage.rows, sourceImage.cols, &oss);
-
+  // Time
+  writer.String("time");
+  writer.Double(seconds.count());  
+  writer.EndObject();
+  
+  // Final successful output
+  cout << s.GetString() << endl;
+  
+  exit(0);
 }
 
 //------------------------------------------------------------------------------

@@ -56,6 +56,9 @@ class Operation
     const unsigned getType() const;
 
     boost::property_tree::ptree getParams() const;
+    
+    template <typename Writer>
+    void Serialize(Writer& writer) const;
 
   private:
 
