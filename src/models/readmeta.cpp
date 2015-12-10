@@ -138,6 +138,24 @@ bool Readmeta::run()
 }
 
 //------------------------------------------------------------------------------
+// Sets 
+//------------------------------------------------------------------------------
+void Readmeta::readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
+                                   const string& key,
+                                   string* value)
+{
+  if (md->key() == key)
+  {
+    string v = md->toString();
+
+    if (!v.empty())
+    {
+      *value = v;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Readmeta::readIptc()
 {
@@ -146,18 +164,41 @@ void Readmeta::readIptc()
     return;
   }
   
+  // Currently just the read info parameter
   if (!mReadInfo)
   {
     return;
   }
   
+//Iptc.Application2.City                       0x005a String      3  Bol
+//Iptc.Application2.ProvinceState              0x005f String     30  Splitsko-dalmatinska županija
+//Iptc.Application2.CountryCode                0x0064 String      2  HR
+//Iptc.Application2.CountryName                0x0065 String      7  Croatia
+  
+  const string iptcCaptionKey       = "Iptc.Application2.Caption";
+  const string iptcKeywordsKey      = "Iptc.Application2.Keywords";
+  const string iptcCopyrightKey     = "Iptc.Application2.Copyright";
+  const string iptcInstructionsKey  = "Iptc.Application2.SpecialInstructions";
+  const string iptcCityKey          = "Iptc.Application2.City";
+  const string iptcProvinceStateKey = "Iptc.Application2.ProvinceState";
+  const string iptcCountryNameKey   = "Iptc.Application2.CountryName";
+  const string iptcCountryCodeKey   = "Iptc.Application2.CountryCode";
+
   const Exiv2::IptcData &iptcData = *mpIptcData;
   
   Exiv2::IptcData::const_iterator end = iptcData.end();
   
   for (Exiv2::IptcData::const_iterator md = iptcData.begin(); md != end; ++md)
   {
-    if (md->key() == "Iptc.Application2.Keywords")
+    
+    readIptcStringByKey(md, iptcCaptionKey,       &mCaption);
+    readIptcStringByKey(md, iptcCopyrightKey,     &mCopyright);
+    readIptcStringByKey(md, iptcCityKey,          &mCity);
+    readIptcStringByKey(md, iptcProvinceStateKey, &mProvinceState);
+    readIptcStringByKey(md, iptcCountryNameKey,   &mCountryName);
+    readIptcStringByKey(md, iptcCountryCodeKey,   &mCountryCode);
+    
+    if (md->key() == iptcKeywordsKey)
     {
       string keyword = md->toString();
       
@@ -166,28 +207,8 @@ void Readmeta::readIptc()
         mKeywords.push_back(keyword);
       }
     }
-    
-    if (md->key() == "Iptc.Application2.Caption")
-    {
-      string caption = md->toString();
-      
-      if (!caption.empty())
-      {
-        mCaption = caption;
-      }
-    }
-    
-    if (md->key() == "Iptc.Application2.Copyright")
-    {
-      string copyright = md->toString();
-      
-      if (!copyright.empty())
-      {
-        mCopyright= copyright;
-      }
-    }
-    
-    if (md->key() == "Iptc.Application2.SpecialInstructions")
+
+    if (md->key() == iptcInstructionsKey)
     {
       string instructions = md->toString();
       
@@ -213,6 +234,11 @@ void Readmeta::readIptc()
       }
     }
   }
+  
+  
+  //Xmp.photoshop.City                           XmpText     3  Bol
+//Xmp.photoshop.State                          XmpText    30  Splitsko-dalmatinska županija
+//Xmp.photoshop.Country                        XmpText     7  Croatia
 }
 
 //------------------------------------------------------------------------------
@@ -235,6 +261,10 @@ void Readmeta::outputStatus(ostream& s, unsigned indent) const
       s << p << "  \"model_released\": " << (mModelReleased ? "true" : "false") << "," << endl;
       s << p << "  \"property_released\": " << (mPropertyReleased ? "true" : "false") << "," << endl;
       s << p << "  \"copyright\": \"" << mCopyright << "\"," << endl;
+      s << p << "  \"city\": \"" << mCity << "\"," << endl;
+      s << p << "  \"province_state\": \"" << mProvinceState << "\"," << endl;
+      s << p << "  \"country_name\": \"" << mCountryName << "\"," << endl;
+      s << p << "  \"country_code\": \"" << mCountryCode << "\"," << endl;
       s << p << "  \"caption\": \"" << mCaption << "\"";
 
       if (!mKeywords.empty())

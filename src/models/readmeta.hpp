@@ -77,6 +77,9 @@ class Readmeta
     //  Private methods
     //-------------------
     void readIptc();
+    void readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
+                             const std::string& key,
+                             std::string* value);
 
     //---------------
     //    Params
@@ -96,6 +99,12 @@ class Readmeta
     bool mModelReleased;
     bool mPropertyReleased;
     
+    // Location
+    std::string mCity;
+    std::string mProvinceState;
+    std::string mCountryName;
+    std::string mCountryCode;
+
     double mOperationTime;
 
     const Exiv2::ExifData* mpExifData;
