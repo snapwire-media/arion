@@ -37,6 +37,7 @@
 #include <vector>
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 
 // OpenSSL
 #include <openssl/md5.h>
@@ -46,6 +47,11 @@
 
 // Exiv2
 #include <exiv2/exiv2.hpp>
+
+// Local Third party
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/prettywriter.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -152,6 +158,113 @@ namespace Utils
     }
   }
   
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  static void exifDebug(Exiv2::ExifData& exifData)
+  {
+    std::cout << "Has exif!" << std::endl;
+
+    // DEBUG
+    Exiv2::ExifData::const_iterator end = exifData.end();
+
+    for (Exiv2::ExifData::const_iterator i = exifData.begin(); i != end; ++i)
+    {
+      const char* tn = i->typeName();
+
+      std::cout << std::setw(44)
+           << std::setfill(' ') << std::left
+           << i->key() << " "
+           << "0x" << std::setw(4)
+           << std::setfill('0') << std::right
+           << std::hex << i->tag() << " "
+           << std::setw(9) << std::setfill(' ')
+           << std::left << (tn ? tn : "Unknown")
+           << " " << std::dec
+           << std::setw(3) << std::setfill(' ')
+           << std::right << i->count() << "  "
+           << std::dec << i->value()
+           << "\n";
+    }
+  }
+
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  static void xmpDebug(Exiv2::XmpData& xmpData)
+  {
+    std::cout << "Has XMP!" << std::endl;
+
+    // DEBUG
+    Exiv2::XmpData::const_iterator end = xmpData.end();
+
+    // Output XMP properties
+    for (Exiv2::XmpData::const_iterator md = xmpData.begin(); md != xmpData.end(); ++md)
+    {
+        std::cout << std::setfill(' ') << std::left
+                  << std::setw(44)
+                  << md->key() << " "
+                  << std::setw(9) << std::setfill(' ') << std::left
+                  << md->typeName() << " "
+                  << std::dec << std::setw(3)
+                  << std::setfill(' ') << std::right
+                  << md->count() << "  "
+                  << std::dec << md->value()
+                  << std::endl;
+    }
+  }
+
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  static void iptcDebug(Exiv2::IptcData &iptcData)
+  {
+    std::cout << "Has IPTC!" << std::endl;
+
+    Exiv2::IptcData::iterator end = iptcData.end();
+
+    for (Exiv2::IptcData::iterator md = iptcData.begin(); md != end; ++md) 
+    {
+      std::cout << std::setw(44) << std::setfill(' ') << std::left
+                << md->key() << " "
+                << "0x" << std::setw(4) << std::setfill('0') << std::right
+                << std::hex << md->tag() << " "
+                << std::setw(9) << std::setfill(' ') << std::left
+                << md->typeName() << " "
+                << std::dec << std::setw(3)
+                << std::setfill(' ') << std::right
+                << md->count() << "  "
+                << std::dec << md->value()
+                << std::endl;
+    }
+  }
+
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+  static void exitWithError(std::string errorMessage)
+  {
+    rapidjson::StringBuffer s;
+
+    #ifdef JSON_PRETTY_OUTPUT
+      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+    #else
+      rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    #endif
+
+    writer.StartObject();
+
+    // Result
+    writer.String("result");
+    writer.Bool(false);
+
+    // Error message
+    writer.String("error_message");
+    writer.String(errorMessage);
+
+    writer.EndObject();
+
+    std::cout << s.GetString() << std::endl;
+
+    exit(-1);
+  }
+
   //------------------------------------------------------------------------------
   // Returns a character representation of an OpenCV image type
   //------------------------------------------------------------------------------

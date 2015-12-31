@@ -13,8 +13,10 @@ INCLUDE_DIRECTORIES( ${ARION_SOURCE_DIR} )
 
 ADD_DEFINITIONS( -DRAPIDJSON_HAS_STDSTRING=1 )
 ADD_DEFINITIONS( -DJSON_PRETTY_OUTPUT )
+#ADD_DEFINITIONS( -DDEBUG=1 )
 
 ADD_EXECUTABLE( arion main.cpp 
+                      arion.cpp
                       models/operation.cpp 
                       models/resize.cpp
                       models/readmeta.cpp

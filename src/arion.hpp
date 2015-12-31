@@ -1,12 +1,7 @@
+#ifndef ARION_HPP
+#define ARION_HPP
+
 //------------------------------------------------------------------------------
-//
-// Arion
-//
-// Extract metadata and create beautiful thumbnails of your images.
-//
-// ------------
-//   main.cpp
-// ------------
 //
 // Copyright (c) 2015 Paul Filitchkin, Snapwire
 //
@@ -39,85 +34,32 @@
 //
 //------------------------------------------------------------------------------
 
-// Local
-#include "models/operation.hpp"
-#include "models/resize.hpp"
-#include "models/readmeta.hpp"
-#include "utils/utils.hpp"
-#include "arion.hpp"
+#include <string>
+#include <vector>
 
 // Boost
-#include <boost/exception/info.hpp>
-#include <boost/exception/error_info.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
-#include <boost/program_options.hpp>
-#include <boost/lexical_cast.hpp>
+#include <boost/property_tree/ptree.hpp>
 
-// Stdlib
-#include <iostream>
-#include <string>
+// OpenCV
+#include <opencv2/core/core.hpp>
 
-using namespace boost::program_options;
-using namespace std;
+// Exiv2
+#include <exiv2/exiv2.hpp>
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void showHelp(options_description& desc)
+class Arion
 {
-  cerr << desc << endl;
-}
+  public:
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-int main(int argc, char* argv[])
-{
-  try
-  {
-    positional_options_description p;
-    p.add("input", 1);
+    Arion();
 
-    options_description desc("Arguments");
-
-    desc.add_options()
-        ("help", "Produce this help message")
-        ("input", value< string >(), "The input operations to execute in JSON");
-
-    variables_map vm;
-
-    store(command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-
-    notify(vm);
-
-    string inputJson;
-
-    if (vm.count("help"))
-    {
-      showHelp(desc);
-      return 1;
-    }
-
-    if (vm.count("input"))
-    {
-      inputJson = vm["input"].as<string>();
-    }
-    else
-    {
-      cout << "You must provide the input operations to execute" << endl << endl;
-      showHelp(desc);
-      return 1;
-    }
+    void run(const std::string& inputJson);
     
-    Arion arion;
-    
-    arion.run(inputJson);
+  private:
 
-  }
-  catch (std::exception& e)
-  {
-    Utils::exitWithError(e.what());
-  }
+    bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
 
-  return 0;
-}
+};
+
+#endif // ARION_HPP
