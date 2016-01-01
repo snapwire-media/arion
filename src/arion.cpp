@@ -425,45 +425,22 @@ void Arion::run(const string& inputJson)
   
   writer.String("info");
   writer.StartArray();
-  
-//  for (int i = 0; i < mOperations.size(); ++i)
-//  {
-//    try
-//    {
-//      if (!mOperations[i]->run())
-//      {
-//        failed_operations++;
-//      }
-//      
-//      total_operations++;
-// 
-//      mOperations[i]->Serialize(writer);
-//      
-//      //delete operation;
-//    }
-//    catch (std::exception& e)
-//    {
-//      // Break out of the standard output and exit with error
-//      Utils::exitWithError(e.what());
-//    }
-//  }
-  
-  for (vector<Operation*>::iterator i = mOperations.begin(); i != mOperations.end(); ++i)
+    
+  BOOST_FOREACH (Operation* operation, mOperations)
   {
     try
     {
-      Operation* operation = *i;
-      
       if (!operation->run())
       {
         failed_operations++;
       }
       
       total_operations++;
-
+ 
       operation->serialize(writer);
       
       delete operation;
+      
     }
     catch (std::exception& e)
     {
@@ -471,31 +448,6 @@ void Arion::run(const string& inputJson)
       Utils::exitWithError(e.what());
     }
   }
-  
-//  BOOST_FOREACH (Operation* operation, mOperations)
-//  {
-//    try
-//    {
-//      
-//      
-//      if (!operation->run())
-//      {
-//        failed_operations++;
-//      }
-//      
-//      total_operations++;
-// 
-//      operation->Serialize(writer);
-//      
-//      delete operation;
-//      
-//    }
-//    catch (std::exception& e)
-//    {
-//      // Break out of the standard output and exit with error
-//      Utils::exitWithError(e.what());
-//    }
-//  }
   
   writer.EndArray();
 
