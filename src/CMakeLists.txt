@@ -13,6 +13,8 @@ INCLUDE_DIRECTORIES( ${ARION_SOURCE_DIR} )
 
 ADD_DEFINITIONS( -DRAPIDJSON_HAS_STDSTRING=1 )
 ADD_DEFINITIONS( -DJSON_PRETTY_OUTPUT )
+
+# Uncomment this for additional console output (warning: may invalidate JSON output)
 #ADD_DEFINITIONS( -DDEBUG=1 )
 
 ADD_EXECUTABLE( arion main.cpp 

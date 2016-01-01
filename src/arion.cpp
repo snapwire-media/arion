@@ -75,6 +75,7 @@
 // Stdlib
 #include <iostream>
 #include <string>
+#include <bits/stl_vector.h>
 
 using namespace boost::program_options;
 using namespace boost::filesystem;
@@ -84,7 +85,11 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Arion::Arion()
+Arion::Arion() : 
+  mCorrectOrientation(false),
+  mpExifData(0),
+  mpXmpData(0),
+  mpIptcData(0)
 {
 }
 
@@ -178,160 +183,65 @@ bool Arion::handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image)
 }
 
 //------------------------------------------------------------------------------
+// Given each input operation do the following:
+//  1. Get its type and parameters
+//  2. Create the corresponding operation object and place it in the queue
+//  3. Provide any additional data to the operation
 //------------------------------------------------------------------------------
-void Arion::run(const string& inputJson)
+void Arion::parseOperations(const ptree& pt)
 {
-  boost::timer::cpu_timer timer;
-
-  vector<Operation> operations;
-  bool hasValidExif = false;
-  bool hasValidXmp = false;
-  bool hasValidIptc = false;
-  
-  //----------------------------------
-  //       Parse JSON Input
-  //----------------------------------
-  std::stringstream ss(inputJson);
-
-  ptree pt;
-
-  boost::property_tree::read_json(ss, pt);
-
-  bool correctOrientation = false;
-  string imageFilePath;
-  cv::Mat sourceImage;
-  char* md5;
-
-  Exiv2::Image::AutoPtr exivImage;
-
-  try
-  {
-    //--------------------------------
-    //         Extract Image
-    //--------------------------------
-    // We always operate on a single input image
-    string imageUrl = pt.get<std::string>("input_url");
-
-    int pos = imageUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      imageFilePath = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
-    }
-    else
-    {
-      Utils::exitWithError("Unsupported input source. Use 'file://' prefix");
-    }
-
-    sourceImage = cv::imread(imageFilePath);
-
-    if (sourceImage.empty())
-    {
-      Utils::exitWithError("Could not read source image");
-    }
-
-    //--------------------------------
-    //      Compute Image MD5
-    //--------------------------------
-
-    md5 = Utils::computeMd5((char*)sourceImage.data, (int)sourceImage.step[0] * sourceImage.rows);
-
-    //--------------------------------
-    //   Correct orientation flag
-    //--------------------------------
-    try
-    {
-      correctOrientation = pt.get<bool>("correct_rotation");
-    }
-    catch (boost::exception& e)
-    {
-      // Not required
-    }
-
-    //--------------------------------
-    //    Extract Image Meta Data
-    //--------------------------------
-
-    try
-    {
-      exivImage = Exiv2::ImageFactory::open(imageFilePath.c_str());
-
-      if (exivImage.get() != 0)
-      {
-        exivImage->readMetadata();
-
-        Exiv2::ExifData& exifData = exivImage->exifData();
-
-        if (!exifData.empty())
-        {
-          // Got this far so we have at least some valid EXIF data...
-          hasValidExif = true;
-
-#if DEBUG
-          Utils::exifDebug(exifData);
-#endif
-
-          if (correctOrientation)
-          {
-            handleOrientation(exifData, sourceImage);
-          }
-        }
-
-        Exiv2::XmpData& xmpData = exivImage->xmpData();
-
-        if (!xmpData.empty())
-        {
-
-          hasValidXmp = true;
-
-#if DEBUG
-          Utils::xmpDebug(xmpData);
-#endif
-        }
-        
-        Exiv2::IptcData& iptcData = exivImage->iptcData();
-
-        if (!iptcData.empty())
-        {
-          hasValidIptc = true;
-
-#if DEBUG
-          Utils::iptcDebug(iptcData);
-#endif
-        }
-      }
-    }
-    catch (Exiv2::AnyError& e)
-    {
-      // Not the end of the world if reading EXIF data failed
-      //cerr << "ERROR: Caught Exiv2 exception '" << e.what() << "'\n";
-      //return -1;
-    }
-  }
-  catch (boost::exception& e)
-  {
-    stringstream ss;
-
-#if DEBUG
-    ss << "Error reading image " << diagnostic_information(e);
-#endif
-
-    Utils::exitWithError(ss.str());
-  }
-
   int operationParseCount = 0;
 
-  // Make sure we understand all operations before proceeding
+  // Prep all operations before running them
   BOOST_FOREACH (const ptree::value_type& node, pt.get_child("operations"))
   {
     try
     {
-      const ptree& operationProps = node.second;
+      const ptree& operationTree = node.second;
+      
+      // "type" is not optional, throws exception if missing or unknown
+      string type = operationTree.get<std::string>("type");
+      
+      // Get all of the params for this operation
+      // "params" is not optional, throws exception if missing
+      const ptree& paramsTree = operationTree.get_child("params");
+      
+      Operation* operation;
 
-      Operation newOperation(operationProps);
+      if (type == "resize")
+      {
+        operation = new Resize(paramsTree, mSourceImage);
+      }
+      else if (type == "readmeta")
+      {
+        operation = new Readmeta(paramsTree);
+      }
+      else
+      {
+        stringstream ss;
+        ss << "Operation " << type << " not supported";
+        
+        Utils::exitWithError(ss.str());
+      }
+      
+      // Add to operation queue
+      mOperations.push_back(operation);
 
-      operations.push_back(newOperation);
+      if (mpExifData)
+      {
+        operation->setExifData(mpExifData);
+      }
 
+      if (mpXmpData)
+      {
+        operation->setXmpData(mpXmpData);
+      }
+
+      if (mpIptcData)
+      {
+        operation->setIptcData(mpIptcData);
+      }
+      
       operationParseCount++;
 
     }
@@ -346,7 +256,146 @@ void Arion::run(const string& inputJson)
 
     }
   }
+}
 
+//--------------------------------
+//   Extract Image Meta Data
+//--------------------------------
+void Arion::extractMetadata(const string& imageFilePath)
+{
+  try
+  {
+    mExivImage = Exiv2::ImageFactory::open(imageFilePath.c_str());
+
+    if (mExivImage.get() != 0)
+    {
+      mExivImage->readMetadata();
+
+      Exiv2::ExifData& exifData = mExivImage->exifData();
+
+      if (!exifData.empty())
+      {
+        mpExifData = &exifData;
+
+#if DEBUG
+        Utils::exifDebug(exifData);
+#endif
+
+        if (mCorrectOrientation)
+        {
+          handleOrientation(exifData, mSourceImage);
+        }
+      }
+
+      Exiv2::XmpData& xmpData = mExivImage->xmpData();
+
+      if (!xmpData.empty())
+      {
+        mpXmpData = &xmpData;
+
+#if DEBUG
+        Utils::xmpDebug(xmpData);
+#endif
+      }
+
+      Exiv2::IptcData& iptcData = mExivImage->iptcData();
+
+      if (!iptcData.empty())
+      {
+        mpIptcData = &iptcData;
+
+#if DEBUG
+        Utils::iptcDebug(iptcData);
+#endif
+      }
+    }
+  }
+  catch (Exiv2::AnyError& e)
+  {
+    // Not the end of the world if reading EXIF data failed
+    //cerr << "ERROR: Caught Exiv2 exception '" << e.what() << "'\n";
+    //return -1;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::run(const string& inputJson)
+{
+  boost::timer::cpu_timer timer;
+  
+  //----------------------------------
+  //       Parse JSON Input
+  //----------------------------------
+  std::stringstream ss(inputJson);
+
+  ptree inputTree;
+
+  boost::property_tree::read_json(ss, inputTree);
+
+  string imageFilePath;
+  
+  char* md5;
+
+  try
+  {
+    //--------------------------------
+    //         Extract Image
+    //--------------------------------
+    // We always operate on a single input image
+    string imageUrl = inputTree.get<std::string>("input_url");
+
+    int pos = imageUrl.find(Utils::FILE_SOURCE);
+
+    if (pos != string::npos)
+    {
+      imageFilePath = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
+    }
+    else
+    {
+      Utils::exitWithError("Unsupported input source. Use 'file://' prefix");
+    }
+
+    mSourceImage = cv::imread(imageFilePath);
+
+    if (mSourceImage.empty())
+    {
+      Utils::exitWithError("Could not read source image");
+    }
+
+    //--------------------------------
+    //      Compute Image MD5
+    //--------------------------------
+
+    md5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
+
+    //--------------------------------
+    //   Correct orientation flag
+    //--------------------------------
+    try
+    {
+      mCorrectOrientation = inputTree.get<bool>("correct_rotation");
+    }
+    catch (boost::exception& e)
+    {
+      // Not required
+    }
+  }
+  catch (boost::exception& e)
+  {
+    stringstream ss;
+
+#if DEBUG
+    ss << "Error reading image " << diagnostic_information(e);
+#endif
+
+    Utils::exitWithError(ss.str());
+  }
+  
+  extractMetadata(imageFilePath);
+
+  parseOperations(inputTree);
+  
   //----------------------------------
   //       Execute operations
   //----------------------------------
@@ -362,9 +411,10 @@ void Arion::run(const string& inputJson)
 
   // Dimensions
   writer.String("height");
-  writer.Uint(sourceImage.rows);
+  writer.Uint(mSourceImage.rows);
+  
   writer.String("width");
-  writer.Uint(sourceImage.cols);
+  writer.Uint(mSourceImage.cols);
   
   // md5 of pixels
   writer.String("md5");
@@ -376,78 +426,44 @@ void Arion::run(const string& inputJson)
   writer.String("info");
   writer.StartArray();
   
-  BOOST_FOREACH (Operation& operation, operations)
+//  for (int i = 0; i < mOperations.size(); ++i)
+//  {
+//    try
+//    {
+//      if (!mOperations[i]->run())
+//      {
+//        failed_operations++;
+//      }
+//      
+//      total_operations++;
+// 
+//      mOperations[i]->Serialize(writer);
+//      
+//      //delete operation;
+//    }
+//    catch (std::exception& e)
+//    {
+//      // Break out of the standard output and exit with error
+//      Utils::exitWithError(e.what());
+//    }
+//  }
+  
+  for (vector<Operation*>::iterator i = mOperations.begin(); i != mOperations.end(); ++i)
   {
     try
     {
-      switch (operation.getType())
+      Operation* operation = *i;
+      
+      if (!operation->run())
       {
-        case OperationTypeResize:
-        {
-          Resize r(operation.getParams());
-
-          if (hasValidExif)
-          {
-            r.setExifData(&exivImage->exifData());
-          }
-
-          if (hasValidXmp)
-          {
-            r.setXmpData(&exivImage->xmpData());
-          }
-          
-          if (hasValidIptc)
-          {
-            r.setIptcData(&exivImage->iptcData());
-          }
-
-          if (!r.run(sourceImage))
-          {
-            failed_operations++;
-          }
-          
-          total_operations++;
- 
-          r.Serialize(writer);
-
-          break;
-        }
-        case OperationTypeReadmeta:
-        {
-          Readmeta r(operation.getParams());
-
-          if (hasValidExif)
-          {
-            r.setExifData(&exivImage->exifData());
-          }
-
-          if (hasValidXmp)
-          {
-            r.setXmpData(&exivImage->xmpData());
-          }
-          
-          if (hasValidIptc)
-          {
-            r.setIptcData(&exivImage->iptcData());
-          }
-
-          if (!r.run())
-          {
-            failed_operations++;
-          }
-          
-          total_operations++;
-          
-          r.Serialize(writer);
-
-          break;
-        }
-        default:
-          // This should never actually occur since an invalid
-          // operation would throw an exception earlier...
-          //cout << "Unknown operation... skipping" << endl;
-          break;
+        failed_operations++;
       }
+      
+      total_operations++;
+
+      operation->serialize(writer);
+      
+      delete operation;
     }
     catch (std::exception& e)
     {
@@ -455,6 +471,31 @@ void Arion::run(const string& inputJson)
       Utils::exitWithError(e.what());
     }
   }
+  
+//  BOOST_FOREACH (Operation* operation, mOperations)
+//  {
+//    try
+//    {
+//      
+//      
+//      if (!operation->run())
+//      {
+//        failed_operations++;
+//      }
+//      
+//      total_operations++;
+// 
+//      operation->Serialize(writer);
+//      
+//      delete operation;
+//      
+//    }
+//    catch (std::exception& e)
+//    {
+//      // Break out of the standard output and exit with error
+//      Utils::exitWithError(e.what());
+//    }
+//  }
   
   writer.EndArray();
 

@@ -48,6 +48,9 @@
 // Boost
 #include <boost/foreach.hpp>
 
+// Local
+#include "models/operation.hpp"
+
 enum
 {
   ReadmetaStatusDidNotTry = 0,
@@ -58,93 +61,25 @@ enum
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Readmeta
+class Readmeta : public Operation
 {
   public:
 
     Readmeta(const boost::property_tree::ptree& params);
+    virtual ~Readmeta();
 
-    bool run();
+    virtual bool run();
     
     bool getStatus() const;
     
     void outputStatus(std::ostream& s, unsigned indent) const;
     
-    void setExifData(const Exiv2::ExifData* exifData);
-    void setXmpData(const Exiv2::XmpData* xmpData);
-    void setIptcData(const Exiv2::IptcData* iptcData);
+  #ifdef JSON_PRETTY_OUTPUT
+    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+  #else
+    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
+  #endif
     
-    // Defined in header due to: 
-    // http://stackoverflow.com/questions/4011679/seperating-template-class-into-multiple-files-yields-linking-issues
-    template <typename Writer>
-    void Serialize(Writer& writer) const
-    {
-      
-      writer.StartObject();
-
-      // Result
-      writer.String("type");
-      writer.String("readmeta");
-
-      if (mStatus == ReadmetaStatusSuccess)
-      {
-        // Result
-        writer.String("result");
-        writer.Bool(true);
-
-        // Time
-        writer.String("time");
-        writer.Double(mOperationTime);
-
-        writer.String("model_released");
-        writer.Bool(mModelReleased);
-
-        writer.String("property_released");
-        writer.Bool(mPropertyReleased);
-
-        writer.String("copyright");
-        writer.String(mCopyright);
-
-        writer.String("city");
-        writer.String(mCity);
-
-        writer.String("province_state");
-        writer.String(mProvinceState);
-
-        writer.String("country_name");
-        writer.String(mCountryName);
-
-        writer.String("country_code");
-        writer.String(mCountryCode);
-
-        writer.String("caption");
-        writer.String(mCaption);
-
-        writer.String("keywords");
-        writer.StartArray();
-        BOOST_FOREACH (const std::string& keyword, mKeywords)
-        {
-          writer.String(keyword);
-        }
-        writer.EndArray();
-      }
-      else
-      {
-        // Result
-        writer.String("result");
-        writer.Bool(false);
-
-        // Error message
-        if ((mStatus == ReadmetaStatusError) &&  !mErrorMessage.empty())
-        {
-          writer.String("error_message");
-          writer.String(mErrorMessage);
-        }
-      }
-
-      writer.EndObject();
-    }
-
   private:
     
     //-------------------
@@ -180,11 +115,6 @@ class Readmeta
     std::string mCountryCode;
 
     double mOperationTime;
-
-    const Exiv2::ExifData* mpExifData;
-    const Exiv2::XmpData* mpXmpData;
-    const Exiv2::IptcData* mpIptcData;
-
 };
 
 #endif // READMETA_HPP

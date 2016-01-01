@@ -37,13 +37,16 @@
 #include <vector>
 #include <exception>
 
+// Exiv2
+#include <exiv2/exiv2.hpp>
+
+// Boost
 #include <boost/property_tree/ptree.hpp>
 
-enum
-{
-  OperationTypeResize = 0,
-  OperationTypeReadmeta = 1
-};
+// Local Third party
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/prettywriter.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -51,20 +54,32 @@ class Operation
 {
   public:
 
-    Operation(const boost::property_tree::ptree& pt);
-
-    const unsigned getType() const;
+    Operation(const boost::property_tree::ptree& params);
+    virtual ~Operation();
 
     boost::property_tree::ptree getParams() const;
     
-    template <typename Writer>
-    void Serialize(Writer& writer) const;
+    virtual bool run() {};
+    
+    // There is no obvious way to make use of polymorphism for the writer object
+    // so we rely on the preprocessor
+  #ifdef JSON_PRETTY_OUTPUT
+    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const {};
+  #else
+    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const {};
+  #endif
 
-  private:
+    void setExifData(const Exiv2::ExifData* exifData);
+    void setXmpData(const Exiv2::XmpData* xmpData);
+    void setIptcData(const Exiv2::IptcData* iptcData);
 
-    int mType;
+  protected:
 
     boost::property_tree::ptree mParams;
+
+    const Exiv2::ExifData* mpExifData;
+    const Exiv2::XmpData* mpXmpData;
+    const Exiv2::IptcData* mpIptcData;
 
 };
 

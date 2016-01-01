@@ -46,6 +46,9 @@
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
+// Local
+#include "models/operation.hpp"
+
 enum
 {
   ResizeTypeFixedWidth = 0,
@@ -63,70 +66,25 @@ enum
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Resize
+class Resize : public Operation
 {
   public:
 
-    Resize(const boost::property_tree::ptree& params);
+    Resize(const boost::property_tree::ptree& params, cv::Mat& image);
+    virtual ~Resize();
 
-    bool run(cv::Mat& image);
+    virtual bool run();
 
     std::string getOutputFile() const;
     bool getPreserveMeta() const;
     bool getStatus() const;
     void outputStatus(std::ostream& s, unsigned indent) const;
-    void setExifData(const Exiv2::ExifData* exifData);
-    void setXmpData(const Exiv2::XmpData* xmpData);
-    void setIptcData(const Exiv2::IptcData* iptcData);
     
-    // Defined in header due to: 
-    // http://stackoverflow.com/questions/4011679/seperating-template-class-into-multiple-files-yields-linking-issues
-    template <typename Writer>
-    void Serialize(Writer& writer) const
-    {
-      writer.StartObject();
-  
-      // Result
-      writer.String("type");
-      writer.String("resize");
-
-      // Output URL
-      writer.String("output_url");
-      writer.String("file://" + mOutputFile);
-
-      if (mStatus == ResizeStatusSuccess)
-      {
-        // Result
-        writer.String("result");
-        writer.Bool(true);
-
-        // Time
-        writer.String("time");
-        writer.Double(mOperationTime);
-
-        // Dimensions
-        writer.String("output_height");
-        writer.Uint(mImageResized.rows);
-        writer.String("output_width");
-        writer.Uint(mImageResized.cols);
-
-      }
-      else
-      {
-        // Result
-        writer.String("result");
-        writer.Bool(false);
-
-        // Error message
-        if ((mStatus == ResizeStatusError) &&  !mErrorMessage.empty())
-        {
-          writer.String("error_message");
-          writer.String(mErrorMessage);
-        }
-      }
-
-      writer.EndObject();
-    }
+  #ifdef JSON_PRETTY_OUTPUT
+    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+  #else
+    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
+  #endif
 
   private:
 
@@ -151,13 +109,10 @@ class Resize
 
     cv::Mat mImageResized;
     cv::Mat mImageResizedFinal;
+    cv::Mat& mImage;
 
     int mStatus;
     std::string mErrorMessage;
-
-    const Exiv2::ExifData* mpExifData;
-    const Exiv2::XmpData* mpXmpData;
-    const Exiv2::IptcData* mpIptcData;
 
 };
 

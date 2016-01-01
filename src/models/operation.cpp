@@ -45,48 +45,21 @@
 using boost::property_tree::ptree;
 using namespace std;
 
-class OperationTypeException: public std::exception
-{
-  virtual const char* what() const throw()
-  {
-    return "Invalid operation type";
-  }
-} OperationTypeException;
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::Operation(const ptree& pt) : mType()
+Operation::Operation(const ptree& params) :     
+    mpExifData(0),
+    mpXmpData(0),
+    mpIptcData(0)
 {
-  // "type" is not optional, throws exception if missing or unknown
-  string type = pt.get<std::string>("type");
-
-  if (type == "resize")
-  {
-    mType = OperationTypeResize;
-  }
-  else if (type == "readmeta")
-  {
-    mType = OperationTypeReadmeta;
-  }
-  else
-  {
-    // Type not supported...
-    throw OperationTypeException;
-  }
-
-  // Get all of the params for this operation
-  // "params" is not optional, throws execption if missing
-  const ptree& paramsNode = pt.get_child("params");
-
   // Make a copy from the const reference
-  mParams = ptree(paramsNode);
+  mParams = ptree(params);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-const unsigned Operation::getType() const
+Operation::~Operation()
 {
-  return mType;
 }
 
 //------------------------------------------------------------------------------
@@ -95,3 +68,25 @@ ptree Operation::getParams() const
 {
   return mParams;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setExifData(const Exiv2::ExifData* exifData)
+{
+  mpExifData = exifData;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setXmpData(const Exiv2::XmpData* xmpData)
+{
+  mpXmpData = xmpData;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setIptcData(const Exiv2::IptcData* iptcData)
+{
+  mpIptcData = iptcData;
+}
+

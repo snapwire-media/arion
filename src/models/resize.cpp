@@ -60,7 +60,9 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Resize::Resize(const ptree& params) :
+Resize::Resize(const ptree& params, Mat& image) :
+    Operation(params),
+    mImage(image),
     mType(ResizeTypeFixedWidth),
     mPreserveMeta(false),
     mQuality(95),
@@ -69,14 +71,10 @@ Resize::Resize(const ptree& params) :
     mSharpenRadius(0.0),
     mStatus(ResizeStatusDidNotTry),
     mErrorMessage(),
-    mpExifData(0),
-    mpXmpData(0),
-    mpIptcData(0),
     mWatermarkFile(),
     mWatermarkAmount(0.05),
     mOperationTime(0)
 {
-
   try
   {
     string type = params.get<std::string>("type");
@@ -217,6 +215,12 @@ Resize::Resize(const ptree& params) :
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+Resize::~Resize()
+{
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 std::string Resize::getOutputFile() const
 {
   return mOutputFile;
@@ -238,30 +242,8 @@ bool Resize::getStatus() const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Resize::setExifData(const Exiv2::ExifData* exifData)
+bool Resize::run()
 {
-  mpExifData = exifData;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Resize::setXmpData(const Exiv2::XmpData* xmpData)
-{
-  mpXmpData = xmpData;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Resize::setIptcData(const Exiv2::IptcData* iptcData)
-{
-  mpIptcData = iptcData;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-bool Resize::run(Mat& image)
-{
-
   boost::timer::cpu_timer timer;
 
   mStatus = ResizeStatusPending;
@@ -276,8 +258,8 @@ bool Resize::run(Mat& image)
     int resizeHeight;
     int resizeWidth;
 
-    int sourceHeight = image.rows;
-    int sourceWidth = image.cols;
+    int sourceHeight = mImage.rows;
+    int sourceWidth = mImage.cols;
 
     double aspect = (double)sourceHeight / (double)sourceWidth;
 
@@ -299,21 +281,21 @@ bool Resize::run(Mat& image)
         if (sourceHeight == sourceWidth)
         {
           // Easy... the image is already square
-          imageToResize = image;
+          imageToResize = mImage;
         }
         else if (sourceHeight > sourceWidth)
         {
           int y = round(((double)sourceHeight - (double)sourceWidth)/2.0);
           Rect cropRegion(0, y, sourceWidth, sourceWidth);
 
-          imageToResize = image(cropRegion);
+          imageToResize = mImage(cropRegion);
         }
         else // sourceWidth < sourceHeight
         {
           int x = round(((double)sourceWidth - (double)sourceHeight)/2.0);
           Rect cropRegion(x, 0, sourceHeight, sourceHeight);
 
-          imageToResize = image(cropRegion);
+          imageToResize = mImage(cropRegion);
         }
 
         break;
@@ -334,7 +316,7 @@ bool Resize::run(Mat& image)
           resizeHeight = getAspectHeight(resizeWidth, aspect);
         }
 
-        imageToResize = image;
+        imageToResize = mImage;
         size = Size(resizeWidth, resizeHeight);
 
         break;
@@ -356,7 +338,7 @@ bool Resize::run(Mat& image)
           resizeWidth = getAspectWidth(resizeHeight, aspect);
         }
 
-        imageToResize = image;
+        imageToResize = mImage;
         size = Size(resizeWidth, resizeHeight);
 
         break;
@@ -498,9 +480,59 @@ bool Resize::run(Mat& image)
 
   mOperationTime = seconds.count();
 
-
   return true;
+}
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+#ifdef JSON_PRETTY_OUTPUT
+void Resize::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
+#else
+void Resize::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+#endif
+{
+  writer.StartObject();
+
+  // Result
+  writer.String("type");
+  writer.String("resize");
+
+  // Output URL
+  writer.String("output_url");
+  writer.String("file://" + mOutputFile);
+
+  if (mStatus == ResizeStatusSuccess)
+  {
+    // Result
+    writer.String("result");
+    writer.Bool(true);
+
+    // Time
+    writer.String("time");
+    writer.Double(mOperationTime);
+
+    // Dimensions
+    writer.String("output_height");
+    writer.Uint(mImageResized.rows);
+    writer.String("output_width");
+    writer.Uint(mImageResized.cols);
+
+  }
+  else
+  {
+    // Result
+    writer.String("result");
+    writer.Bool(false);
+
+    // Error message
+    if ((mStatus == ResizeStatusError) &&  !mErrorMessage.empty())
+    {
+      writer.String("error_message");
+      writer.String(mErrorMessage);
+    }
+  }
+
+  writer.EndObject();
 }
 
 //------------------------------------------------------------------------------

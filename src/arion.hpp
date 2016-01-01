@@ -46,6 +46,9 @@
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
+// Local
+#include "models/operation.hpp"
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 class Arion
@@ -58,7 +61,21 @@ class Arion
     
   private:
 
+    bool mCorrectOrientation;
+    
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
+    void parseOperations(const boost::property_tree::ptree& pt);
+    void extractMetadata(const std::string& imageFilePath);
+    
+    std::vector<Operation*> mOperations;
+    
+    const Exiv2::ExifData* mpExifData;
+    const Exiv2::XmpData* mpXmpData;
+    const Exiv2::IptcData* mpIptcData;
+    
+    cv::Mat mSourceImage;
+    
+    Exiv2::Image::AutoPtr mExivImage;
 
 };
 

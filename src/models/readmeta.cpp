@@ -55,6 +55,11 @@
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
+// Local Third party
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/prettywriter.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
+
 using boost::property_tree::ptree;
 using namespace cv;
 using namespace std;
@@ -68,9 +73,7 @@ using namespace boost::algorithm;
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 Readmeta::Readmeta(const ptree& params) :
-    mpExifData(0),
-    mpXmpData(0),
-    mpIptcData(0),
+    Operation(params),
     mPropertyReleased(false),
     mModelReleased(false),
     mReadInfo(false),
@@ -89,30 +92,15 @@ Readmeta::Readmeta(const ptree& params) :
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+Readmeta::~Readmeta()
+{
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool Readmeta::getStatus() const
 {
   return mStatus;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Readmeta::setExifData(const Exiv2::ExifData* exifData)
-{
-  mpExifData = exifData;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Readmeta::setXmpData(const Exiv2::XmpData* xmpData)
-{
-  mpXmpData = xmpData;
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Readmeta::setIptcData(const Exiv2::IptcData* iptcData)
-{
-  mpIptcData = iptcData;
 }
 
 //------------------------------------------------------------------------------
@@ -138,7 +126,6 @@ bool Readmeta::run()
 }
 
 //------------------------------------------------------------------------------
-// Sets 
 //------------------------------------------------------------------------------
 void Readmeta::readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
                                    const string& key,
@@ -229,8 +216,80 @@ void Readmeta::readIptc()
       }
     }
   }
-  
-//Xmp.photoshop.City                           XmpText     3  Bol
-//Xmp.photoshop.State                          XmpText    30  Splitsko-dalmatinska županija
-//Xmp.photoshop.Country                        XmpText     7  Croatia
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+#ifdef JSON_PRETTY_OUTPUT
+void Readmeta::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
+#else
+void Readmeta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+#endif
+{
+
+  writer.StartObject();
+
+  // Result
+  writer.String("type");
+  writer.String("readmeta");
+
+  if (mStatus == ReadmetaStatusSuccess)
+  {
+    // Result
+    writer.String("result");
+    writer.Bool(true);
+
+    // Time
+    writer.String("time");
+    writer.Double(mOperationTime);
+
+    writer.String("model_released");
+    writer.Bool(mModelReleased);
+
+    writer.String("property_released");
+    writer.Bool(mPropertyReleased);
+
+    writer.String("copyright");
+    writer.String(mCopyright);
+
+    writer.String("city");
+    writer.String(mCity);
+
+    writer.String("province_state");
+    writer.String(mProvinceState);
+
+    writer.String("country_name");
+    writer.String(mCountryName);
+
+    writer.String("country_code");
+    writer.String(mCountryCode);
+
+    writer.String("caption");
+    writer.String(mCaption);
+
+    writer.String("keywords");
+    writer.StartArray();
+    
+    BOOST_FOREACH (const std::string& keyword, mKeywords)
+    {
+      writer.String(keyword);
+    }
+    
+    writer.EndArray();
+  }
+  else
+  {
+    // Result
+    writer.String("result");
+    writer.Bool(false);
+
+    // Error message
+    if ((mStatus == ReadmetaStatusError) &&  !mErrorMessage.empty())
+    {
+      writer.String("error_message");
+      writer.String(mErrorMessage);
+    }
+  }
+
+  writer.EndObject();
 }
