@@ -31,7 +31,7 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/readmeta.hpp"
+#include "models/read_meta.hpp"
 #include "utils/utils.hpp"
 
 #include <iostream>
@@ -72,7 +72,7 @@ using namespace boost::algorithm;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Readmeta::Readmeta(const ptree& params) :
+Read_meta::Read_meta(const ptree& params) :
     Operation(params),
     mPropertyReleased(false),
     mModelReleased(false),
@@ -92,20 +92,20 @@ Readmeta::Readmeta(const ptree& params) :
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Readmeta::~Readmeta()
+Read_meta::~Read_meta()
 {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Readmeta::getStatus() const
+bool Read_meta::getStatus() const
 {
   return mStatus;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Readmeta::run()
+bool Read_meta::run()
 {
 
   boost::timer::cpu_timer timer;
@@ -127,7 +127,7 @@ bool Readmeta::run()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Readmeta::readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
+void Read_meta::readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
                                    const string& key,
                                    string* value)
 {
@@ -144,7 +144,7 @@ void Readmeta::readIptcStringByKey(Exiv2::IptcData::const_iterator md,
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Readmeta::readIptc()
+void Read_meta::readIptc()
 {
   if (mpIptcData == 0)
   {
@@ -221,9 +221,9 @@ void Readmeta::readIptc()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #ifdef JSON_PRETTY_OUTPUT
-void Readmeta::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
+void Read_meta::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
 #else
-void Readmeta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
 #endif
 {
 
@@ -231,7 +231,7 @@ void Readmeta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) con
 
   // Result
   writer.String("type");
-  writer.String("readmeta");
+  writer.String("read_meta");
 
   if (mStatus == ReadmetaStatusSuccess)
   {

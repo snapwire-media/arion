@@ -42,7 +42,7 @@
 // Local
 #include "models/operation.hpp"
 #include "models/resize.hpp"
-#include "models/readmeta.hpp"
+#include "models/read_meta.hpp"
 #include "utils/utils.hpp"
 #include "arion.hpp"
 
@@ -212,9 +212,9 @@ void Arion::parseOperations(const ptree& pt)
       {
         operation = new Resize(paramsTree, mSourceImage);
       }
-      else if (type == "readmeta")
+      else if (type == "read_meta")
       {
-        operation = new Readmeta(paramsTree);
+        operation = new Read_meta(paramsTree);
       }
       else
       {

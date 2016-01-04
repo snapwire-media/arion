@@ -21,7 +21,7 @@ ADD_EXECUTABLE( arion main.cpp
                       arion.cpp
                       models/operation.cpp 
                       models/resize.cpp
-                      models/readmeta.cpp
+                      models/read_meta.cpp
                       utils/utils.cpp )
 
 TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )

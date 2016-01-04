@@ -43,7 +43,7 @@
             }
         },
         {
-          "type": "readmeta",
+          "type": "read_meta",
             "params": {
                 "info": true
             }

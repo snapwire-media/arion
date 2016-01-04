@@ -1,5 +1,5 @@
-#ifndef READMETA_HPP
-#define READMETA_HPP
+#ifndef READ_META_HPP
+#define READ_META_HPP
 
 //------------------------------------------------------------------------------
 //
@@ -61,12 +61,12 @@ enum
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Readmeta : public Operation
+class Read_meta : public Operation
 {
   public:
 
-    Readmeta(const boost::property_tree::ptree& params);
-    virtual ~Readmeta();
+    Read_meta(const boost::property_tree::ptree& params);
+    virtual ~Read_meta();
 
     virtual bool run();
     
@@ -117,4 +117,4 @@ class Readmeta : public Operation
     double mOperationTime;
 };
 
-#endif // READMETA_HPP
+#endif // READ_META_HPP
