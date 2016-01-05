@@ -191,11 +191,10 @@ void Arion::overrideMeta(const ptree& pt)
   
   if (!optionalTree)
   {
-    // child node is missing
+    // The write_meta object is no present, so skip this step...
     return;
   }
-  
-  
+
   const ptree& writemetaTree = optionalTree.get();
   
   if (!mpIptcData)
@@ -256,6 +255,40 @@ void Arion::overrideMeta(const ptree& pt)
   catch (boost::exception& e)
   {
     // Optional
+  }
+  
+  //-------------------------------------
+  //  Add keywords if any are included
+  //-------------------------------------
+  boost::optional< const ptree& > keywordTreeOptional = writemetaTree.get_child_optional("keywords");
+  
+  if (keywordTreeOptional)
+  {
+    Exiv2::IptcKey key = Exiv2::IptcKey("Iptc.Application2.Keywords");
+    
+    Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
+    
+    if (pos != mpIptcData->end())
+    {
+      mpIptcData->erase(pos);
+    }
+    
+    const ptree& keywordTree = keywordTreeOptional.get();
+    
+    BOOST_FOREACH (const ptree::value_type& node, keywordTree)
+    {
+      try
+      {
+        Exiv2::Value::AutoPtr v = Exiv2::Value::create(Exiv2::string);
+        v->read(node.second.get_value<std::string>());
+        
+        mpIptcData->add(key, v.get());
+      }
+      catch (boost::exception& e)
+      {
+        // Ignore issues
+      }
+    }
   }
 }
 
