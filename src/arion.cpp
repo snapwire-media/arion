@@ -64,6 +64,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/timer/timer.hpp>
+#include <boost/optional/optional.hpp>
 
 // OpenCV
 #include <opencv2/imgproc.hpp>
@@ -183,6 +184,82 @@ bool Arion::handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image)
 }
 
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::overrideMeta(const ptree& pt)
+{
+  boost::optional< const ptree& > optionalTree = pt.get_child_optional("write_meta");
+  
+  if (!optionalTree)
+  {
+    // child node is missing
+    return;
+  }
+  
+  
+  const ptree& writemetaTree = optionalTree.get();
+  
+  if (!mpIptcData)
+  {
+    mpIptcData = new Exiv2::IptcData();
+  }
+  
+  try
+  {
+    string caption = writemetaTree.get<string>("caption");
+    
+    (*mpIptcData)["Iptc.Application2.Caption"] = caption;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string copyright = writemetaTree.get<string>("copyright");
+    
+    (*mpIptcData)["Iptc.Application2.Copyright"] = copyright;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string province_state = writemetaTree.get<string>("province_state");
+    
+    (*mpIptcData)["Iptc.Application2.ProvinceState"] = province_state;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string city = writemetaTree.get<string>("city");
+    
+    (*mpIptcData)["Iptc.Application2.City"] = city;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string country_name = writemetaTree.get<string>("country_name");
+    
+    (*mpIptcData)["Iptc.Application2.CountryName"] = country_name;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+}
+
+//------------------------------------------------------------------------------
 // Given each input operation do the following:
 //  1. Get its type and parameters
 //  2. Create the corresponding operation object and place it in the queue
@@ -210,10 +287,12 @@ void Arion::parseOperations(const ptree& pt)
 
       if (type == "resize")
       {
+        // This is a resize operation so create the corresponding object
         operation = new Resize(paramsTree, mSourceImage);
       }
       else if (type == "read_meta")
       {
+        // This is a resize operation so create the corresponding object
         operation = new Read_meta(paramsTree);
       }
       else
@@ -320,6 +399,40 @@ void Arion::extractMetadata(const string& imageFilePath)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Arion::extractImage(const string& imageFilePath)
+{
+  try
+  {
+    mSourceImage = cv::imread(imageFilePath);
+
+    if (mSourceImage.empty())
+    {
+      Utils::exitWithError("Could not read source image");
+    }
+
+    //--------------------------------
+    //      Compute Image MD5
+    //--------------------------------
+
+    // We need this until the very end, so memory deallocation will be handled
+    // when the program exits and the heap is deallocated
+    mpPixelMd5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
+
+  }
+  catch (boost::exception& e)
+  {
+    stringstream ss;
+
+#if DEBUG
+    ss << "Error reading image " << diagnostic_information(e);
+#endif
+
+    Utils::exitWithError(ss.str());
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Arion::run(const string& inputJson)
 {
   boost::timer::cpu_timer timer;
@@ -334,67 +447,43 @@ void Arion::run(const string& inputJson)
   boost::property_tree::read_json(ss, inputTree);
 
   string imageFilePath;
-  
-  char* md5;
 
+  // We always operate on a single input image
+  string imageUrl = inputTree.get<std::string>("input_url");
+
+  int pos = imageUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    imageFilePath = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
+  }
+  else
+  {
+    Utils::exitWithError("Unsupported input source. Use 'file://' prefix");
+  }
+  
+  //--------------------------------
+  //   Correct orientation flag
+  //--------------------------------
   try
   {
-    //--------------------------------
-    //         Extract Image
-    //--------------------------------
-    // We always operate on a single input image
-    string imageUrl = inputTree.get<std::string>("input_url");
-
-    int pos = imageUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      imageFilePath = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
-    }
-    else
-    {
-      Utils::exitWithError("Unsupported input source. Use 'file://' prefix");
-    }
-
-    mSourceImage = cv::imread(imageFilePath);
-
-    if (mSourceImage.empty())
-    {
-      Utils::exitWithError("Could not read source image");
-    }
-
-    //--------------------------------
-    //      Compute Image MD5
-    //--------------------------------
-
-    md5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
-
-    //--------------------------------
-    //   Correct orientation flag
-    //--------------------------------
-    try
-    {
-      mCorrectOrientation = inputTree.get<bool>("correct_rotation");
-    }
-    catch (boost::exception& e)
-    {
-      // Not required
-    }
+    mCorrectOrientation = inputTree.get<bool>("correct_rotation");
   }
   catch (boost::exception& e)
   {
-    stringstream ss;
-
-#if DEBUG
-    ss << "Error reading image " << diagnostic_information(e);
-#endif
-
-    Utils::exitWithError(ss.str());
+    // Not required
   }
+
+  //----------------------------------
+  //        Preprocessing
+  //----------------------------------
+  extractImage(imageFilePath);
   
   extractMetadata(imageFilePath);
 
   parseOperations(inputTree);
+  
+  overrideMeta(inputTree);
   
   //----------------------------------
   //       Execute operations
@@ -418,7 +507,7 @@ void Arion::run(const string& inputJson)
   
   // md5 of pixels
   writer.String("md5");
-  writer.String(md5);
+  writer.String(mpPixelMd5);
   
   int total_operations = 0;
   int failed_operations = 0;

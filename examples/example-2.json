@@ -1,6 +1,14 @@
 {
     "input_url": "file://../examples/images/image-2.jpg",
     "correct_rotation":true,
+    "write_meta":
+    {
+      "caption": "Abstract sculpture of birds",
+      "copyright": "Paul Filitchkin",
+      "city": "Corvallis",
+      "province_state": "Oregon",
+      "country_name": "United States"
+    },
     "operations": [
         {
             "type": "resize",
@@ -60,7 +68,7 @@
                 "width": 800,
                 "height": 1000,
                 "type": "width",
-                "preserve_meta": false,
+                "preserve_meta": true,
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.6,
                 "quality": 80,

@@ -1,6 +1,5 @@
 {
-    "input_url": "file://../examples/images/image-3.jpg",
-    "correct_rotation":true,
+    "input_url": "file://../examples/image-2-800-watermark.jpg",
     "operations": [
         {
             "type": "read_meta",

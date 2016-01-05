@@ -111,6 +111,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   }
   catch (boost::exception& e)
   {
+    // TODO: better error handling
     cerr << "ERROR: Could not read the resize operation height" << endl;
     return;
   }
@@ -121,6 +122,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   }
   catch (boost::exception& e)
   {
+    // TODO: better error handling
     cerr << "ERROR: Could not read the resize operation width" << endl;
     return;
   }
@@ -183,6 +185,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   }
   catch (boost::exception& e)
   {
+    // TODO: better error handling
     cerr << "ERROR: Could not read the resize operation output url" << endl;
     return;
   }

@@ -65,17 +65,21 @@ class Arion
     
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
     void parseOperations(const boost::property_tree::ptree& pt);
+    void extractImage(const std::string& imageFilePath);
     void extractMetadata(const std::string& imageFilePath);
+    void overrideMeta(const boost::property_tree::ptree& pt);
     
     std::vector<Operation*> mOperations;
     
-    const Exiv2::ExifData* mpExifData;
-    const Exiv2::XmpData* mpXmpData;
-    const Exiv2::IptcData* mpIptcData;
+    Exiv2::ExifData* mpExifData;
+    Exiv2::XmpData* mpXmpData;
+    Exiv2::IptcData* mpIptcData;
     
     cv::Mat mSourceImage;
     
     Exiv2::Image::AutoPtr mExivImage;
+    
+    char* mpPixelMd5;
 
 };
 
