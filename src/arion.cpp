@@ -8,7 +8,7 @@
 //  arion.cpp
 // ------------
 //
-// Copyright (c) 2015 Paul Filitchkin, Snapwire
+// Copyright (c) 2015-2016 Paul Filitchkin, Snapwire
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -251,6 +251,17 @@ void Arion::overrideMeta(const ptree& pt)
     string country_name = writemetaTree.get<string>("country_name");
     
     (*mpIptcData)["Iptc.Application2.CountryName"] = country_name;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string special_instructions = writemetaTree.get<string>("instructions");
+    
+    (*mpIptcData)["Iptc.Application2.SpecialInstructions"] = special_instructions;
   }
   catch (boost::exception& e)
   {

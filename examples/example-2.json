@@ -8,7 +8,8 @@
       "city": "Corvallis",
       "province_state": "Oregon",
       "country_name": "United States",
-      "keywords": ["sculpture","abstract","outdoors","metal","birds"]
+      "keywords": ["sculpture","abstract","outdoors","metal","birds"],
+      "instructions": "Property Released (PR)"
     },
     "operations": [
         {
