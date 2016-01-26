@@ -165,6 +165,7 @@ void Read_meta::readIptc()
   const string iptcProvinceStateKey = "Iptc.Application2.ProvinceState";
   const string iptcCountryNameKey   = "Iptc.Application2.CountryName";
   const string iptcCountryCodeKey   = "Iptc.Application2.CountryCode";
+  const string iptcSubjectKey       = "Iptc.Application2.Subject";
 
   const Exiv2::IptcData &iptcData = *mpIptcData;
   
@@ -179,6 +180,7 @@ void Read_meta::readIptc()
     readIptcStringByKey(md, iptcProvinceStateKey, &mProvinceState);
     readIptcStringByKey(md, iptcCountryNameKey,   &mCountryName);
     readIptcStringByKey(md, iptcCountryCodeKey,   &mCountryCode);
+    readIptcStringByKey(md, iptcSubjectKey,       &mSubject);
     
     if (md->key() == iptcKeywordsKey)
     {
@@ -192,11 +194,11 @@ void Read_meta::readIptc()
 
     if (md->key() == iptcInstructionsKey)
     {
-      string instructions = md->toString();
+      mInstructions = md->toString();
       
-      if (!instructions.empty())
+      if (!mInstructions.empty())
       {
-        string instructions_lower = to_lower_copy(instructions);
+        string instructions_lower = to_lower_copy(mInstructions);
         
         std::size_t found;
         
@@ -242,12 +244,18 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
     // Time
     writer.String("time");
     writer.Double(mOperationTime);
-
+    
     writer.String("model_released");
     writer.Bool(mModelReleased);
 
     writer.String("property_released");
     writer.Bool(mPropertyReleased);
+    
+    writer.String("special_instructions");
+    writer.String(mInstructions);
+    
+    writer.String("subject");
+    writer.String(mSubject);
 
     writer.String("copyright");
     writer.String(mCopyright);

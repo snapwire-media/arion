@@ -107,6 +107,8 @@ class Read_meta : public Operation
     std::string mCopyright;
     bool mModelReleased;
     bool mPropertyReleased;
+    std::string mInstructions;
+    std::string mSubject;
     
     // Location
     std::string mCity;

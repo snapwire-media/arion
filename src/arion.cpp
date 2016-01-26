@@ -259,6 +259,28 @@ void Arion::overrideMeta(const ptree& pt)
   
   try
   {
+    string country_code = writemetaTree.get<string>("country_code");
+    
+    (*mpIptcData)["Iptc.Application2.CountryCode"] = country_code;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
+    string subject = writemetaTree.get<string>("subject");
+    
+    (*mpIptcData)["Iptc.Application2.Subject"] = subject;
+  }
+  catch (boost::exception& e)
+  {
+    // Optional
+  }
+  
+  try
+  {
     string special_instructions = writemetaTree.get<string>("instructions");
     
     (*mpIptcData)["Iptc.Application2.SpecialInstructions"] = special_instructions;
