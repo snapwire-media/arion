@@ -43,6 +43,7 @@
 #include "models/operation.hpp"
 #include "models/resize.hpp"
 #include "models/read_meta.hpp"
+#include "models/copy.hpp"
 #include "utils/utils.hpp"
 #include "arion.hpp"
 
@@ -90,7 +91,8 @@ Arion::Arion() :
   mCorrectOrientation(false),
   mpExifData(0),
   mpXmpData(0),
-  mpIptcData(0)
+  mpIptcData(0),
+  mInputFile()
 {
 }
 
@@ -361,6 +363,11 @@ void Arion::parseOperations(const ptree& pt)
         // This is a resize operation so create the corresponding object
         operation = new Read_meta(paramsTree);
       }
+      else if (type == "copy")
+      {
+        // This is a copy operation so create the corresponding object
+        operation = new Copy(paramsTree, mInputFile);
+      }
       else
       {
         stringstream ss;
@@ -512,8 +519,6 @@ void Arion::run(const string& inputJson)
 
   boost::property_tree::read_json(ss, inputTree);
 
-  string imageFilePath;
-
   // We always operate on a single input image
   string imageUrl = inputTree.get<std::string>("input_url");
 
@@ -521,7 +526,7 @@ void Arion::run(const string& inputJson)
 
   if (pos != string::npos)
   {
-    imageFilePath = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
+    mInputFile = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
   }
   else
   {
@@ -543,9 +548,9 @@ void Arion::run(const string& inputJson)
   //----------------------------------
   //        Preprocessing
   //----------------------------------
-  extractImage(imageFilePath);
+  extractImage(mInputFile);
   
-  extractMetadata(imageFilePath);
+  extractMetadata(mInputFile);
 
   parseOperations(inputTree);
   

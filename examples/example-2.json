@@ -22,7 +22,7 @@
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.5,
                 "quality": 80,
-                "output_url": "file://../examples/image-2-150.jpg"
+                "output_url": "file://../examples/image-2-150-height.jpg"
             }
         },
         {
@@ -41,27 +41,14 @@
         {
             "type": "resize",
             "params": {
-                "width": 300,
-                "height": 1000,
-                "type": "width",
-                "preserve_meta": false,
-                "sharpen_amount": 160,
-                "sharpen_radius": 0.6,
-                "quality": 85,
-                "output_url": "file://../examples/image-2-300.jpg"
-            }
-        },
-        {
-            "type": "resize",
-            "params": {
-                "width": 300,
+                "width": 1000,
                 "height": 300,
-                "type": "square",
+                "type": "height",
                 "preserve_meta": false,
                 "sharpen_amount": 160,
                 "sharpen_radius": 0.6,
                 "quality": 85,
-                "output_url": "file://../examples/image-2-square.jpg"
+                "output_url": "file://../examples/image-2-300-height.jpg"
             }
         },
         {
@@ -77,6 +64,12 @@
                 "watermark_url":"file://../examples/images/watermark.png",
                 "watermark_amount": 0.06,
                 "output_url": "file://../examples/image-2-800-watermark.jpg"
+            }
+        },
+        {
+            "type": "copy",
+            "params": {
+                "output_url": "file://../examples/image-2-copy.jpg"
             }
         }
     ]

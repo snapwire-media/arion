@@ -1,5 +1,5 @@
-#ifndef ARION_HPP
-#define ARION_HPP
+#ifndef COPY_HPP
+#define COPY_HPP
 
 //------------------------------------------------------------------------------
 //
@@ -49,40 +49,46 @@
 // Local
 #include "models/operation.hpp"
 
+enum
+{
+  CopyStatusDidNotTry = 0,
+  CopyStatusPending = 1,
+  CopyStatusSuccess = 2,
+  CopyStatusError = 3,
+};
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Arion
+class Copy : public Operation
 {
   public:
 
-    Arion();
+    Copy(const boost::property_tree::ptree& params, std::string inputFile);
+    virtual ~Copy();
 
-    void run(const std::string& inputJson);
+    virtual bool run();
+
+    std::string getOutputFile() const;
+    bool getStatus() const;
+    void outputStatus(std::ostream& s, unsigned indent) const;
     
+  #ifdef JSON_PRETTY_OUTPUT
+    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+  #else
+    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
+  #endif
+
   private:
 
-    bool mCorrectOrientation;
+    boost::property_tree::ptree mParams;
+    double mOperationTime;
     
-    bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
-    void parseOperations(const boost::property_tree::ptree& pt);
-    void extractImage(const std::string& imageFilePath);
-    void extractMetadata(const std::string& imageFilePath);
-    void overrideMeta(const boost::property_tree::ptree& pt);
-    
-    std::vector<Operation*> mOperations;
-    
-    Exiv2::ExifData* mpExifData;
-    Exiv2::XmpData* mpXmpData;
-    Exiv2::IptcData* mpIptcData;
-    
-    cv::Mat mSourceImage;
-    
-    Exiv2::Image::AutoPtr mExivImage;
-    
-    char* mpPixelMd5;
+    int mStatus;
+    std::string mErrorMessage;
     
     std::string mInputFile;
+    std::string mOutputFile;
 
 };
 
-#endif // ARION_HPP
+#endif // COPY_HPP
