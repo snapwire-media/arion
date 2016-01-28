@@ -551,10 +551,10 @@ void Arion::run(const string& inputJson)
   extractImage(mInputFile);
   
   extractMetadata(mInputFile);
-
-  parseOperations(inputTree);
   
   overrideMeta(inputTree);
+
+  parseOperations(inputTree);
   
   //----------------------------------
   //       Execute operations
