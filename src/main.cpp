@@ -62,6 +62,8 @@
 using namespace boost::program_options;
 using namespace std;
 
+#define ARION_VERSION "0.1.0"
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void showHelp(options_description& desc)
@@ -78,10 +80,15 @@ int main(int argc, char* argv[])
     positional_options_description p;
     p.add("input", 1);
 
-    options_description desc("Arguments");
+    string description = "Arion v";
+    description += ARION_VERSION;
+    description += "\n\n Arguments";
+    
+    options_description desc(description);
 
     desc.add_options()
         ("help", "Produce this help message")
+        ("version", "Print version")
         ("input", value< string >(), "The input operations to execute in JSON");
 
     variables_map vm;
@@ -96,6 +103,12 @@ int main(int argc, char* argv[])
     {
       showHelp(desc);
       return 1;
+    }
+    
+    if (vm.count("version"))
+    {
+      cout << "{\"version\":\"" << ARION_VERSION << "\"}" << endl;
+      return 0;
     }
 
     if (vm.count("input"))
