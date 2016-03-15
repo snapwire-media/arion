@@ -11,12 +11,6 @@ compiler:
 jdk:
   - oraclejdk7
 
-before_install:
-  - sudo apt-get update
-
-install:
-  - sudo apt-get install cmake wget unzip
-
 before_script:
   - wget http://www.exiv2.org/exiv2-0.25.tar.gz
   - tar -xvf exiv2-0.25.tar.gz
