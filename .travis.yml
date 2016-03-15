@@ -22,16 +22,17 @@ before_script:
   - cd opencv-3.0.0
   - mkdir build
   - cd build
-  - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF ..
+  - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_videoio=OFF ..
   - make -j4
-  - sudo make -j4 install
+  - sudo make install
   - cd ../..
   - wget http://www.exiv2.org/exiv2-0.25.tar.gz
-  - tar -xvf ~/exiv2-0.25.tar.gz
+  - tar -xvf exiv2-0.25.tar.gz
   - cd exiv2-0.25/build
   - cmake ../
   - make -j4
   - sudo make install
+  - cd ../..
 
 script: cd examples && ./examples.sh
 
