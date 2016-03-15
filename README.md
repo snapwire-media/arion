@@ -14,7 +14,7 @@ While there are several tools available to generate thumbnails and read image me
 * **Performance** - use a single command to batch generate thumbnails
 * **Aesthetics** - independently control output sharpening and JPEG quality on each thumbnail
 * **Functionality** - easily apply watermarks and preserve image metadata on thumbnails
-* **Compatability** - call from any framework that executes shell commands (see **[examples](../../wiki/Examples)**)
+* **Compatability** - call from any framework that executes shell commands (see usage examples in **[Python](../../wiki/Examples#python)**, **[Php](../../wiki/Examples#Php)**, **[Ruby](../../wiki/Examples#ruby)**)
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
@@ -61,12 +61,15 @@ sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-de
 
 **Install OpenCV**
 
-Arion requires OpenCV 3.0+ which must be compiled from source.  Download the archive from http://opencv.org/downloads.html
+Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget get version 3.0.0
 
 ```bash
+wget https://github.com/Itseez/opencv/archive/3.0.0.zip
+unzip 3.0.0.zip 
+cd opencv-3.0.0
 mkdir build
 cd build
-cmake ../
+cmake ..
 make
 sudo make install
 ```
