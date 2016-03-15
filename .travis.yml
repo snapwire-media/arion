@@ -8,8 +8,8 @@ branches:
 compiler: 
   - gcc
 
-jdk:
-  - oraclejdk7
+install:
+  - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
 
 before_script:
   - wget http://www.exiv2.org/exiv2-0.25.tar.gz
