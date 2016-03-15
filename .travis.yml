@@ -1,5 +1,6 @@
 language: cpp
 sudo: required
+dist: trusty
 
 branches:
   except:
@@ -17,6 +18,13 @@ install:
   - sudo apt-get install cmake wget unzip
 
 before_script:
+  - wget http://www.exiv2.org/exiv2-0.25.tar.gz
+  - tar -xvf exiv2-0.25.tar.gz
+  - cd exiv2-0.25/build
+  - cmake ../
+  - make -j4
+  - sudo make install
+  - cd ../..
   - wget https://github.com/Itseez/opencv/archive/3.0.0.zip
   - unzip 3.0.0.zip 
   - cd opencv-3.0.0
@@ -26,13 +34,10 @@ before_script:
   - make -j4
   - sudo make install
   - cd ../..
-  - wget http://www.exiv2.org/exiv2-0.25.tar.gz
-  - tar -xvf exiv2-0.25.tar.gz
-  - cd exiv2-0.25/build
-  - cmake ../
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=RELEASE ../src/
   - make -j4
-  - sudo make install
-  - cd ../..
 
 script: cd examples && ./examples.sh
 
