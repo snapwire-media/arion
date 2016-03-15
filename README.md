@@ -1,4 +1,4 @@
-# Arion
+# Arion [![Build Status](https://travis-ci.org/snapwire-media/arion.svg)](https://travis-ci.org/snapwire-media/arion)
 <img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
 Arion extracts metadata and creates beautiful thumbnails from your images. 
 * Batch generate thumbnails with one call
