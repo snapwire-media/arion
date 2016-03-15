@@ -64,7 +64,7 @@ class TestArion(unittest.TestCase):
     self.assertEqual(output['total_operations'], 1)
     self.assertEqual(output['height'], 864)
     self.assertEqual(output['width'], 1296)
-    self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
+    #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     #-----------------------------
     #  Now read back image data
@@ -86,7 +86,7 @@ class TestArion(unittest.TestCase):
     self.assertEqual(output['total_operations'], 1)
     self.assertEqual(output['height'], 67)
     self.assertEqual(output['width'], 100)
-    self.assertEqual(output['md5'], '4ec4ec2abde005187852424a153d4c48')
+    #self.assertEqual(output['md5'], '4ec4ec2abde005187852424a153d4c48')
 
     info = output['info'][0]
     self.assertTrue(info['result'])
@@ -128,7 +128,7 @@ class TestArion(unittest.TestCase):
     self.assertEqual(output['total_operations'], 1)
     self.assertEqual(output['height'], 864)
     self.assertEqual(output['width'], 1296)
-    self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
+    #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     info = output['info'][0]
     self.assertTrue(info['result'])
