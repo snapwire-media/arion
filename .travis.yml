@@ -1,0 +1,38 @@
+language: cpp
+sudo: required
+
+branches:
+  except:
+
+compiler: 
+  - gcc
+
+jdk:
+  - oraclejdk7
+
+before_install:
+  - sudo apt-get update
+
+install:
+  - sudo apt-get install cmake wget unzip
+
+before_script:
+  - wget https://github.com/Itseez/opencv/archive/3.0.0.zip
+  - unzip 3.0.0.zip 
+  - cd opencv-3.0.0
+  - mkdir build
+  - cd build
+  - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF ..
+  - make -j4
+  - sudo make -j4 install
+  - cd ../..
+  - wget http://www.exiv2.org/exiv2-0.25.tar.gz
+  - tar -xvf ~/exiv2-0.25.tar.gz
+  - cd exiv2-0.25/build
+  - cmake ../
+  - make -j4
+  - sudo make install
+
+script: cd examples && ./examples.sh
+
+

@@ -19,6 +19,8 @@ example_1_input=`cat example-1.json`
 
 ../build/arion --input "$example_1_input"
 
+if [ $? -ne 0 ] ; then echo "Failed example 1"; exit 1; fi
+
 echo '------------------------------------------------------------------------------------------'
 echo
 echo '                  Example 2: Running resize operations on vertical image'
@@ -43,6 +45,8 @@ example_2_input=`cat example-2.json`
 
 ../build/arion --input "$example_2_input"
 
+if [ $? -ne 0 ] ; then echo "Failed example 2"; exit 1; fi
+
 echo '------------------------------------------------------------------------------------------'
 echo
 echo '             Example 3: Read back the meta data written by previous command'
@@ -55,4 +59,6 @@ echo
 example_3_input=`cat example-3.json`
 
 ../build/arion --input "$example_3_input"
+
+if [ $? -ne 0 ] ; then echo "Failed example 3"; exit 1; fi
 
