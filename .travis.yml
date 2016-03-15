@@ -24,7 +24,7 @@ before_script:
   - cd opencv-3.0.0
   - mkdir build
   - cd build
-  - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_videoio=OFF ..
+  - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF ..
   - make -j4
   - sudo make install
   - cd ../..
@@ -32,6 +32,7 @@ before_script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=RELEASE ../src/
   - make -j4
+  - cd ..
 
 script: cd examples && ./examples.sh
 
