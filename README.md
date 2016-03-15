@@ -14,7 +14,7 @@ While there are several tools available to generate thumbnails and read image me
 * **Performance** - use a single command to batch generate thumbnails
 * **Aesthetics** - independently control output sharpening and JPEG quality on each thumbnail
 * **Functionality** - easily apply watermarks and preserve image metadata on thumbnails
-* **Compatability** - call from any framework that executes shell commands (see usage examples in **[Python](../../wiki/Examples#python)**, **[Php](../../wiki/Examples#Php)**, **[Ruby](../../wiki/Examples#ruby)**)
+* **Compatability** - call from any framework that executes shell commands (see usage examples in **[Python](../../wiki/Examples#python)**, **[PHP](../../wiki/Examples#php)**, **[Ruby](../../wiki/Examples#ruby)**)
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
