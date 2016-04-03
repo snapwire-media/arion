@@ -10,7 +10,7 @@
                 "type": "width",
                 "preserve_meta": false,
                 "pre_filter": true,
-                "sharpen_amount": 200,
+                "sharpen_amount": 100,
                 "sharpen_radius": 0.5,
                 "quality": 85,
                 "output_url": "file://../examples/image-1-230.jpg"

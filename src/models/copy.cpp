@@ -39,14 +39,11 @@
 #include <ostream>
 #include <fstream>
 
-#include <sys/time.h>
-
 // Boost
 #include <boost/exception/info.hpp>
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/foreach.hpp>
-#include <boost/timer/timer.hpp>
 
 // OpenCV
 #include <opencv2/imgproc.hpp>
@@ -63,7 +60,6 @@ using namespace std;
 //------------------------------------------------------------------------------
 Copy::Copy(const ptree& params, string inputFile) :
     Operation(params),
-    mOperationTime(0),
     mStatus(CopyStatusDidNotTry),
     mErrorMessage(),
     mInputFile(inputFile)
@@ -105,8 +101,6 @@ bool Copy::getStatus() const
 //------------------------------------------------------------------------------
 bool Copy::run()
 {
-  boost::timer::cpu_timer timer;
-
   mStatus = CopyStatusPending;
 
   std::ifstream src(mInputFile.c_str(),  std::ios::binary);
@@ -160,11 +154,6 @@ bool Copy::run()
 
   mStatus = CopyStatusSuccess;
 
-  typedef boost::chrono::duration<double> sec; // seconds, stored with a double
-  sec seconds = boost::chrono::nanoseconds(timer.elapsed().user + timer.elapsed().system);
-
-  mOperationTime = seconds.count();
-
   return true;
 }
 
@@ -191,10 +180,6 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
     // Result
     writer.String("result");
     writer.Bool(true);
-
-    // Time
-    writer.String("time");
-    writer.Double(mOperationTime);
 
   }
   else

@@ -59,7 +59,7 @@ class Operation
 
     boost::property_tree::ptree getParams() const;
     
-    virtual bool run() {};
+    virtual bool run() = 0;
     
     // There is no obvious way to make use of polymorphism for the writer object
     // so we rely on the preprocessor

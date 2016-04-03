@@ -38,14 +38,11 @@
 #include <string>
 #include <ostream>
 
-#include <sys/time.h>
-
 // Boost
 #include <boost/exception/info.hpp>
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/foreach.hpp>
-#include <boost/timer/timer.hpp>
 
 // OpenCV
 #include <opencv2/imgproc.hpp>
@@ -72,8 +69,7 @@ Resize::Resize(const ptree& params, Mat& image) :
     mStatus(ResizeStatusDidNotTry),
     mErrorMessage(),
     mWatermarkFile(),
-    mWatermarkAmount(0.05),
-    mOperationTime(0)
+    mWatermarkAmount(0.05)
 {
   try
   {
@@ -247,7 +243,6 @@ bool Resize::getStatus() const
 //------------------------------------------------------------------------------
 bool Resize::run()
 {
-  boost::timer::cpu_timer timer;
 
   mStatus = ResizeStatusPending;
 
@@ -478,11 +473,6 @@ bool Resize::run()
 
   mStatus = ResizeStatusSuccess;
 
-  typedef boost::chrono::duration<double> sec; // seconds, stored with a double
-  sec seconds = boost::chrono::nanoseconds(timer.elapsed().user + timer.elapsed().system);
-
-  mOperationTime = seconds.count();
-
   return true;
 }
 
@@ -509,10 +499,6 @@ void Resize::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
     // Result
     writer.String("result");
     writer.Bool(true);
-
-    // Time
-    writer.String("time");
-    writer.Double(mOperationTime);
 
     // Dimensions
     writer.String("output_height");

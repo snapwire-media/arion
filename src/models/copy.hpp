@@ -81,7 +81,6 @@ class Copy : public Operation
   private:
 
     boost::property_tree::ptree mParams;
-    double mOperationTime;
     
     int mStatus;
     std::string mErrorMessage;

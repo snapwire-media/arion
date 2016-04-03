@@ -116,7 +116,6 @@ class Read_meta : public Operation
     std::string mCountryName;
     std::string mCountryCode;
 
-    double mOperationTime;
 };
 
 #endif // READ_META_HPP

@@ -105,8 +105,6 @@ class Resize : public Operation
     float mWatermarkAmount;
     std::string mOutputFile;
 
-    double mOperationTime;
-
     cv::Mat mImageResized;
     cv::Mat mImageResizedFinal;
     cv::Mat& mImage;

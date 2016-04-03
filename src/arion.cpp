@@ -63,8 +63,6 @@
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/timer/timer.hpp>
 #include <boost/optional/optional.hpp>
 
 // OpenCV
@@ -77,7 +75,7 @@
 // Stdlib
 #include <iostream>
 #include <string>
-#include <bits/stl_vector.h>
+//#include <bits/stl_vector.h>
 
 using namespace boost::program_options;
 using namespace boost::filesystem;
@@ -508,8 +506,6 @@ void Arion::extractImage(const string& imageFilePath)
 //------------------------------------------------------------------------------
 void Arion::run(const string& inputJson)
 {
-  boost::timer::cpu_timer timer;
-  
   //----------------------------------
   //       Parse JSON Input
   //----------------------------------
@@ -611,9 +607,6 @@ void Arion::run(const string& inputJson)
   
   writer.EndArray();
 
-  typedef boost::chrono::duration<double> sec; // seconds, stored with a double
-  sec seconds = boost::chrono::nanoseconds(timer.elapsed().user + timer.elapsed().system);
-  
   // Result of command (all operations must succeed to get true)
   writer.String("result");
   
@@ -633,9 +626,6 @@ void Arion::run(const string& inputJson)
   writer.String("failed_operations");
   writer.Uint(failed_operations);
 
-  // Time
-  writer.String("time");
-  writer.Double(seconds.count());  
   writer.EndObject();
   
   // Final successful output
