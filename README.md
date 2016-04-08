@@ -18,7 +18,7 @@ While there are several tools available to generate thumbnails and read image me
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
-Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system.
+Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system. For Mac OS X see the following [instructions](../../wiki/Installation#mac-os-x). 
 
 **Requirements**
 * CMake
