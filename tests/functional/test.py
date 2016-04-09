@@ -110,7 +110,7 @@ class TestArion(unittest.TestCase):
   def test_basic_read_meta(self):
 
     #-----------------------------
-    #       Resize image
+    #      Read image meta
     #-----------------------------
     read_meta_operation = {
       'type': 'read_meta',
@@ -159,6 +159,26 @@ class TestArion(unittest.TestCase):
     self.assertTrue("roadtrip" in keywords)
     self.assertTrue("sea" in keywords)
     self.assertTrue("sunset" in keywords)
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_invalid_operation(self):
+    #-----------------------------
+    #      Read image meta
+    #-----------------------------
+    read_meta_operation = {
+      'type': 'invalid',
+      "params": {
+        "value": "bogus"
+      }
+    }
+
+    operations = [read_meta_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.assertFalse(output['result'])
+    
 
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------

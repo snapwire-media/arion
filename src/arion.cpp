@@ -75,7 +75,6 @@
 // Stdlib
 #include <iostream>
 #include <string>
-//#include <bits/stl_vector.h>
 
 using namespace boost::program_options;
 using namespace boost::filesystem;
@@ -84,13 +83,43 @@ using namespace rapidjson;
 using namespace std;
 
 //------------------------------------------------------------------------------
+// Exceptions
+//------------------------------------------------------------------------------
+class ArionImageExtractException: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Failed to extract image";
+  }
+} extractException;
+
+class ArionOperationNotSupportedException: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Operation not supported";
+  }
+} operationNotSupportedException;
+
+class ArionOperationErrorException: public exception
+{
+  virtual const char* what() const throw()
+  {
+    return "Operation error";
+  }
+} operationErrorException;
+
+//------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 Arion::Arion() : 
   mCorrectOrientation(false),
   mpExifData(0),
   mpXmpData(0),
   mpIptcData(0),
-  mInputFile()
+  mInputFile(),
+  mTotalOperations(0),
+  mFailedOperations(0),
+  mResult(false)
 {
 }
 
@@ -331,7 +360,7 @@ void Arion::overrideMeta(const ptree& pt)
 //  2. Create the corresponding operation object and place it in the queue
 //  3. Provide any additional data to the operation
 //------------------------------------------------------------------------------
-void Arion::parseOperations(const ptree& pt)
+bool Arion::parseOperations(const ptree& pt)
 {
   int operationParseCount = 0;
 
@@ -367,11 +396,8 @@ void Arion::parseOperations(const ptree& pt)
         operation = new Copy(paramsTree, mInputFile);
       }
       else
-      {
-        stringstream ss;
-        ss << "Operation " << type << " not supported";
-        
-        Utils::exitWithError(ss.str());
+      { 
+        throw operationNotSupportedException;
       }
       
       // Add to operation queue
@@ -397,15 +423,20 @@ void Arion::parseOperations(const ptree& pt)
     }
     catch (std::exception& e)
     {
-
+      
       stringstream ss;
 
-      ss << "Count not parse operation " << (operationParseCount+1) << " : " << e.what();
-
-      Utils::exitWithError(ss.str());
+      ss << "Count not parse operation " << (operationParseCount+1) << " - " << e.what();
+      
+      mErrorMessage = ss.str();
+      constructErrorJson();
+      
+      return false;
 
     }
   }
+  
+  return true;
 }
 
 //--------------------------------
@@ -472,40 +503,27 @@ void Arion::extractMetadata(const string& imageFilePath)
 //------------------------------------------------------------------------------
 void Arion::extractImage(const string& imageFilePath)
 {
-  try
+  mSourceImage = cv::imread(imageFilePath);
+
+  if (mSourceImage.empty())
   {
-    mSourceImage = cv::imread(imageFilePath);
-
-    if (mSourceImage.empty())
-    {
-      Utils::exitWithError("Could not read source image");
-    }
-
-    //--------------------------------
-    //      Compute Image MD5
-    //--------------------------------
-
-    // We need this until the very end, so memory deallocation will be handled
-    // when the program exits and the heap is deallocated
-    mpPixelMd5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
-
+    throw extractException;
   }
-  catch (boost::exception& e)
-  {
-    stringstream ss;
 
-#if DEBUG
-    ss << "Error reading image " << diagnostic_information(e);
-#endif
+  //--------------------------------
+  //      Compute Image MD5
+  //--------------------------------
 
-    Utils::exitWithError(ss.str());
-  }
+  // We need this until the very end, so memory deallocation will be handled
+  // when the program exits and the heap is deallocated
+  // TODO: make this optional
+  mpPixelMd5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Arion::run(const string& inputJson)
-{
+bool Arion::run(const string& inputJson)
+{   
   //----------------------------------
   //       Parse JSON Input
   //----------------------------------
@@ -526,7 +544,11 @@ void Arion::run(const string& inputJson)
   }
   else
   {
-    Utils::exitWithError("Unsupported input source. Use 'file://' prefix");
+    mResult = false;
+    mErrorMessage = "Unsupported input source. Use 'file://' prefix";
+    constructErrorJson();
+
+    return mResult;
   }
   
   //--------------------------------
@@ -544,13 +566,48 @@ void Arion::run(const string& inputJson)
   //----------------------------------
   //        Preprocessing
   //----------------------------------
-  extractImage(mInputFile);
+  try
+  {
+    extractImage(mInputFile);
+  }
+  catch (boost::exception& e)
+  {
+
+  // TODO: log this
+//    stringstream ss;
+//
+//#if DEBUG
+//    ss << "Error reading image " << diagnostic_information(e);
+//#endif
+
+    mResult = false;
+    mErrorMessage = "Error extracting image";
+    constructErrorJson();
+
+    return mResult;
+
+  }
   
+  //----------------------------------
+  //        Read metadata
+  //----------------------------------
   extractMetadata(mInputFile);
   
+  //----------------------------------
+  //        Write metadata
+  //----------------------------------
   overrideMeta(inputTree);
+  
+  //----------------------------------
+  //        Parse operations
+  //----------------------------------
+  if (!parseOperations(inputTree))
+  {
+    mResult = false;
+    constructErrorJson();
 
-  parseOperations(inputTree);
+    return mResult;
+  }
   
   //----------------------------------
   //       Execute operations
@@ -576,60 +633,93 @@ void Arion::run(const string& inputJson)
   writer.String("md5");
   writer.String(mpPixelMd5);
   
-  int total_operations = 0;
-  int failed_operations = 0;
-  
   writer.String("info");
   writer.StartArray();
-    
+
+  mTotalOperations = mOperations.size();
+  
   BOOST_FOREACH (Operation* operation, mOperations)
   {
     try
     {
       if (!operation->run())
       {
-        failed_operations++;
+        mFailedOperations++;
       }
-      
-      total_operations++;
  
       operation->serialize(writer);
       
       delete operation;
-      
     }
     catch (std::exception& e)
     {
-      // Break out of the standard output and exit with error
-      Utils::exitWithError(e.what());
+      mFailedOperations++;
+      mErrorMessage = e.what();
+      constructErrorJson();
+      return mResult;
     }
   }
   
   writer.EndArray();
 
   // Result of command (all operations must succeed to get true)
-  writer.String("result");
-  
-  if (failed_operations == 0)
+  if (mFailedOperations == 0)
   {
-    writer.Bool(true);
+    mResult = true;
   }
   else
   {
-    writer.Bool(false);
+    mResult = false;
   }
+  
+  writer.String("result");
+  writer.Bool(mResult);
   
   // Operation stats
   writer.String("total_operations");
-  writer.Uint(total_operations);
+  writer.Uint(mTotalOperations);
   
   writer.String("failed_operations");
-  writer.Uint(failed_operations);
+  writer.Uint(mFailedOperations);
 
   writer.EndObject();
   
-  // Final successful output
-  cout << s.GetString() << endl;
+  mJson = s.GetString();
   
-  exit(0);
+  return mResult;
+  
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::constructErrorJson()
+{
+  rapidjson::StringBuffer s;
+
+  #ifdef JSON_PRETTY_OUTPUT
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+  #else
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  #endif
+
+  writer.StartObject();
+
+  // Result
+  writer.String("result");
+  writer.Bool(false);
+
+  // Error message
+  writer.String("error_message");
+  writer.String(mErrorMessage);
+
+  writer.EndObject();
+
+  mJson = s.GetString();
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+std::string Arion::getJson() const
+{
+  return mJson;
 }

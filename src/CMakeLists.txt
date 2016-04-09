@@ -33,15 +33,15 @@ TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_L
 # ---------------------------------------------------
 #  This is the shared Arion library with c bindings
 # ---------------------------------------------------
-add_library(carion SHARED carion.cpp
-                          arion.cpp
-                          models/operation.cpp 
-                          models/resize.cpp
-                          models/read_meta.cpp
-                          models/copy.cpp
-                          utils/utils.cpp)
-
-TARGET_LINK_LIBRARIES( carion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
-
-install(TARGETS carion DESTINATION lib)
-install(FILES carion.h DESTINATION include)
+#add_library(carion SHARED carion.cpp
+#                          arion.cpp
+#                          models/operation.cpp 
+#                          models/resize.cpp
+#                          models/read_meta.cpp
+#                          models/copy.cpp
+#                          utils/utils.cpp)
+#
+#TARGET_LINK_LIBRARIES( carion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
+#
+#install(TARGETS carion DESTINATION lib)
+#install(FILES carion.h DESTINATION include)

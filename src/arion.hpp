@@ -51,23 +51,36 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+//struct ArionOutput {
+//  bool result;
+//  std::string error_message;
+//  unsigned total_operations;
+//  unsigned failed_operations;
+//  
+//  std::string json;
+//};
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 class Arion
 {
   public:
 
     Arion();
 
-    void run(const std::string& inputJson);
+    bool run(const std::string& inputJson);
+    std::string getJson() const;
     
   private:
 
     bool mCorrectOrientation;
     
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
-    void parseOperations(const boost::property_tree::ptree& pt);
+    bool parseOperations(const boost::property_tree::ptree& pt);
     void extractImage(const std::string& imageFilePath);
     void extractMetadata(const std::string& imageFilePath);
     void overrideMeta(const boost::property_tree::ptree& pt);
+    void constructErrorJson();
     
     std::vector<Operation*> mOperations;
     
@@ -82,6 +95,15 @@ class Arion
     char* mpPixelMd5;
     
     std::string mInputFile;
+    
+    // The following describe the result of the operations
+    bool mResult;
+    std::string mErrorMessage;
+    unsigned mTotalOperations;
+    unsigned mFailedOperations;
+    
+    // This contains the resulting variables in JSON
+    std::string mJson;
 
 };
 

@@ -257,13 +257,47 @@ namespace Utils
     // Error message
     writer.String("error_message");
     writer.String(errorMessage);
+    
+    // Assume we weren't able to read any operations
+    writer.String("total_operations");
+    writer.Uint(0);
+
+    writer.String("failed_operations");
+    writer.Uint(0);
 
     writer.EndObject();
-
+    
     std::cout << s.GetString() << std::endl;
 
     exit(-1);
   }
+  
+  //------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
+//  static std::string outputJsonError(std::string errorMessage, unsigned total_operations, unsigned failed_operations)
+//  {
+//    rapidjson::StringBuffer s;
+//
+//    #ifdef JSON_PRETTY_OUTPUT
+//      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+//    #else
+//      rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+//    #endif
+//
+//    writer.StartObject();
+//
+//    // Result
+//    writer.String("result");
+//    writer.Bool(false);
+//
+//    // Error message
+//    writer.String("error_message");
+//    writer.String(errorMessage);
+//
+//    writer.EndObject();
+//
+//    return s.GetString();
+//  }
 
   //------------------------------------------------------------------------------
   // Returns a character representation of an OpenCV image type
