@@ -1,16 +1,27 @@
 // Local
 #include "arion.hpp"
 #include "carion.h"
+#include <stdio.h>
+#include <string.h>
 
-const char* ArionRun(const char* inputJson)
+//------------------------------------------------------------------------------
+// C wrapper for running Arion. The input is a JSON formatted string
+// WARNING: Don't forget to free the output memory!
+//------------------------------------------------------------------------------
+const char* ArionRun(const char* inputJsonChar)
 {
-  Arion* arion = new Arion();
+  std::string inputJson(inputJsonChar);
   
-  std::string inputJsonString(inputJson);
+  Arion arion;
+
+  arion.run(inputJson);
   
-  arion->run(inputJsonString);
+  const char* localOutputJson = arion.getJson().c_str();
   
-  delete arion;
+  // Create on the heap
+  char* outputJson = (char*)malloc(strlen(localOutputJson));
   
-  return "done";
+  strcpy(outputJson, localOutputJson);
+  
+  return outputJson;
 }
