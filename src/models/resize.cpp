@@ -241,6 +241,86 @@ bool Resize::getStatus() const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::computeSizeSquare()
+{
+  // Don't assume the height and width the user specified are the same
+  // and just use the width
+  mSize = Size(mWidth, mWidth);
+  
+  const int sourceHeight = mImage.rows;
+  const int sourceWidth = mImage.cols;
+
+  if (sourceHeight == sourceWidth)
+  {
+    // Easy... the image is already square
+    mImageToResize = mImage;
+  }
+  else if (sourceHeight > sourceWidth)
+  {
+    int y = round(((double)sourceHeight - (double)sourceWidth)/2.0);
+    Rect cropRegion(0, y, sourceWidth, sourceWidth);
+
+    mImageToResize = mImage(cropRegion);
+  }
+  else // sourceWidth < sourceHeight
+  {
+    int x = round(((double)sourceWidth - (double)sourceHeight)/2.0);
+    Rect cropRegion(x, 0, sourceHeight, sourceHeight);
+
+    mImageToResize = mImage(cropRegion);
+  }
+
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::computeSizeWidth()
+{
+  const int sourceHeight = mImage.rows;
+  const int sourceWidth = mImage.cols;
+  
+  double aspect = (double)sourceHeight / (double)sourceWidth;
+  
+  // User specified fixed width. Only use height as an absolute max
+  int resizeWidth = mWidth;
+  int resizeHeight = getAspectHeight(resizeWidth, aspect);
+
+  if ((mHeight >= 0) && (resizeHeight > mHeight))
+  {
+    resizeHeight = mHeight;
+    resizeWidth = getAspectWidth(resizeHeight, aspect);
+  }
+
+  mImageToResize = mImage;
+  mSize = Size(resizeWidth, resizeHeight);
+
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::computeSizeHeight()
+{
+  const int sourceHeight = mImage.rows;
+  const int sourceWidth = mImage.cols;
+  
+  double aspect = (double)sourceHeight / (double)sourceWidth;
+  
+  // User specified fixed height so we ignore input width and compute our own
+  int resizeHeight = mHeight;
+  int resizeWidth = getAspectWidth(resizeHeight, aspect);
+
+  if ((mWidth >= 0) && (resizeWidth > mWidth))
+  {
+    resizeWidth = mWidth;
+    resizeHeight = getAspectHeight(resizeWidth, aspect);
+  }
+
+  mImageToResize = mImage;
+  mSize = Size(resizeWidth, resizeHeight);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool Resize::run()
 {
 
@@ -253,18 +333,6 @@ bool Resize::run()
   {
     static const int interpolation = INTER_AREA;
 
-    int resizeHeight;
-    int resizeWidth;
-
-    int sourceHeight = mImage.rows;
-    int sourceWidth = mImage.cols;
-
-    double aspect = (double)sourceHeight / (double)sourceWidth;
-
-    Mat imageToResize;
-
-    Size size;
-
     switch (mType)
     {
       //--------------------------
@@ -272,30 +340,7 @@ bool Resize::run()
       //--------------------------
       case ResizeTypeSquare:
       {
-        // Don't assume the height and width the user specified are the same
-        // and just use the width
-        size = Size(mWidth, mWidth);
-
-        if (sourceHeight == sourceWidth)
-        {
-          // Easy... the image is already square
-          imageToResize = mImage;
-        }
-        else if (sourceHeight > sourceWidth)
-        {
-          int y = round(((double)sourceHeight - (double)sourceWidth)/2.0);
-          Rect cropRegion(0, y, sourceWidth, sourceWidth);
-
-          imageToResize = mImage(cropRegion);
-        }
-        else // sourceWidth < sourceHeight
-        {
-          int x = round(((double)sourceWidth - (double)sourceHeight)/2.0);
-          Rect cropRegion(x, 0, sourceHeight, sourceHeight);
-
-          imageToResize = mImage(cropRegion);
-        }
-
+        computeSizeSquare();
         break;
       }
 
@@ -304,19 +349,7 @@ bool Resize::run()
       //--------------------------
       case ResizeTypeFixedHeight:
       {
-        // User specified fixed height so we ignore input width and compute our own
-        resizeHeight = mHeight;
-        resizeWidth = getAspectWidth(resizeHeight, aspect);
-
-        if ((mWidth >= 0) && (resizeWidth > mWidth))
-        {
-          resizeWidth = mWidth;
-          resizeHeight = getAspectHeight(resizeWidth, aspect);
-        }
-
-        imageToResize = mImage;
-        size = Size(resizeWidth, resizeHeight);
-
+        computeSizeHeight();
         break;
       }
 
@@ -326,39 +359,27 @@ bool Resize::run()
       default:
       case ResizeTypeFixedWidth:
       {
-        // User specified fixed width. Only use height as an absolute max
-        resizeWidth = mWidth;
-        resizeHeight = getAspectHeight(resizeWidth, aspect);
-
-        if ((mHeight >= 0) && (resizeHeight > mHeight))
-        {
-          resizeHeight = mHeight;
-          resizeWidth = getAspectWidth(resizeHeight, aspect);
-        }
-
-        imageToResize = mImage;
-        size = Size(resizeWidth, resizeHeight);
-
+        computeSizeWidth();
         break;
       }
     }
 
     if (mPreFilter)
     {
-      double sigma = (double)imageToResize.cols/1000.0;
+      double sigma = (double)mImageToResize.cols/1000.0;
 
       // Make sure we're not editing the original...
       Mat imageToResizeFiltered;
 
-      GaussianBlur(imageToResize, imageToResizeFiltered, cv::Size(0, 0), sigma);
+      GaussianBlur(mImageToResize, imageToResizeFiltered, cv::Size(0, 0), sigma);
 
       // Resize operation
-      resize(imageToResizeFiltered, mImageResized, size, 0, 0, interpolation);
+      resize(imageToResizeFiltered, mImageResized, mSize, 0, 0, interpolation);
     }
     else
     {
       // Resize operation
-      resize(imageToResize, mImageResized, size, 0, 0, interpolation);
+      resize(mImageToResize, mImageResized, mSize, 0, 0, interpolation);
     }
 
     if (mSharpenAmount)

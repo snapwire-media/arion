@@ -17,16 +17,16 @@ ADD_DEFINITIONS( -DJSON_PRETTY_OUTPUT )
 # Uncomment this for additional console output (warning: may invalidate JSON output)
 #ADD_DEFINITIONS( -DDEBUG=1 )
 
- -------------------------------------------
-  This is the stand alone Arion executable
- -------------------------------------------
-ADD_EXECUTABLE( arion main.cpp 
+# -------------------------------------------
+#  This is the stand alone Arion executable
+# -------------------------------------------
+ADD_EXECUTABLE( arion main.cpp
                       arion.cpp
-                      models/operation.cpp 
+                      models/operation.cpp
                       models/resize.cpp
                       models/read_meta.cpp
                       models/copy.cpp
-                      utils/utils.cpp )
+                      utils/utils.cpp)
 
 TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
 
@@ -35,7 +35,7 @@ TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_L
 # ---------------------------------------------------
 add_library(carion SHARED carion.cpp
                           arion.cpp
-                          models/operation.cpp 
+                          models/operation.cpp
                           models/resize.cpp
                           models/read_meta.cpp
                           models/copy.cpp

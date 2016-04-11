@@ -79,11 +79,17 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   # Helper function for copying an image
   # -------------------------------------------------------------------------------
-  def verify_success(self, output):
+  def verify_success(self, output, expected_width=-1, expected_height=-1):
 
     self.assertTrue(output['result'])
     self.assertEqual(output['failed_operations'], 0)
     self.assertEqual(output['total_operations'], 1)
+    
+    if expected_width >= 0:
+      self.assertEqual(output['width'], expected_width)
+      
+    if expected_height >= 0:
+      self.assertEqual(output['height'], expected_height)
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -92,7 +98,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     #       Resize image
     #-----------------------------
-    output_url = 'file://output.jpg'
+    output_url = 'file://test_basic_jpg_resize.jpg'
 
     # Use low JPG quality to make sure parameter is working
     resize_operation = {
@@ -111,11 +117,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
-    self.assertTrue(output['result'])
-    self.assertEqual(output['failed_operations'], 0)
-    self.assertEqual(output['total_operations'], 1)
-    self.assertEqual(output['height'], 864)
-    self.assertEqual(output['width'], 1296)
+    self.verify_success(output, 1296, 864);
     #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     #-----------------------------
@@ -124,11 +126,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.assertTrue(output['result'])
-    self.assertEqual(output['failed_operations'], 0)
-    self.assertEqual(output['total_operations'], 1)
-    self.assertEqual(output['height'], 133)
-    self.assertEqual(output['width'], 200)
+    self.verify_success(output, 200, 133);
     #self.assertEqual(output['md5'], '4ec4ec2abde005187852424a153d4c48')
 
     info = output['info'][0]
@@ -147,7 +145,130 @@ class TestArion(unittest.TestCase):
     self.assertEqual(info['country_code'], '')
     self.assertEqual(info['caption'], '')
     self.assertEqual(info['keywords'], [])
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_resize_shrink_width_limit(self):
 
+    output_url = 'file://test_resize_shrink_width_limit.jpg'
+
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      200,
+        'height':     120,
+        'type':       'width',
+        'quality':    92,
+        'output_url': output_url
+      }
+    }
+    
+    output = self.call_arion(self.IMAGE_1_PATH, [operation])
+
+    self.verify_success(output)
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(output_url)
+
+    self.verify_success(output, 180, 120)
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_resize_shrink_height(self):
+
+    output_url = 'file://test_resize_shrink_height.jpg'
+
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      1000,
+        'height':     200,
+        'type':       'height',
+        'quality':    92,
+        'output_url': output_url
+      }
+    }
+
+    output = self.call_arion(self.IMAGE_1_PATH, [operation])
+
+    self.verify_success(output);
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(output_url)
+
+    self.verify_success(output, 300, 200)
+
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_resize_shrink_height_limit(self):
+
+    output_url = 'file://test_resize_shrink_height_limit.jpg'
+
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      200,
+        'height':     200,
+        'type':       'height',
+        'quality':    92,
+        'output_url': output_url
+      }
+    }
+
+    output = self.call_arion(self.IMAGE_1_PATH, [operation])
+
+    self.verify_success(output);
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(output_url)
+
+    self.verify_success(output, 200, 133);
+
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_resize_shrink_square(self):
+
+    output_url = 'file://test_resize_shrink_square.jpg'
+
+    # Height should not matter here...
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      200,
+        'height':     2000,
+        'type':       'square',
+        'quality':    92,
+        'output_url': output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+
+    self.verify_success(output);
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(output_url)
+
+    self.verify_success(output, 200, 200);
+    
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
   def test_basic_read_meta(self):
@@ -157,11 +278,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     output = self.read_image(self.IMAGE_1_PATH)
 
-    self.assertTrue(output['result'])
-    self.assertEqual(output['failed_operations'], 0)
-    self.assertEqual(output['total_operations'], 1)
-    self.assertEqual(output['height'], 864)
-    self.assertEqual(output['width'], 1296)
+    self.verify_success(output, 1296, 864);
     #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     info = output['info'][0]
@@ -237,6 +354,19 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, operations)
     
+    self.assertFalse(output['result'])
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_invalid_json(self):
+    # Missing ending brace, but otherwise valid
+    input_string = "{\"input_url\":\"file://../../examples/images/image-1.jpg\",\"correct_rotation\":true,\"operations\":[{\"type\":\"read_meta\",\"params\":{\"info\":true}}]"
+    p = Popen([self.ARION_PATH, "--input", input_string], stdout=PIPE)
+
+    cmd_output = p.communicate()
+
+    output = json.loads(cmd_output[0])
+
     self.assertFalse(output['result'])
     
   # -------------------------------------------------------------------------------

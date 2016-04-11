@@ -90,6 +90,11 @@ class Resize : public Operation
 
     int getAspectHeight(int resizeWidth, double aspect) const;
     int getAspectWidth(int resizeHeight, double aspect) const;
+    
+    void computeSizeSquare();
+    void computeSizeWidth();
+    void computeSizeHeight();
+    //void computeSizeFill();
 
     boost::property_tree::ptree mParams;
 
@@ -108,6 +113,9 @@ class Resize : public Operation
     cv::Mat mImageResized;
     cv::Mat mImageResizedFinal;
     cv::Mat& mImage;
+    
+    cv::Size mSize;
+    cv::Mat mImageToResize;
 
     int mStatus;
     std::string mErrorMessage;
