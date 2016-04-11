@@ -94,7 +94,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     output_url = 'file://output.jpg'
 
-    # Use low quality to make sure parameter is working
+    # Use low JPG quality to make sure parameter is working
     resize_operation = {
       'type': 'resize',
       'params':
