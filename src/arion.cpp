@@ -494,8 +494,6 @@ void Arion::extractMetadata(const string& imageFilePath)
   catch (Exiv2::AnyError& e)
   {
     // Not the end of the world if reading EXIF data failed
-    //cerr << "ERROR: Caught Exiv2 exception '" << e.what() << "'\n";
-    //return -1;
   }
 }
 

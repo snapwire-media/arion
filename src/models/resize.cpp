@@ -60,20 +60,25 @@ using namespace std;
 Resize::Resize(const ptree& params, Mat& image) :
     Operation(params),
     mImage(image),
-    mType(ResizeTypeFixedWidth),
-    mPreserveMeta(false),
-    mQuality(95),
+    mType(ResizeTypeInvalid),
+    mHeight(0),
+    mWidth(0),
+    mQuality(92),
+    mGravity(ResizeGravitytCenter),
     mPreFilter(false),
     mSharpenAmount(0),
     mSharpenRadius(0.0),
-    mStatus(ResizeStatusDidNotTry),
-    mGravity(ResizeGravitytCenter),
-    mErrorMessage(),
+    mPreserveMeta(false),
     mWatermarkFile(),
-    mWatermarkAmount(0.05)
+    mWatermarkAmount(0.05),
+    mStatus(ResizeStatusDidNotTry),
+    mErrorMessage()
 {
+  //-------------------------
+  //   Required arguments
+  //-------------------------
+  
   readType(params);
-  readGravity(params);
   
   try
   {
@@ -81,9 +86,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   }
   catch (boost::exception& e)
   {
-    // TODO: better error handling
-    cerr << "ERROR: Could not read the resize operation height" << endl;
-    return;
+    // Required, but output error during run()
   }
 
   try
@@ -92,10 +95,30 @@ Resize::Resize(const ptree& params, Mat& image) :
   }
   catch (boost::exception& e)
   {
-    // TODO: better error handling
-    cerr << "ERROR: Could not read the resize operation width" << endl;
-    return;
+    // Required, but output error during run()
   }
+  
+  try
+  {
+    string outputUrl = params.get<string>("output_url");
+
+    int pos = outputUrl.find(Utils::FILE_SOURCE);
+
+    if (pos != string::npos)
+    {
+      mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
+    }
+  }
+  catch (boost::exception& e)
+  {
+    // Required, but output error during run()
+  }
+  
+  //-------------------------
+  //   Optional arguments
+  //-------------------------
+  
+  readGravity(params);
 
   try
   {
@@ -144,24 +167,6 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
-    string outputUrl = params.get<string>("output_url");
-
-    int pos = outputUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
-    }
-  }
-  catch (boost::exception& e)
-  {
-    // TODO: better error handling
-    cerr << "ERROR: Could not read the resize operation output url" << endl;
-    return;
-  }
-
-  try
-  {
     string outputUrl = params.get<string>("watermark_url");
 
     int pos = outputUrl.find(Utils::FILE_SOURCE);
@@ -193,6 +198,9 @@ void Resize::readType(const ptree& params)
   try
   {
     string type = params.get<std::string>("type");
+    
+    // Make sure it's lowercase
+    transform(type.begin(), type.end(), type.begin(), ::tolower);
 
     if (type == "width")
     {
@@ -213,13 +221,12 @@ void Resize::readType(const ptree& params)
     else
     {
       // Invalid
-      mType = -1;
+      mType = ResizeTypeInvalid;
     }
   }
   catch (boost::exception& e)
   {
-    //cerr << "ERROR: Could not read the resize operation type" << endl;
-    //return;
+    // Required, but output error during run()
   }
 }
 
@@ -234,40 +241,40 @@ void Resize::readGravity(const ptree& params)
     
     // Make sure it's lowercase
     transform(gravity.begin(), gravity.end(), gravity.begin(), ::tolower);
-
-    if (gravity == "center")
+    
+    if (gravity == "center" || gravity == "c")
     {
       mGravity = ResizeGravitytCenter;
     }
-    else if (gravity == "north")
+    else if (gravity == "north" || gravity == "n")
     {
       mGravity = ResizeGravityNorth;
     }
-    else if (gravity == "south")
+    else if (gravity == "south" || gravity == "s")
     {
       mGravity = ResizeGravitySouth;
     }
-    else if (gravity == "west")
+    else if (gravity == "west" || gravity == "w")
     {
       mGravity = ResizeGravityWest;
     }
-    else if (gravity == "east")
+    else if (gravity == "east" || gravity == "e")
     {
       mGravity = ResizeGravityEast;
     }
-    else if (gravity == "northwest")
+    else if (gravity == "northwest" || gravity == "nw")
     {
       mGravity = ResizeGravityNorthWest;
     }
-    else if (gravity == "northeast")
+    else if (gravity == "northeast" || gravity == "ne")
     {
       mGravity = ResizeGravityNorthEast;
     }
-    else if (gravity == "southwest")
+    else if (gravity == "southwest" || gravity == "sw")
     {
       mGravity = ResizeGravitySouthWest;
     }
-    else if (gravity == "southeast")
+    else if (gravity == "southeast" || gravity == "se")
     {
       mGravity = ResizeGravitySouthEast;
     }
@@ -518,14 +525,35 @@ bool Resize::run()
       //--------------------------
       //  Width priority resize
       //--------------------------
-      default:
       case ResizeTypeFixedWidth:
       {
         computeSizeWidth();
         break;
       }
+      
+      //--------------------------
+      //  Error (unknown type)
+      //--------------------------
+      default:
+        mStatus = ResizeStatusError;
+        mErrorMessage = "Invalid resize type";
+        return false;
     }
-
+    
+    if (mHeight == 0)
+    {
+      mStatus = ResizeStatusError;
+      mErrorMessage = "Invalid height for resize";
+      return false;
+    }
+    
+    if (mWidth == 0)
+    {
+      mStatus = ResizeStatusError;
+      mErrorMessage = "Invalid width for resize";
+      return false;
+    }
+    
     if (mPreFilter)
     {
       double sigma = (double)mImageToResize.cols/1000.0;

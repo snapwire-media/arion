@@ -30,7 +30,7 @@ class TestArion(unittest.TestCase):
   OUTPUT_IMAGE_PATH = 'output/'
 
   # -------------------------------------------------------------------------------
-  # Helper function for calling Arion
+  #  Helper function for calling Arion
   # -------------------------------------------------------------------------------
   def call_arion(self, input_url, operations):
 
@@ -52,7 +52,7 @@ class TestArion(unittest.TestCase):
     return output
     
   # -------------------------------------------------------------------------------
-  # Helper function for reading data back about an image
+  #  Helper function for reading data back about an image
   # -------------------------------------------------------------------------------
   def read_image(self, input_url):
 
@@ -66,7 +66,7 @@ class TestArion(unittest.TestCase):
     return self.call_arion(input_url, [operation])
     
   # -------------------------------------------------------------------------------
-  # Helper function for copying an image
+  #  Helper function for copying an image
   # -------------------------------------------------------------------------------
   def copy_image(self, input_url, output_url):
 
@@ -80,9 +80,9 @@ class TestArion(unittest.TestCase):
     return self.call_arion(input_url, [operation])
     
   # -------------------------------------------------------------------------------
-  # Helper function for copying an image
+  #  Helper function for checking for successful output
   # -------------------------------------------------------------------------------
-  def verify_success(self, output, expected_width=-1, expected_height=-1):
+  def verifySuccess(self, output, expected_width=-1, expected_height=-1):
 
     self.assertTrue(output['result'])
     self.assertEqual(output['failed_operations'], 0)
@@ -93,14 +93,22 @@ class TestArion(unittest.TestCase):
       
     if expected_height >= 0:
       self.assertEqual(output['height'], expected_height)
-      
   # -------------------------------------------------------------------------------
-  # Helper function for creating output url
+  #  Helper function for checking for failed output
+  # -------------------------------------------------------------------------------
+  def verifyFailure(self, output):
+    self.assertFalse(output['result'])
+    self.assertEqual(output['failed_operations'], 1)
+    self.assertEqual(output['total_operations'], 1)
+ 
+  # -------------------------------------------------------------------------------
+  #  Helper function for creating output url
   # -------------------------------------------------------------------------------
   def outputUrl(self, filename):
     return 'file://' + self.OUTPUT_IMAGE_PATH + filename
     
   # -------------------------------------------------------------------------------
+  #  Helper function for testing fill operation
   # -------------------------------------------------------------------------------
   def imageResizeHelper(self, srcPath, outputPrefix, options):
 
@@ -118,7 +126,6 @@ class TestArion(unittest.TestCase):
         'height':     options['height'],
         'type':       options['type'],
         'gravity':    options['gravity'],
-        'quality':    92,
         'output_url': outputUrl
       }
     }
@@ -127,7 +134,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(srcPath, operations)
     
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     #-----------------------------
     #  Now read back image data
@@ -135,8 +142,9 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(outputUrl)
 
-    self.verify_success(output, options['width'], options['height']);
+    self.verifySuccess(output, options['width'], options['height']);
     
+  
   # -------------------------------------------------------------------------------
   # Here we have a tall source image and we are always cropping a tall portion at
   # the center of the image
@@ -593,7 +601,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
-    self.verify_success(output, 1296, 864);
+    self.verifySuccess(output, 1296, 864);
     #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     #-----------------------------
@@ -602,7 +610,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.verify_success(output, 200, 133);
+    self.verifySuccess(output, 200, 133);
     #self.assertEqual(output['md5'], '4ec4ec2abde005187852424a153d4c48')
 
     info = output['info'][0]
@@ -642,7 +650,7 @@ class TestArion(unittest.TestCase):
     
     output = self.call_arion(self.IMAGE_1_PATH, [operation])
 
-    self.verify_success(output)
+    self.verifySuccess(output)
 
     #-----------------------------
     #  Now read back image data
@@ -650,7 +658,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.verify_success(output, 180, 120)
+    self.verifySuccess(output, 180, 120)
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -672,7 +680,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, [operation])
 
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     #-----------------------------
     #  Now read back image data
@@ -680,7 +688,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.verify_success(output, 300, 200)
+    self.verifySuccess(output, 300, 200)
 
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -702,7 +710,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, [operation])
 
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     #-----------------------------
     #  Now read back image data
@@ -710,7 +718,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.verify_success(output, 200, 133);
+    self.verifySuccess(output, 200, 133);
 
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -735,7 +743,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     #-----------------------------
     #  Now read back image data
@@ -743,7 +751,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    self.verify_success(output, 200, 200);
+    self.verifySuccess(output, 200, 200);
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -768,7 +776,7 @@ class TestArion(unittest.TestCase):
 
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     #-----------------------------
     #  Now read back image data
@@ -776,7 +784,7 @@ class TestArion(unittest.TestCase):
 
     output = self.read_image(output_url)
 
-    #self.verify_success(output, 200, 200);
+    #self.verifySuccess(output, 200, 200);
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -787,7 +795,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     output = self.read_image(self.IMAGE_1_PATH)
 
-    self.verify_success(output, 1296, 864);
+    self.verifySuccess(output, 1296, 864);
     #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     info = output['info'][0]
@@ -825,28 +833,28 @@ class TestArion(unittest.TestCase):
   def test_jpg_orienation(self):
 
     output = self.copy_image(self.LANDSCAPE_1_PATH, self.outputUrl('Landscape_1.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_2_PATH, self.outputUrl('Landscape_2.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_3_PATH, self.outputUrl('Landscape_3.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_4_PATH, self.outputUrl('Landscape_4.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
 
     output = self.copy_image(self.LANDSCAPE_5_PATH, self.outputUrl('Landscape_5.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_6_PATH, self.outputUrl('Landscape_6.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_7_PATH, self.outputUrl('Landscape_7.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
     
     output = self.copy_image(self.LANDSCAPE_8_PATH, self.outputUrl('Landscape_8.jpg'))
-    self.verify_success(output);
+    self.verifySuccess(output);
 
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
@@ -854,8 +862,8 @@ class TestArion(unittest.TestCase):
 
     read_meta_operation = {
       'type': 'invalid',
-      "params": {
-        "value": "bogus"
+      'params': {
+        'value': 'bogus'
       }
     }
 
@@ -880,7 +888,7 @@ class TestArion(unittest.TestCase):
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
-  def test_no_params(self):
+  def testNoParams(self):
   
     # Missing params
     operation = {
@@ -892,7 +900,77 @@ class TestArion(unittest.TestCase):
     self.assertFalse(output['result'])
     
   # -------------------------------------------------------------------------------
-  # Called only once
+  # -------------------------------------------------------------------------------
+  def testInvalidCopyParams(self):
+  
+    # No output_url
+    operation = {
+      'type': 'copy',
+      'params': {
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+    
+    # Empty output_url
+    operation = {
+      'type': 'copy',
+      'params': {
+        'output_url': ''
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+  
+    # Missing valid output_url
+    operation = {
+      'type': 'copy',
+      'params': {
+        'output_url': 'file://'
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def testInvalidResizeParams(self):
+  
+    # Resize operation missing type
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      200,
+        'height':     400,
+        'output_url': 'file://output.jpg'
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+    
+    # Resize operation missing width
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'type':       'width',
+        'height':     400,
+        'output_url': 'file://output.jpg'
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+    
+    # Resize operation missing height
+    operation = {
+      'type': 'resize',
+      'params':
+      {
+        'type':       'width',
+        'width':      200,
+        'output_url': 'file://output.jpg'
+      }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+
+  # -------------------------------------------------------------------------------
+  #  Called only once
   # -------------------------------------------------------------------------------
   @classmethod
   def setUpClass(cls):

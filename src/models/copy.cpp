@@ -62,7 +62,8 @@ Copy::Copy(const ptree& params, string inputFile) :
     Operation(params),
     mStatus(CopyStatusDidNotTry),
     mErrorMessage(),
-    mInputFile(inputFile)
+    mInputFile(inputFile),
+    mOutputFile()
 {
 
   try
@@ -78,9 +79,7 @@ Copy::Copy(const ptree& params, string inputFile) :
   }
   catch (boost::exception& e)
   {
-    // TODO: better error handling
-    cerr << "ERROR: Could not read the copy operation output url" << endl;
-    return;
+    // Required, but output error during run()
   }
 }
 
@@ -102,6 +101,13 @@ bool Copy::getStatus() const
 bool Copy::run()
 {
   mStatus = CopyStatusPending;
+  
+  if (mOutputFile.length() == 0)
+  {
+    mStatus = CopyStatusError;
+    mErrorMessage = "Invalid output url";
+    return false;
+  }
 
   std::ifstream src(mInputFile.c_str(),  std::ios::binary);
   std::ofstream dst(mOutputFile.c_str(), std::ios::binary);

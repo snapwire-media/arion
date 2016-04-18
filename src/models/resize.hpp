@@ -51,6 +51,7 @@
 
 enum
 {
+  ResizeTypeInvalid     = -1,
   ResizeTypeFixedWidth  = 0,
   ResizeTypeFixedHeight = 1,
   ResizeTypeSquare      = 2,
@@ -113,7 +114,7 @@ class Resize : public Operation
     void readType(const boost::property_tree::ptree& params);
     void readGravity(const boost::property_tree::ptree& params);
 
-    boost::property_tree::ptree mParams;
+    //boost::property_tree::ptree mParams;
 
     int mType;
     int mHeight;
