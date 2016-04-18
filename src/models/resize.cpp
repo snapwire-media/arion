@@ -67,40 +67,14 @@ Resize::Resize(const ptree& params, Mat& image) :
     mSharpenAmount(0),
     mSharpenRadius(0.0),
     mStatus(ResizeStatusDidNotTry),
+    mGravity(ResizeGravitytCenter),
     mErrorMessage(),
     mWatermarkFile(),
     mWatermarkAmount(0.05)
 {
-  try
-  {
-    string type = params.get<std::string>("type");
-
-    if (type == "width")
-    {
-      mType = ResizeTypeFixedWidth;
-    }
-    else if (type == "height")
-    {
-      mType = ResizeTypeFixedHeight;
-    }
-    else if (type == "square")
-    {
-      mType = ResizeTypeSquare;
-    }
-    else
-    {
-      // Invalid
-      mType = -1;
-    }
-  }
-  catch (boost::exception& e)
-  {
-    //cerr << "ERROR: Could not read the resize operation type" << endl;
-    //return;
-  }
-
-  // TODO: error on invalid type
-
+  readType(params);
+  readGravity(params);
+  
   try
   {
     mHeight = params.get<int>("height");
@@ -214,6 +188,98 @@ Resize::Resize(const ptree& params, Mat& image) :
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::readType(const ptree& params)
+{
+  try
+  {
+    string type = params.get<std::string>("type");
+
+    if (type == "width")
+    {
+      mType = ResizeTypeFixedWidth;
+    }
+    else if (type == "height")
+    {
+      mType = ResizeTypeFixedHeight;
+    }
+    else if (type == "square")
+    {
+      mType = ResizeTypeSquare;
+    }
+    else if (type == "fill")
+    {
+      mType = ResizeTypeFill;
+    }
+    else
+    {
+      // Invalid
+      mType = -1;
+    }
+  }
+  catch (boost::exception& e)
+  {
+    //cerr << "ERROR: Could not read the resize operation type" << endl;
+    //return;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::readGravity(const ptree& params)
+{
+  
+  try
+  {
+    string gravity = params.get<std::string>("gravity");
+    
+    // Make sure it's lowercase
+    transform(gravity.begin(), gravity.end(), gravity.begin(), ::tolower);
+
+    if (gravity == "center")
+    {
+      mGravity = ResizeGravitytCenter;
+    }
+    else if (gravity == "north")
+    {
+      mGravity = ResizeGravityNorth;
+    }
+    else if (gravity == "south")
+    {
+      mGravity = ResizeGravitySouth;
+    }
+    else if (gravity == "west")
+    {
+      mGravity = ResizeGravityWest;
+    }
+    else if (gravity == "east")
+    {
+      mGravity = ResizeGravityEast;
+    }
+    else if (gravity == "northwest")
+    {
+      mGravity = ResizeGravityNorthWest;
+    }
+    else if (gravity == "northeast")
+    {
+      mGravity = ResizeGravityNorthEast;
+    }
+    else if (gravity == "southwest")
+    {
+      mGravity = ResizeGravitySouthWest;
+    }
+    else if (gravity == "southeast")
+    {
+      mGravity = ResizeGravitySouthEast;
+    }
+  }
+  catch (boost::exception& e)
+  {
+    // Not critical error, just default to center gravity (set by constructor)
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 Resize::~Resize()
 {
 }
@@ -321,6 +387,93 @@ void Resize::computeSizeHeight()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::computeSizeFill()
+{
+  const unsigned sourceHeight = mImage.rows;
+  const unsigned sourceWidth = mImage.cols;
+  
+  //double sourceAspect = (double)sourceHeight / (double)sourceWidth;
+  double destAspect = (double)mHeight / (double)mWidth;
+  
+  double xf = (double)mWidth / (double)sourceWidth;
+  double yf = (double)mHeight / (double)sourceHeight;
+  
+  //float factor_ratio = xf / yf;
+  unsigned cropWidth = 0;
+  unsigned cropHeight = 0;
+  unsigned cropX = 0;
+  unsigned cropY = 0;
+  
+  if (xf > yf)
+  {
+    cropWidth = (unsigned)sourceWidth;
+    cropHeight = getAspectHeight(cropWidth, destAspect);
+  }
+  else
+  {
+    cropHeight = (unsigned)sourceHeight;
+    cropWidth = getAspectWidth(cropHeight, destAspect);
+  }
+  
+  switch (mGravity)
+  {
+    case ResizeGravitytCenter:
+      cropX = (sourceWidth - cropWidth) / 2;
+			cropY = (sourceHeight - cropHeight) / 2;
+      break;
+      
+    case ResizeGravityNorth:
+			cropX = (sourceWidth - cropWidth) / 2;
+			cropY = 0;
+      break;
+      
+    case ResizeGravityNorthWest:
+			cropX = 0;
+			cropY = 0;
+      break;
+      
+    case ResizeGravityNorthEast:
+			cropX = (sourceWidth - cropWidth);
+			cropY = 0;
+      break;
+      
+    case ResizeGravitySouth:
+			cropX = (sourceWidth - cropWidth) / 2;
+			cropY = (sourceHeight - cropHeight);
+      break;
+      
+    case ResizeGravitySouthWest:
+			cropX = 0;
+			cropY = (sourceHeight - cropHeight);
+      break;
+      
+    case ResizeGravitySouthEast:
+			cropX = (sourceWidth - cropWidth);
+			cropY = (sourceHeight - cropHeight);
+      break;
+      
+    case ResizeGravityWest:
+			cropX = 0;
+			cropY = (sourceHeight - cropHeight) / 2;
+      break;
+      
+    case ResizeGravityEast:
+			cropX = (sourceWidth - cropWidth);
+			cropY = (sourceHeight - cropHeight) / 2;
+      break;
+
+  }
+  
+  Rect cropRegion(cropX, cropY, cropWidth, cropHeight);
+
+  mImageToResize = mImage(cropRegion);
+  
+  mSize = Size(mWidth, mHeight);
+
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool Resize::run()
 {
 
@@ -350,6 +503,15 @@ bool Resize::run()
       case ResizeTypeFixedHeight:
       {
         computeSizeHeight();
+        break;
+      }
+      
+      //--------------------------
+      //      Fill resize
+      //--------------------------
+      case ResizeTypeFill:
+      {
+        computeSizeFill();
         break;
       }
 

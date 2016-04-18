@@ -51,17 +51,31 @@
 
 enum
 {
-  ResizeTypeFixedWidth = 0,
+  ResizeTypeFixedWidth  = 0,
   ResizeTypeFixedHeight = 1,
-  ResizeTypeSquare = 2,
+  ResizeTypeSquare      = 2,
+  ResizeTypeFill        = 3
 };
 
 enum
 {
   ResizeStatusDidNotTry = 0,
-  ResizeStatusPending = 1,
-  ResizeStatusSuccess = 2,
-  ResizeStatusError = 3,
+  ResizeStatusPending   = 1,
+  ResizeStatusSuccess   = 2,
+  ResizeStatusError     = 3
+};
+
+enum
+{
+  ResizeGravitytCenter   = 0,
+  ResizeGravityNorth     = 1,
+  ResizeGravitySouth     = 2,
+  ResizeGravityWest      = 3,
+  ResizeGravityEast      = 4,
+  ResizeGravityNorthWest = 5,
+  ResizeGravityNorthEast = 6,
+  ResizeGravitySouthWest = 7,
+  ResizeGravitySouthEast = 8
 };
 
 //------------------------------------------------------------------------------
@@ -94,7 +108,10 @@ class Resize : public Operation
     void computeSizeSquare();
     void computeSizeWidth();
     void computeSizeHeight();
-    //void computeSizeFill();
+    void computeSizeFill();
+    
+    void readType(const boost::property_tree::ptree& params);
+    void readGravity(const boost::property_tree::ptree& params);
 
     boost::property_tree::ptree mParams;
 
@@ -102,6 +119,7 @@ class Resize : public Operation
     int mHeight;
     int mWidth;
     int mQuality;
+    int mGravity;
     bool mPreFilter;
     int mSharpenAmount;
     float mSharpenRadius;

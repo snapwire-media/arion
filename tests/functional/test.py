@@ -93,6 +93,475 @@ class TestArion(unittest.TestCase):
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
+  def imageResizeHelper(self, srcPath, outputPrefix, options):
+
+    destName = outputPrefix + \
+               str(options['width']) + 'x' + str(options['height']) + \
+               '_' + str(options['type']) + '.jpg'
+    
+    outputUrl = 'file://' + destName
+    
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      options['width'],
+        'height':     options['height'],
+        'type':       options['type'],
+        'gravity':    options['gravity'],
+        'quality':    92,
+        'output_url': outputUrl
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(srcPath, operations)
+    
+    self.verify_success(output);
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(outputUrl)
+
+    self.verify_success(output, options['width'], options['height']);
+    
+
+  # -------------------------------------------------------------------------------
+  # Here we have a tall source image and we are always cropping a tall portion at
+  # the center of the image
+  # -------------------------------------------------------------------------------  
+  def test100x200TallCenter(self):
+
+    srcPath = "file://../images/100x200_tall_center.png"
+    outputPrefix = "100x200_tall_center_to_"
+
+    # Just a crop, take the center
+    opts = {
+        'type':    'fill',
+        'gravity': 'center',
+        'width':   50,
+        'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+    
+    opts = {
+        'type':    'fill',
+        'gravity': 'north',
+        'width':   25,
+        'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+    
+    opts = {
+        'type':    'fill',
+        'gravity': 'south',
+        'width':   100,
+        'height':  400,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a tall portion at 
+  # the left of the image
+  # ------------------------------------------------------------------------------- 
+  def test100x200TallLeft(self):
+      
+    srcPath = "file://../images/100x200_tall_left.png"
+    outputPrefix = "100x200_tall_left_to_"
+
+    # Just a crop, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'west',
+      'width':   50,
+      'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'northwest',
+      'width':   25,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'southwest',
+      'width':   100,
+      'height':  400,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a tall portion
+  # at the right of the image
+  # ------------------------------------------------------------------------------- 
+  def test100x200TallRight(self):
+
+    srcPath = "file://../images/100x200_tall_right.png"
+    outputPrefix = "100x200_tall_right_to_"
+
+    # Just a crop, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'east',
+      'width':   50,
+      'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'northeast',
+      'width':   25,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'southeast',
+      'width':   100,
+      'height':  400,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a wide portion
+  # at the bottom of the image
+  # ------------------------------------------------------------------------------- 
+  def test100x200WideBottom(self):
+
+    srcPath = "file://../images/100x200_wide_bottom.png"
+    outputPrefix = "100x200_wide_bottom_to_"
+
+    # Just a crop, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'south',
+      'width':   100,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'southeast',
+      'width':   50,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'southwest',
+      'width':   200,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a wide portion
+  # at the bottom of the image
+  # ------------------------------------------------------------------------------- 
+  def test100x200WideCenter(self):
+
+    srcPath = "file://../images/100x200_wide_center.png"
+    outputPrefix = "100x200_wide_center_to_"
+
+    # Just a crop, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'center',
+      'width':   100,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'east',
+      'width':   50,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'west',
+      'width':   200,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a wide portion
+  # at the top of the image
+  # ------------------------------------------------------------------------------- 
+  def test100x200WideTop(self):
+
+    srcPath = "file://../images/100x200_wide_top.png"
+    outputPrefix = "100x200_wide_top_to_"
+
+    # Just a crop, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'north',
+      'width':   100,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'northeast',
+      'width':   50,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'northwest',
+      'width':   200,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a wide source image and we are always cropping a tall portion at
+  # the center of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100TallCenter(self):
+
+    srcPath = "file://../images/200x100_tall_center.png"
+    outputPrefix = "200x100_tall_center_to_"
+
+    # Just a crop, take the center
+    opts = {
+      'type':    'fill',
+      'gravity': 'center',
+      'width':   50,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the center
+    opts = {
+      'type':    'fill',
+      'gravity': 'north',
+      'width':   25,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the center
+    opts = {
+      'type':    'fill',
+      'gravity': 'south',
+      'width':   100,
+      'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a tall portion at
+  # the left of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100TallLeft(self):
+
+    srcPath = "file://../images/200x100_tall_left.png"
+    outputPrefix = "200x100_tall_left_to_"
+
+    # Just a crop, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'west',
+      'width':   50,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'northwest',
+      'width':   25,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the left
+    opts = {
+      'type':    'fill',
+      'gravity': 'southwest',
+      'width':   100,
+      'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a tall portion at
+  # the right of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100TallRight(self):
+
+    srcPath = "file://../images/200x100_tall_right.png"
+    outputPrefix = "200x100_tall_right_to_"
+
+    # Just a crop, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'east',
+      'width':   50,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'northeast',
+      'width':   25,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the right
+    opts = {
+      'type':    'fill',
+      'gravity': 'southeast',
+      'width':   100,
+      'height':  200,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a wide portion at 
+  # the bottom of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100WideBottom(self):
+
+    srcPath = "file://../images/200x100_wide_bottom.png"
+    outputPrefix = "200x100_wide_bottom_to_"
+
+    # Just a crop, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'south',
+      'width':   200,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'southeast',
+      'width':   100,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'southwest',
+      'width':   400,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a tall source image and we are always cropping a wide portion at 
+  # the bottom of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100WideCenter(self):
+
+    srcPath = "file://../images/200x100_wide_center.png"
+    outputPrefix = "200x100_wide_center_to_"
+
+    # Just a crop, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'center',
+      'width':   200,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'east',
+      'width':   100,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the bottom
+    opts = {
+      'type':    'fill',
+      'gravity': 'west',
+      'width':   400,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # ------------------------------------------------------------------------------- 
+  # Here we have a wide source image and we are always cropping a wide portion at 
+  # the top of the image
+  # ------------------------------------------------------------------------------- 
+  def test200x100WideTop(self):
+
+    srcPath = "file://../images/200x100_wide_top.png"
+    outputPrefix = "200x100_wide_top_to_"
+
+    # Just a crop, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'north',
+      'width':   200,
+      'height':  50,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Shrink, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'northeast',
+      'width':   100,
+      'height':  25,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+    # Enlarge, take the top
+    opts = {
+      'type':    'fill',
+      'gravity': 'northwest',
+      'width':   400,
+      'height':  100,
+    }
+    self.imageResizeHelper(srcPath, outputPrefix, opts)
+
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
   def test_basic_jpg_resize(self):
 
     #-----------------------------
@@ -268,6 +737,39 @@ class TestArion(unittest.TestCase):
     output = self.read_image(output_url)
 
     self.verify_success(output, 200, 200);
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_resize_fill(self):
+
+    output_url = 'file://test_resize_fill.jpg'
+
+    # Height should not matter here...
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':      200,
+        'height':     400,
+        'type':       'fill',
+        'quality':    92,
+        'output_url': output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+
+    self.verify_success(output);
+
+    #-----------------------------
+    #  Now read back image data
+    #-----------------------------
+
+    output = self.read_image(output_url)
+
+    #self.verify_success(output, 200, 200);
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
