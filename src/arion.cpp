@@ -101,13 +101,13 @@ class ArionOperationNotSupportedException: public exception
   }
 } operationNotSupportedException;
 
-class ArionOperationErrorException: public exception
+class ArionInputSourceException: public exception
 {
   virtual const char* what() const throw()
   {
-    return "Operation error";
+    return "Unsupported input source. Use 'file://' prefix";
   }
-} operationErrorException;
+} inputSourceException;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -121,6 +121,122 @@ Arion::Arion() :
   mFailedOperations(0),
   mResult(false)
 {
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Arion::setup(const string& inputJson) 
+{
+  //----------------------------------
+  //       Parse JSON Input
+  //----------------------------------
+  std::stringstream ss(inputJson);
+
+  boost::property_tree::read_json(ss, mInputTree);
+  
+  try
+  {
+    // We always operate on a single input image
+    string inputUrl = mInputTree.get<std::string>("input_url");
+    
+    parseInputUrl(inputUrl);
+    
+  }
+  catch (boost::exception& e)
+  {
+    // Ignore this for now... The input may be set as bytes
+  }
+  catch (exception& e)
+  {
+    mResult = false;
+    mErrorMessage = e.what();
+    
+    constructErrorJson();
+
+    return false;
+  }
+  
+  //----------------------------------
+  //        Parse operations
+  //----------------------------------
+  if (!parseOperations(mInputTree))
+  {
+    mResult = false;
+    constructErrorJson();
+
+    return false;
+  }
+  
+  //--------------------------------
+  //   Correct orientation flag
+  //--------------------------------
+  try
+  {
+    mCorrectOrientation = mInputTree.get<bool>("correct_rotation");
+  }
+  catch (boost::exception& e)
+  {
+    // Not required
+  }
+  
+  return true;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::setSourceImage(cv::Mat& sourceImage)
+{
+  mSourceImage = sourceImage;
+}
+
+//------------------------------------------------------------------------------
+//  Manually pass in an input URL rather than reading it from JSON
+//------------------------------------------------------------------------------
+bool Arion::setInputUrl(const string& inputUrl)
+{
+  try
+  {
+    parseInputUrl(inputUrl);
+  }
+  catch (exception& e)
+  {
+    mResult = false;
+    mErrorMessage = e.what();
+    
+    constructErrorJson();
+
+    return false;
+  }
+  
+  return true;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::setCorrectOrientation(bool correctOrientation)
+{
+  mCorrectOrientation = correctOrientation;
+}
+
+//------------------------------------------------------------------------------
+// Helper method for parsing the input URL
+// 
+// We use the input URL convention here to future proof this method.
+// For instance we could have a URL that is not a local file. It could
+// be a URL for another service (e.g. S3)
+//------------------------------------------------------------------------------
+void Arion::parseInputUrl(std::string inputUrl)
+{
+  int pos = inputUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    mInputFile = Utils::getStringTail(inputUrl, pos + Utils::FILE_SOURCE.length());
+  }
+  else
+  {
+    throw inputSourceException;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -520,91 +636,47 @@ void Arion::extractImage(const string& imageFilePath)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Arion::run(const string& inputJson)
-{   
-  //----------------------------------
-  //       Parse JSON Input
-  //----------------------------------
-  std::stringstream ss(inputJson);
-
-  ptree inputTree;
-
-  boost::property_tree::read_json(ss, inputTree);
-
-  // We always operate on a single input image
-  string imageUrl = inputTree.get<std::string>("input_url");
-
-  int pos = imageUrl.find(Utils::FILE_SOURCE);
-
-  if (pos != string::npos)
-  {
-    mInputFile = Utils::getStringTail(imageUrl, pos + Utils::FILE_SOURCE.length());
-  }
-  else
-  {
-    mResult = false;
-    mErrorMessage = "Unsupported input source. Use 'file://' prefix";
-    constructErrorJson();
-
-    return mResult;
-  }
-  
-  //--------------------------------
-  //   Correct orientation flag
-  //--------------------------------
-  try
-  {
-    mCorrectOrientation = inputTree.get<bool>("correct_rotation");
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
-  }
-
+bool Arion::run()
+{
   //----------------------------------
   //        Preprocessing
   //----------------------------------
-  try
+  if (mInputFile.length())
   {
-    extractImage(mInputFile);
+    try
+    {
+      // We have an input file, so lets read it
+      extractImage(mInputFile);
+    }
+    catch (boost::exception& e)
+    {
+
+      mResult = false;
+      mErrorMessage = "Error extracting image";
+      constructErrorJson();
+
+      return false;
+    }
+    
+    //----------------------------------
+    //     Read metadata from file
+    //----------------------------------
+    extractMetadata(mInputFile);
   }
-  catch (boost::exception& e)
-  {
-
-  // TODO: log this
-//    stringstream ss;
-//
-//#if DEBUG
-//    ss << "Error reading image " << diagnostic_information(e);
-//#endif
-
-    mResult = false;
-    mErrorMessage = "Error extracting image";
-    constructErrorJson();
-
-    return mResult;
-
-  }
-  
-  //----------------------------------
-  //        Read metadata
-  //----------------------------------
-  extractMetadata(mInputFile);
   
   //----------------------------------
   //        Write metadata
   //----------------------------------
-  overrideMeta(inputTree);
+  overrideMeta(mInputTree);
   
-  //----------------------------------
-  //        Parse operations
-  //----------------------------------
-  if (!parseOperations(inputTree))
+  // Make sure we have image data to work with
+  if (mSourceImage.empty())
   {
     mResult = false;
+    mErrorMessage = "Input image data is empty";
     constructErrorJson();
 
-    return mResult;
+    return false;
   }
   
   //----------------------------------

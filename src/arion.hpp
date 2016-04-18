@@ -49,16 +49,6 @@
 // Local
 #include "models/operation.hpp"
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//struct ArionOutput {
-//  bool result;
-//  std::string error_message;
-//  unsigned total_operations;
-//  unsigned failed_operations;
-//  
-//  std::string json;
-//};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -67,35 +57,48 @@ class Arion
   public:
 
     Arion();
+    
+    bool setup(const std::string& inputJson);
 
-    bool run(const std::string& inputJson);
+    void setSourceImage(cv::Mat& sourceImage);
+    bool setInputUrl(const std::string& inputUrl);
+    void setCorrectOrientation(bool correctOrientation);
+    //void addOperation(Operation* operation);
+    
+    bool run();
     std::string getJson() const;
     
   private:
 
-    bool mCorrectOrientation;
-    
+    //--------------------
+    //      Helpers
+    //--------------------
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
     bool parseOperations(const boost::property_tree::ptree& pt);
     void extractImage(const std::string& imageFilePath);
     void extractMetadata(const std::string& imageFilePath);
     void overrideMeta(const boost::property_tree::ptree& pt);
     void constructErrorJson();
+    void parseInputUrl(std::string inputUrl);
     
+    //--------------------
+    //      Inputs
+    //--------------------
+    boost::property_tree::ptree mInputTree;
+    std::string mInputFile;
+    bool mCorrectOrientation;
+    cv::Mat mSourceImage;
     std::vector<Operation*> mOperations;
     
+    //--------------------
+    //     Image info
+    //--------------------
     Exiv2::ExifData* mpExifData;
     Exiv2::XmpData* mpXmpData;
     Exiv2::IptcData* mpIptcData;
-    
-    cv::Mat mSourceImage;
-    
     Exiv2::Image::AutoPtr mExivImage;
-    
     char* mpPixelMd5;
-    
-    std::string mInputFile;
-    
+
     // The following describe the result of the operations
     bool mResult;
     std::string mErrorMessage;
