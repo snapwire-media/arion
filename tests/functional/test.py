@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
 import unittest
 import json
 from subprocess import Popen, PIPE
@@ -25,6 +26,8 @@ class TestArion(unittest.TestCase):
   LANDSCAPE_6_PATH = 'file://../images/Landscape_6.jpg'
   LANDSCAPE_7_PATH = 'file://../images/Landscape_7.jpg'
   LANDSCAPE_8_PATH = 'file://../images/Landscape_8.jpg'
+  
+  OUTPUT_IMAGE_PATH = 'output/'
 
   # -------------------------------------------------------------------------------
   # Helper function for calling Arion
@@ -90,16 +93,22 @@ class TestArion(unittest.TestCase):
       
     if expected_height >= 0:
       self.assertEqual(output['height'], expected_height)
+      
+  # -------------------------------------------------------------------------------
+  # Helper function for creating output url
+  # -------------------------------------------------------------------------------
+  def outputUrl(self, filename):
+    return 'file://' + self.OUTPUT_IMAGE_PATH + filename
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
   def imageResizeHelper(self, srcPath, outputPrefix, options):
 
-    destName = outputPrefix + \
-               str(options['width']) + 'x' + str(options['height']) + \
-               '_' + str(options['type']) + '.jpg'
+    outputFilename = outputPrefix + \
+                     str(options['width']) + 'x' + str(options['height']) + \
+                     '_' + str(options['type']) + '.jpg'
     
-    outputUrl = 'file://' + destName
+    outputUrl = self.outputUrl(outputFilename)
     
     resize_operation = {
       'type': 'resize',
@@ -128,7 +137,6 @@ class TestArion(unittest.TestCase):
 
     self.verify_success(output, options['width'], options['height']);
     
-
   # -------------------------------------------------------------------------------
   # Here we have a tall source image and we are always cropping a tall portion at
   # the center of the image
@@ -162,7 +170,6 @@ class TestArion(unittest.TestCase):
         'height':  400,
     }
     self.imageResizeHelper(srcPath, outputPrefix, opts)
-
 
   # ------------------------------------------------------------------------------- 
   # Here we have a tall source image and we are always cropping a tall portion at 
@@ -567,7 +574,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     #       Resize image
     #-----------------------------
-    output_url = 'file://test_basic_jpg_resize.jpg'
+    output_url = self.outputUrl('test_basic_jpg_resize.jpg')
 
     # Use low JPG quality to make sure parameter is working
     resize_operation = {
@@ -619,7 +626,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_width_limit(self):
 
-    output_url = 'file://test_resize_shrink_width_limit.jpg'
+    output_url = self.outputUrl('test_resize_shrink_width_limit.jpg')
 
     operation = {
       'type': 'resize',
@@ -649,7 +656,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_height(self):
 
-    output_url = 'file://test_resize_shrink_height.jpg'
+    output_url = self.outputUrl('test_resize_shrink_height.jpg')
 
     operation = {
       'type': 'resize',
@@ -679,7 +686,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_height_limit(self):
 
-    output_url = 'file://test_resize_shrink_height_limit.jpg'
+    output_url = self.outputUrl('test_resize_shrink_height_limit.jpg')
 
     operation = {
       'type': 'resize',
@@ -709,7 +716,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_square(self):
 
-    output_url = 'file://test_resize_shrink_square.jpg'
+    output_url = self.outputUrl('test_resize_shrink_square.jpg')
 
     # Height should not matter here...
     resize_operation = {
@@ -742,7 +749,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_fill(self):
 
-    output_url = 'file://test_resize_fill.jpg'
+    output_url = self.outputUrl('test_resize_fill.jpg')
 
     # Height should not matter here...
     resize_operation = {
@@ -817,28 +824,28 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_jpg_orienation(self):
 
-    output = self.copy_image(self.LANDSCAPE_1_PATH, 'file://Landscape_1.jpg')
+    output = self.copy_image(self.LANDSCAPE_1_PATH, self.outputUrl('Landscape_1.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_2_PATH, 'file://Landscape_2.jpg')
+    output = self.copy_image(self.LANDSCAPE_2_PATH, self.outputUrl('Landscape_2.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_3_PATH, 'file://Landscape_3.jpg')
+    output = self.copy_image(self.LANDSCAPE_3_PATH, self.outputUrl('Landscape_3.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_4_PATH, 'file://Landscape_4.jpg')
+    output = self.copy_image(self.LANDSCAPE_4_PATH, self.outputUrl('Landscape_4.jpg'))
     self.verify_success(output);
 
-    output = self.copy_image(self.LANDSCAPE_5_PATH, 'file://Landscape_5.jpg')
+    output = self.copy_image(self.LANDSCAPE_5_PATH, self.outputUrl('Landscape_5.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_6_PATH, 'file://Landscape_6.jpg')
+    output = self.copy_image(self.LANDSCAPE_6_PATH, self.outputUrl('Landscape_6.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_7_PATH, 'file://Landscape_7.jpg')
+    output = self.copy_image(self.LANDSCAPE_7_PATH, self.outputUrl('Landscape_7.jpg'))
     self.verify_success(output);
     
-    output = self.copy_image(self.LANDSCAPE_8_PATH, 'file://Landscape_8.jpg')
+    output = self.copy_image(self.LANDSCAPE_8_PATH, self.outputUrl('Landscape_8.jpg'))
     self.verify_success(output);
 
   # -------------------------------------------------------------------------------
@@ -883,7 +890,25 @@ class TestArion(unittest.TestCase):
     output = self.call_arion(self.IMAGE_1_PATH, [operation])
     
     self.assertFalse(output['result'])
-
+    
+  # -------------------------------------------------------------------------------
+  # Called only once
+  # -------------------------------------------------------------------------------
+  @classmethod
+  def setUpClass(cls):
+    if not os.path.exists(cls.OUTPUT_IMAGE_PATH):
+      os.makedirs(cls.OUTPUT_IMAGE_PATH)
+    
+    # Remove any existing output files
+    for the_file in os.listdir(cls.OUTPUT_IMAGE_PATH):
+      file_path = os.path.join(cls.OUTPUT_IMAGE_PATH, the_file)
+      
+      try:
+        if os.path.isfile(file_path):
+          os.unlink(file_path)
+      except Exception as e:
+        print(e)
+        
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 if __name__ == '__main__':

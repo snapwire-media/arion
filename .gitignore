@@ -8,4 +8,4 @@ MakeLists.txt~
 README.md~
 nbproject/
 .DS_Store
-tests/functional/*.jpg
+tests/functional/output
