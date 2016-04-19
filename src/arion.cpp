@@ -519,21 +519,6 @@ bool Arion::parseOperations(const ptree& pt)
       // Add to operation queue
       mOperations.push_back(operation);
 
-      if (mpExifData)
-      {
-        operation->setExifData(mpExifData);
-      }
-
-      if (mpXmpData)
-      {
-        operation->setXmpData(mpXmpData);
-      }
-
-      if (mpIptcData)
-      {
-        operation->setIptcData(mpIptcData);
-      }
-      
       operationParseCount++;
 
     }
@@ -679,9 +664,6 @@ bool Arion::run()
     return false;
   }
   
-  //----------------------------------
-  //       Execute operations
-  //----------------------------------
   StringBuffer s;
     
   #ifdef JSON_PRETTY_OUTPUT
@@ -703,15 +685,35 @@ bool Arion::run()
   writer.String("md5");
   writer.String(mpPixelMd5);
   
+  //----------------------------------
+  //       Execute operations
+  //----------------------------------
   writer.String("info");
   writer.StartArray();
-
+  
   mTotalOperations = mOperations.size();
   
   BOOST_FOREACH (Operation* operation, mOperations)
   {
     try
     {
+
+      // Give operations meta data if it exists
+      if (mpExifData)
+      {
+        operation->setExifData(mpExifData);
+      }
+
+      if (mpXmpData)
+      {
+        operation->setXmpData(mpXmpData);
+      }
+
+      if (mpIptcData)
+      {
+        operation->setIptcData(mpIptcData);
+      }
+      
       if (!operation->run())
       {
         mFailedOperations++;
