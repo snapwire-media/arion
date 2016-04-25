@@ -7,7 +7,7 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-const char* returnChars(const std::string& string)
+char* returnChars(const std::string& string)
 {
   const char* localOutputJson = string.c_str();
   
@@ -16,7 +16,7 @@ const char* returnChars(const std::string& string)
   
   strcpy(outputJson, localOutputJson);
   
-  return (const char*)outputJson;
+  return outputJson;
 }
 
 //------------------------------------------------------------------------------
@@ -36,26 +36,32 @@ const char* ArionRunJson(const char* inputJsonChar)
   
   arion.run();
 
-  return returnChars(arion.getJson());
+  return (const char*)returnChars(arion.getJson());
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-const char* ArionResize(struct ArionInputOptions inputOptions,
-                        struct ArionResizeOptions resizeOptions)
-{  
-
+struct ArionResult ArionResize(struct ArionInputOptions inputOptions,
+                               struct ArionResizeOptions resizeOptions)
+{
+  struct ArionResult result;
+  std::string inputUrl = std::string(inputOptions.inputUrl);
+  std::vector<unsigned char> buffer;
   
   Arion arion;
-  std::string inputUrl = std::string(inputOptions.inputUrl);
   arion.setInputUrl(inputUrl);
   arion.setCorrectOrientation(true);
-  
   arion.addResizeOperation(resizeOptions);
-
   arion.run();
+  arion.getJpeg(buffer);
   
-  //resize.getJpeg();
+  result.outputData = (unsigned char *)malloc(buffer.size());
+  result.resultJson = returnChars(arion.getJson());
   
-  return (const char*)0;
+  // TODO: is there a way without this memcpy?
+  memcpy(result.outputData, &buffer[0], buffer.size());
+  
+  result.outputSize = buffer.size();
+  
+  return result;
 }

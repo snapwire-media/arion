@@ -286,8 +286,11 @@ void Arion::addResizeOperation(struct ArionResizeOptions options)
   }
   
   // Output Url
-  string outputUrl = std::string(options.outputUrl);
-  resize->setOutputUrl(outputUrl);
+  if (options.outputUrl)
+  {
+    string outputUrl = std::string(options.outputUrl);
+    resize->setOutputUrl(outputUrl);
+  }
   
   // Add to operation queue
   mOperations.push_back(resize);
@@ -877,4 +880,13 @@ void Arion::constructErrorJson()
 std::string Arion::getJson() const
 {
   return mJson;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::getJpeg(std::vector<unsigned char>& data)
+{
+  Operation& operation = mOperations.at(0);
+  
+  operation.getJpeg(data);
 }

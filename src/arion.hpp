@@ -53,9 +53,6 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-
-
-
 class Arion
 {
   public:
@@ -74,6 +71,8 @@ class Arion
     
     bool run();
     std::string getJson() const;
+    
+    void getJpeg(std::vector<unsigned char>& data);
     
   private:
 

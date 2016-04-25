@@ -87,6 +87,7 @@ class Resize : public Operation
 
     virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
+    virtual void getJpeg(std::vector<unsigned char>& data);
     
     void setType(const std::string& type);
     void setHeight(unsigned height);
@@ -103,7 +104,6 @@ class Resize : public Operation
     std::string getOutputFile() const;
     bool getPreserveMeta() const;
     bool getStatus() const;
-    unsigned char* getJpeg();
     void outputStatus(std::ostream& s, unsigned indent) const;
     
   #ifdef JSON_PRETTY_OUTPUT
@@ -151,6 +151,8 @@ class Resize : public Operation
 
     int mStatus;
     std::string mErrorMessage;
+    
+    
 
 };
 

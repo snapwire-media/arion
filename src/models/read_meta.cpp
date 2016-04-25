@@ -296,3 +296,9 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
 
   writer.EndObject();
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Read_meta::getJpeg(std::vector<unsigned char>& data)
+{
+}

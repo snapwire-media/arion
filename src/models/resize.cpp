@@ -429,23 +429,22 @@ bool Resize::getStatus() const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-unsigned char* Resize::getJpeg()
+void Resize::getJpeg(std::vector<unsigned char>& data)
 {
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_JPEG_QUALITY);
   compression_params.push_back(mQuality);
   
   // encode image into jpg
-  std::vector<uchar> buffer;
-  cv::imencode(".jpg", mImageResizedFinal, buffer, compression_params);
   
+  cv::imencode(".jpg", mImageResizedFinal, data, compression_params);
+    
   // encoded image is now in buf (a vector)
-  //imageBuf = (unsigned char *) realloc(imageBuf, buf.size());
+  //unsigned char* imageBuf = (unsigned char *) realloc(imageBuf, buffer.size());
   
-//  unsigned char* output = (unsigned char *)malloc();
+//  unsigned char* output = (unsigned char *)malloc(buffer.size());
 //  memcpy(output, &buffer[0], buffer.size());
-  
-  return (unsigned char*)0;
+
 }
 
 //------------------------------------------------------------------------------

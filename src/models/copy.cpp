@@ -212,3 +212,9 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
 
   writer.EndObject();
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Copy::getJpeg(std::vector<unsigned char>& data)
+{
+}

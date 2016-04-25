@@ -25,10 +25,16 @@ extern "C" {
     unsigned watermarkAmount;
     char* outputUrl;
   };
+  
+  struct ArionResult {
+    unsigned char* outputData;
+    int outputSize;
+    char* resultJson;
+  };
 
   const char* ArionRunJson(const char* inputJson);
-  const char* ArionResize(struct ArionInputOptions inputOptions,
-                          struct ArionResizeOptions resizeOptions);
+  struct ArionResult ArionResize(struct ArionInputOptions inputOptions,
+                                 struct ArionResizeOptions resizeOptions);
 
 #ifdef __cplusplus
 }
