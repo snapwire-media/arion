@@ -127,13 +127,11 @@ Arion::Arion() :
 //------------------------------------------------------------------------------
 Arion::~Arion() 
 {
-  for (vector<Operation *>::iterator i = mOperations.begin(); i != mOperations.end(); ++i)
-  {
-    // TODO: why does this crash go!?
-    //delete *i;
-  }
-
-  mOperations.clear();
+  mpExifData = 0;
+  mpXmpData = 0;
+  mpIptcData = 0;
+  
+  mOperations.release();
   
 }
 
@@ -703,7 +701,6 @@ void Arion::extractImage(const string& imageFilePath)
 //------------------------------------------------------------------------------
 bool Arion::run()
 {
-  
 
   //----------------------------------
   //        Preprocessing
@@ -779,37 +776,35 @@ bool Arion::run()
   
   mTotalOperations = mOperations.size();
   
-  BOOST_FOREACH (Operation* operation, mOperations)
+  BOOST_FOREACH (Operation& operation, mOperations)
   {
     try
     {
       
-      operation->setImage(mSourceImage);
+      operation.setImage(mSourceImage);
 
       // Give operations meta data if it exists
       if (mpExifData)
       {
-        operation->setExifData(mpExifData);
+        operation.setExifData(mpExifData);
       }
 
       if (mpXmpData)
       {
-        operation->setXmpData(mpXmpData);
+        operation.setXmpData(mpXmpData);
       }
 
       if (mpIptcData)
       {
-        operation->setIptcData(mpIptcData);
+        operation.setIptcData(mpIptcData);
       }
       
-      if (!operation->run())
+      if (!operation.run())
       {
         mFailedOperations++;
       }
 
-      operation->serialize(writer);
-      
-      delete operation;
+      operation.serialize(writer);
     }
     catch (std::exception& e)
     {

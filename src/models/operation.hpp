@@ -53,7 +53,7 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Operation
+class Operation : boost::noncopyable
 {
   public:
 
@@ -79,7 +79,9 @@ class Operation
     void setImage(cv::Mat& image);
 
   protected:
-
+    
+    void operator=( const Operation& );
+    
     boost::property_tree::ptree mParams;
 
     const Exiv2::ExifData* mpExifData;

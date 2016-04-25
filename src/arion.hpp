@@ -39,6 +39,7 @@
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -52,7 +53,9 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Resize;
+
+
+
 class Arion
 {
   public:
@@ -92,7 +95,10 @@ class Arion
     std::string mInputFile;
     bool mCorrectOrientation;
     cv::Mat mSourceImage;
-    std::vector<Operation*> mOperations;
+    
+    typedef boost::ptr_vector<Operation> Operations;
+    
+    Operations mOperations;
     
     //--------------------
     //     Image info
