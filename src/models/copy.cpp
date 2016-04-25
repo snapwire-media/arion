@@ -58,14 +58,28 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Copy::Copy(const ptree& params, string inputFile) :
-    Operation(params),
+Copy::Copy(string inputFile) :
+    Operation(),
     mStatus(CopyStatusDidNotTry),
     mErrorMessage(),
     mInputFile(inputFile),
     mOutputFile()
 {
+}
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Copy::~Copy()
+{
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Copy::setup(const ptree& params)
+{
+  // Make a copy from the const reference
+  mParams = ptree(params);
+  
   try
   {
     string outputUrl = params.get<string>("output_url");
@@ -81,12 +95,6 @@ Copy::Copy(const ptree& params, string inputFile) :
   {
     // Required, but output error during run()
   }
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-Copy::~Copy()
-{
 }
 
 //------------------------------------------------------------------------------

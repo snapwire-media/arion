@@ -48,22 +48,26 @@
 
 // Local
 #include "models/operation.hpp"
-
+#include "carion.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+class Resize;
 class Arion
 {
   public:
 
     Arion();
+    ~Arion();
     
     bool setup(const std::string& inputJson);
 
     void setSourceImage(cv::Mat& sourceImage);
+    cv::Mat& getSourceImage();
     bool setInputUrl(const std::string& inputUrl);
+    bool setOutputUrl(const std::string& outputUrl);
     void setCorrectOrientation(bool correctOrientation);
-    //void addOperation(Operation* operation);
+    void addResizeOperation(struct ArionResizeOptions options);
     
     bool run();
     std::string getJson() const;

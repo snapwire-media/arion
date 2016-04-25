@@ -63,9 +63,10 @@ class Copy : public Operation
 {
   public:
 
-    Copy(const boost::property_tree::ptree& params, std::string inputFile);
+    Copy(std::string inputFile);
     virtual ~Copy();
 
+    virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
 
     std::string getOutputFile() const;

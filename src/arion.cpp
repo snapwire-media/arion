@@ -125,6 +125,20 @@ Arion::Arion() :
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+Arion::~Arion() 
+{
+  for (vector<Operation *>::iterator i = mOperations.begin(); i != mOperations.end(); ++i)
+  {
+    // TODO: why does this crash go!?
+    //delete *i;
+  }
+
+  mOperations.clear();
+  
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 bool Arion::setup(const string& inputJson) 
 {
   //----------------------------------
@@ -190,6 +204,13 @@ void Arion::setSourceImage(cv::Mat& sourceImage)
 }
 
 //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+cv::Mat& Arion::getSourceImage()
+{
+  return mSourceImage;
+}
+
+//------------------------------------------------------------------------------
 //  Manually pass in an input URL rather than reading it from JSON
 //------------------------------------------------------------------------------
 bool Arion::setInputUrl(const string& inputUrl)
@@ -216,6 +237,62 @@ bool Arion::setInputUrl(const string& inputUrl)
 void Arion::setCorrectOrientation(bool correctOrientation)
 {
   mCorrectOrientation = correctOrientation;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::addResizeOperation(struct ArionResizeOptions options)
+{
+  // This is a resize operation so create the corresponding object
+  Resize* resize = new Resize();
+
+  if (options.algo) 
+  {
+    string type(options.algo);
+    resize->setType(type);
+  }
+
+  resize->setHeight(options.height);
+  resize->setWidth(options.width);
+  
+  // Gravity
+  if (options.gravity)
+  {
+    string gravity(options.gravity);
+    resize->setGravity(gravity);
+  }
+  
+  // Quality
+  resize->setQuality(options.quality);
+  
+  // Preserve meta data
+  if (options.preserveMeta > 0)
+  {
+    resize->setPreserveMeta(true);
+  }
+  else
+  {
+    resize->setPreserveMeta(false);
+  }
+  
+  // Sharpening
+  resize->setSharpenAmount(options.sharpenAmount);
+  resize->setSharpenRadius(options.sharpenRadius);
+  
+  // Watermark
+  if (options.watermarkUrl)
+  {
+    string watermarkUrl(options.watermarkUrl);
+    resize->setWatermarkUrl(watermarkUrl);
+    resize->setWatermarkAmount(options.watermarkAmount);
+  }
+  
+  // Output Url
+  string outputUrl = std::string(options.outputUrl);
+  resize->setOutputUrl(outputUrl);
+  
+  // Add to operation queue
+  mOperations.push_back(resize);
 }
 
 //------------------------------------------------------------------------------
@@ -499,20 +576,23 @@ bool Arion::parseOperations(const ptree& pt)
       if (type == "resize")
       {
         // This is a resize operation so create the corresponding object
-        operation = new Resize(paramsTree, mSourceImage);
+        operation = new Resize();
+        operation->setup(paramsTree);
       }
       else if (type == "read_meta")
       {
-        // This is a resize operation so create the corresponding object
-        operation = new Read_meta(paramsTree);
+        // This is a read_meta operation so create the corresponding object
+        operation = new Read_meta();
+        operation->setup(paramsTree);
       }
       else if (type == "copy")
       {
         // This is a copy operation so create the corresponding object
-        operation = new Copy(paramsTree, mInputFile);
+        operation = new Copy(mInputFile);
+        operation->setup(paramsTree);
       }
       else
-      { 
+      {
         throw operationNotSupportedException;
       }
       
@@ -623,6 +703,8 @@ void Arion::extractImage(const string& imageFilePath)
 //------------------------------------------------------------------------------
 bool Arion::run()
 {
+  
+
   //----------------------------------
   //        Preprocessing
   //----------------------------------
@@ -630,6 +712,7 @@ bool Arion::run()
   {
     try
     {
+      // TODO: only read pixels if required by operations...
       // We have an input file, so lets read it
       extractImage(mInputFile);
     }
@@ -639,10 +722,10 @@ bool Arion::run()
       mResult = false;
       mErrorMessage = "Error extracting image";
       constructErrorJson();
-
+      
       return false;
     }
-    
+
     //----------------------------------
     //     Read metadata from file
     //----------------------------------
@@ -652,7 +735,10 @@ bool Arion::run()
   //----------------------------------
   //        Write metadata
   //----------------------------------
-  overrideMeta(mInputTree);
+  if (!mInputTree.empty())
+  {
+    overrideMeta(mInputTree);
+  }
   
   // Make sure we have image data to work with
   if (mSourceImage.empty())
@@ -697,6 +783,8 @@ bool Arion::run()
   {
     try
     {
+      
+      operation->setImage(mSourceImage);
 
       // Give operations meta data if it exists
       if (mpExifData)
@@ -718,7 +806,7 @@ bool Arion::run()
       {
         mFailedOperations++;
       }
- 
+
       operation->serialize(writer);
       
       delete operation;

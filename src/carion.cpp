@@ -1,5 +1,6 @@
 // Local
 #include "arion.hpp"
+#include "models/resize.hpp"
 #include "carion.h"
 #include <stdio.h>
 #include <string.h>
@@ -42,21 +43,19 @@ const char* ArionRunJson(const char* inputJsonChar)
 //------------------------------------------------------------------------------
 const char* ArionResize(struct ArionInputOptions inputOptions,
                         struct ArionResizeOptions resizeOptions)
-{
-//  std::string inputJson(inputJsonChar);
-//  
-//  Arion arion;
-//
-//  arion.run();
-//  
-//  const char* localOutputJson = arion.getJson().c_str();
-//  
-//  // Create on the heap
-//  char* outputJson = (char*)malloc(strlen(localOutputJson));
-//  
-//  strcpy(outputJson, localOutputJson);
-//  
-//  return outputJson;
+{  
+
+  
+  Arion arion;
+  std::string inputUrl = std::string(inputOptions.inputUrl);
+  arion.setInputUrl(inputUrl);
+  arion.setCorrectOrientation(true);
+  
+  arion.addResizeOperation(resizeOptions);
+
+  arion.run();
+  
+  //resize.getJpeg();
   
   return (const char*)0;
 }

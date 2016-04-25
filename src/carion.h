@@ -6,32 +6,25 @@ extern "C" {
 #endif
   
   struct ArionInputOptions {
-    bool  correctOrientation;
-    void* inputBytes;
+    unsigned correctOrientation;
+    //void* inputBytes;
     char* inputUrl;
+    char* outputUrl;
   };
   
   struct ArionResizeOptions {
-    char* type;
+    char* algo;
     unsigned height;
     unsigned width;
-    unsigned quality;
     char* gravity;
+    unsigned quality;
     unsigned sharpenAmount;
     float sharpenRadius;
-    bool preserveMeta;
+    unsigned preserveMeta;
+    char* watermarkUrl;
+    unsigned watermarkAmount;
+    char* outputUrl;
   };
-  
-//    mImage(image),
-//    mType(ResizeTypeInvalid),
-//    mHeight(0),
-//    mWidth(0),
-//    mQuality(92),
-//    mGravity(ResizeGravitytCenter),
-//    mSharpenAmount(0),
-//    mSharpenRadius(0.0),
-//    mPreserveMeta(false),
-//    mWatermarkFile(),
 
   const char* ArionRunJson(const char* inputJson);
   const char* ArionResize(struct ArionInputOptions inputOptions,

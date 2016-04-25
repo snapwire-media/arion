@@ -40,9 +40,6 @@
 // Boost
 #include <boost/property_tree/ptree.hpp>
 
-// OpenCV
-#include <opencv2/core/core.hpp>
-
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
@@ -85,14 +82,28 @@ class Resize : public Operation
 {
   public:
 
-    Resize(const boost::property_tree::ptree& params, cv::Mat& image);
+    Resize();
     virtual ~Resize();
 
+    virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
-
+    
+    void setType(const std::string& type);
+    void setHeight(unsigned height);
+    void setWidth(unsigned width);
+    void setQuality(unsigned quality);
+    void setGravity(std::string gravity);
+    void setSharpenAmount(unsigned sharpenAmount);
+    void setSharpenRadius(float radius);
+    void setPreserveMeta(bool preserveMeta);
+    void setWatermarkUrl(const std::string& watermarkUrl);
+    void setWatermarkAmount(float watermarkAmount);
+    void setOutputUrl(const std::string& outputUrl);
+    
     std::string getOutputFile() const;
     bool getPreserveMeta() const;
     bool getStatus() const;
+    unsigned char* getJpeg();
     void outputStatus(std::ostream& s, unsigned indent) const;
     
   #ifdef JSON_PRETTY_OUTPUT
@@ -113,16 +124,19 @@ class Resize : public Operation
     
     void readType(const boost::property_tree::ptree& params);
     void readGravity(const boost::property_tree::ptree& params);
-
-    //boost::property_tree::ptree mParams;
+    
+    void decodeGravity(const std::string& gravity);
+    void decodeType(const std::string& type);
+    void decodeWatermarkUrl(const std::string& watermarkUrl);
+    void decodeOutputUrl(const std::string& outputUrl);
 
     int mType;
-    int mHeight;
-    int mWidth;
-    int mQuality;
-    int mGravity;
+    unsigned mHeight;
+    unsigned mWidth;
+    unsigned mQuality;
+    unsigned mGravity;
     bool mPreFilter;
-    int mSharpenAmount;
+    unsigned mSharpenAmount;
     float mSharpenRadius;
     bool mPreserveMeta;
     std::string mWatermarkFile;
@@ -131,7 +145,6 @@ class Resize : public Operation
 
     cv::Mat mImageResized;
     cv::Mat mImageResizedFinal;
-    cv::Mat& mImage;
     
     cv::Size mSize;
     cv::Mat mImageToResize;

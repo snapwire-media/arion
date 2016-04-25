@@ -57,9 +57,8 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Resize::Resize(const ptree& params, Mat& image) :
-    Operation(params),
-    mImage(image),
+Resize::Resize() :
+    Operation(),
     mType(ResizeTypeInvalid),
     mHeight(0),
     mWidth(0),
@@ -74,6 +73,18 @@ Resize::Resize(const ptree& params, Mat& image) :
     mStatus(ResizeStatusDidNotTry),
     mErrorMessage()
 {
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Resize::~Resize()
+{
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setup(const ptree& params)
+{
   //-------------------------
   //   Required arguments
   //-------------------------
@@ -82,7 +93,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   
   try
   {
-    mHeight = params.get<int>("height");
+    mHeight = params.get<unsigned>("height");
   }
   catch (boost::exception& e)
   {
@@ -91,7 +102,7 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
-    mWidth = params.get<int>("width");
+    mWidth = params.get<unsigned>("width");
   }
   catch (boost::exception& e)
   {
@@ -102,12 +113,7 @@ Resize::Resize(const ptree& params, Mat& image) :
   {
     string outputUrl = params.get<string>("output_url");
 
-    int pos = outputUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
-    }
+    decodeOutputUrl(outputUrl);
   }
   catch (boost::exception& e)
   {
@@ -131,7 +137,8 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
-    mQuality = params.get<int>("quality");
+    // TODO: quality validation
+    mQuality = params.get<unsigned>("quality");
   }
   catch (boost::exception& e)
   {
@@ -149,7 +156,8 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
-    mSharpenAmount = params.get<int>("sharpen_amount");
+    // TODO: validation
+    mSharpenAmount = params.get<unsigned>("sharpen_amount");
   }
   catch (boost::exception& e)
   {
@@ -158,6 +166,7 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
+    // TODO: validation
     mSharpenRadius = params.get<float>("sharpen_radius");
   }
   catch (boost::exception& e)
@@ -167,14 +176,8 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
-    string outputUrl = params.get<string>("watermark_url");
-
-    int pos = outputUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      mWatermarkFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
-    }
+    string watermarkUrl = params.get<string>("watermark_url");
+    decodeWatermarkUrl(watermarkUrl);
   }
   catch (boost::exception& e)
   {
@@ -183,12 +186,116 @@ Resize::Resize(const ptree& params, Mat& image) :
 
   try
   {
+    // TODO: validation
     mWatermarkAmount = params.get<float>("watermark_amount");
   }
   catch (boost::exception& e)
   {
     // Not required
   }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::decodeOutputUrl(const std::string& outputUrl)
+{
+  int pos = outputUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::decodeWatermarkUrl(const std::string& watermarkUrl)
+{
+  int pos = watermarkUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    mWatermarkFile = Utils::getStringTail(watermarkUrl, pos + Utils::FILE_SOURCE.length());
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setType(const std::string& type)
+{
+  decodeType(type);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setHeight(unsigned height)
+{
+  // TODO: validation
+  mHeight = height;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setWidth(unsigned width)
+{
+  // TODO: validation
+  mWidth = width;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setQuality(unsigned quality)
+{
+  mQuality = quality;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setGravity(std::string gravity)
+{
+  decodeGravity(gravity);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setSharpenAmount(unsigned sharpenAmount)
+{
+  mSharpenAmount = sharpenAmount;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setSharpenRadius(float radius)
+{
+  mSharpenRadius = radius;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setPreserveMeta(bool preserveMeta)
+{
+  mPreserveMeta = preserveMeta;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setWatermarkUrl(const std::string& watermarkUrl)
+{
+  decodeWatermarkUrl(watermarkUrl);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setWatermarkAmount(float watermarkAmount)
+{
+  mWatermarkAmount = watermarkAmount;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setOutputUrl(const std::string& outputUrl)
+{
+  decodeOutputUrl(outputUrl);
 }
 
 //------------------------------------------------------------------------------
@@ -201,28 +308,9 @@ void Resize::readType(const ptree& params)
     
     // Make sure it's lowercase
     transform(type.begin(), type.end(), type.begin(), ::tolower);
-
-    if (type == "width")
-    {
-      mType = ResizeTypeFixedWidth;
-    }
-    else if (type == "height")
-    {
-      mType = ResizeTypeFixedHeight;
-    }
-    else if (type == "square")
-    {
-      mType = ResizeTypeSquare;
-    }
-    else if (type == "fill")
-    {
-      mType = ResizeTypeFill;
-    }
-    else
-    {
-      // Invalid
-      mType = ResizeTypeInvalid;
-    }
+    
+    decodeType(type);
+    
   }
   catch (boost::exception& e)
   {
@@ -232,9 +320,35 @@ void Resize::readType(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::decodeType(const std::string& type)
+{
+  if (type == "width")
+  {
+    mType = ResizeTypeFixedWidth;
+  }
+  else if (type == "height")
+  {
+    mType = ResizeTypeFixedHeight;
+  }
+  else if (type == "square")
+  {
+    mType = ResizeTypeSquare;
+  }
+  else if (type == "fill")
+  {
+    mType = ResizeTypeFill;
+  }
+  else
+  {
+    // Invalid
+    mType = ResizeTypeInvalid;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Resize::readGravity(const ptree& params)
 {
-  
   try
   {
     string gravity = params.get<std::string>("gravity");
@@ -242,42 +356,7 @@ void Resize::readGravity(const ptree& params)
     // Make sure it's lowercase
     transform(gravity.begin(), gravity.end(), gravity.begin(), ::tolower);
     
-    if (gravity == "center" || gravity == "c")
-    {
-      mGravity = ResizeGravitytCenter;
-    }
-    else if (gravity == "north" || gravity == "n")
-    {
-      mGravity = ResizeGravityNorth;
-    }
-    else if (gravity == "south" || gravity == "s")
-    {
-      mGravity = ResizeGravitySouth;
-    }
-    else if (gravity == "west" || gravity == "w")
-    {
-      mGravity = ResizeGravityWest;
-    }
-    else if (gravity == "east" || gravity == "e")
-    {
-      mGravity = ResizeGravityEast;
-    }
-    else if (gravity == "northwest" || gravity == "nw")
-    {
-      mGravity = ResizeGravityNorthWest;
-    }
-    else if (gravity == "northeast" || gravity == "ne")
-    {
-      mGravity = ResizeGravityNorthEast;
-    }
-    else if (gravity == "southwest" || gravity == "sw")
-    {
-      mGravity = ResizeGravitySouthWest;
-    }
-    else if (gravity == "southeast" || gravity == "se")
-    {
-      mGravity = ResizeGravitySouthEast;
-    }
+    decodeGravity(gravity);
   }
   catch (boost::exception& e)
   {
@@ -287,8 +366,44 @@ void Resize::readGravity(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Resize::~Resize()
+void Resize::decodeGravity(const string& gravity)
 {
+  if (gravity == "center" || gravity == "c")
+  {
+    mGravity = ResizeGravitytCenter;
+  }
+  else if (gravity == "north" || gravity == "n")
+  {
+    mGravity = ResizeGravityNorth;
+  }
+  else if (gravity == "south" || gravity == "s")
+  {
+    mGravity = ResizeGravitySouth;
+  }
+  else if (gravity == "west" || gravity == "w")
+  {
+    mGravity = ResizeGravityWest;
+  }
+  else if (gravity == "east" || gravity == "e")
+  {
+    mGravity = ResizeGravityEast;
+  }
+  else if (gravity == "northwest" || gravity == "nw")
+  {
+    mGravity = ResizeGravityNorthWest;
+  }
+  else if (gravity == "northeast" || gravity == "ne")
+  {
+    mGravity = ResizeGravityNorthEast;
+  }
+  else if (gravity == "southwest" || gravity == "sw")
+  {
+    mGravity = ResizeGravitySouthWest;
+  }
+  else if (gravity == "southeast" || gravity == "se")
+  {
+    mGravity = ResizeGravitySouthEast;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -314,14 +429,35 @@ bool Resize::getStatus() const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+unsigned char* Resize::getJpeg()
+{
+  vector<int> compression_params;
+  compression_params.push_back(IMWRITE_JPEG_QUALITY);
+  compression_params.push_back(mQuality);
+  
+  // encode image into jpg
+  std::vector<uchar> buffer;
+  cv::imencode(".jpg", mImageResizedFinal, buffer, compression_params);
+  
+  // encoded image is now in buf (a vector)
+  //imageBuf = (unsigned char *) realloc(imageBuf, buf.size());
+  
+//  unsigned char* output = (unsigned char *)malloc();
+//  memcpy(output, &buffer[0], buffer.size());
+  
+  return (unsigned char*)0;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Resize::computeSizeSquare()
 {
   // Don't assume the height and width the user specified are the same
   // and just use the width
   mSize = Size(mWidth, mWidth);
   
-  const int sourceHeight = mImage.rows;
-  const int sourceWidth = mImage.cols;
+  const unsigned sourceHeight = (unsigned)mImage.rows;
+  const unsigned sourceWidth = (unsigned)mImage.cols;
 
   if (sourceHeight == sourceWidth)
   {
@@ -342,23 +478,22 @@ void Resize::computeSizeSquare()
 
     mImageToResize = mImage(cropRegion);
   }
-
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Resize::computeSizeWidth()
 {
-  const int sourceHeight = mImage.rows;
-  const int sourceWidth = mImage.cols;
+  const unsigned sourceHeight = (unsigned)mImage.rows;
+  const unsigned sourceWidth = (unsigned)mImage.cols;
   
   double aspect = (double)sourceHeight / (double)sourceWidth;
   
   // User specified fixed width. Only use height as an absolute max
-  int resizeWidth = mWidth;
-  int resizeHeight = getAspectHeight(resizeWidth, aspect);
+  unsigned resizeWidth = mWidth;
+  unsigned resizeHeight = getAspectHeight(resizeWidth, aspect);
 
-  if ((mHeight >= 0) && (resizeHeight > mHeight))
+  if (resizeHeight > mHeight)
   {
     resizeHeight = mHeight;
     resizeWidth = getAspectWidth(resizeHeight, aspect);
@@ -373,16 +508,16 @@ void Resize::computeSizeWidth()
 //------------------------------------------------------------------------------
 void Resize::computeSizeHeight()
 {
-  const int sourceHeight = mImage.rows;
-  const int sourceWidth = mImage.cols;
+  const unsigned sourceHeight = (unsigned)mImage.rows;
+  const unsigned sourceWidth = (unsigned)mImage.cols;
   
   double aspect = (double)sourceHeight / (double)sourceWidth;
   
   // User specified fixed height so we ignore input width and compute our own
-  int resizeHeight = mHeight;
-  int resizeWidth = getAspectWidth(resizeHeight, aspect);
+  unsigned resizeHeight = mHeight;
+  unsigned resizeWidth = getAspectWidth(resizeHeight, aspect);
 
-  if ((mWidth >= 0) && (resizeWidth > mWidth))
+  if (resizeWidth > mWidth)
   {
     resizeWidth = mWidth;
     resizeHeight = getAspectHeight(resizeWidth, aspect);
@@ -485,6 +620,13 @@ bool Resize::run()
 {
 
   mStatus = ResizeStatusPending;
+  
+  if (mImage.empty())
+  {
+    mStatus = ResizeStatusError;
+    mErrorMessage = "Input image data is empty";
+    return false;
+  }
 
   //---------------------------------------------------
   //  Perform the resize operation and write to disk
@@ -619,7 +761,16 @@ bool Resize::run()
       Utils::overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), mWatermarkAmount);
 
     }
-
+  }
+  catch(boost::exception& e)
+  {
+    mStatus = ResizeStatusError;
+    mErrorMessage = boost::diagnostic_information(e);
+    return false;
+  }
+  
+  if (!mOutputFile.empty())
+  {
     vector<int> compression_params;
     compression_params.push_back(IMWRITE_JPEG_QUALITY);
     compression_params.push_back(mQuality);
@@ -630,58 +781,49 @@ bool Resize::run()
       mErrorMessage = "Failed to write output image";
       return false;
     }
-  }
-  catch(boost::exception& e)
-  {
-    mStatus = ResizeStatusError;
-    mErrorMessage = boost::diagnostic_information(e);
-    return false;
-  }
-
-  //--------------------------------
-  //  Inherit EXIF data if needed
-  //--------------------------------
-  if (mPreserveMeta && (mpExifData || mpXmpData || mpIptcData))
-  {
-    try
+    
+    //--------------------------------
+    //  Inherit EXIF data if needed
+    //--------------------------------
+    if (mPreserveMeta && (mpExifData || mpXmpData || mpIptcData))
     {
-      // NOTE: writing metadata is split out into separate data types for future
-      //       functionality where we may want to inject certain input data into
-      //       these formats
-      Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
-
-      if (outputExivImage.get() != 0)
+      try
       {
-        if (mpExifData)
+        Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+
+        if (outputExivImage.get() != 0)
         {
-          // Output image inherits input EXIF data
-          outputExivImage->setExifData(*mpExifData);
+          if (mpExifData)
+          {
+            // Output image inherits input EXIF data
+            outputExivImage->setExifData(*mpExifData);
+          }
+
+          if (mpXmpData)
+          {
+            // Output image inherits input XMP data
+            outputExivImage->setXmpData(*mpXmpData);
+          }
+
+          if (mpIptcData)
+          {
+            // Output image inherits input IPTC data
+            outputExivImage->setIptcData(*mpIptcData);
+          }
         }
 
-        if (mpXmpData)
-        {
-          // Output image inherits input XMP data
-          outputExivImage->setXmpData(*mpXmpData);
-        }
+        outputExivImage->writeMetadata();
 
-        if (mpIptcData)
-        {
-          // Output image inherits input IPTC data
-          outputExivImage->setIptcData(*mpIptcData);
-        }
       }
-
-      outputExivImage->writeMetadata();
-
-    }
-    catch (Exiv2::AnyError& e)
-    {
-      mStatus = ResizeStatusError;
-      mErrorMessage = e.what();
-      return false;
+      catch (Exiv2::AnyError& e)
+      {
+        mStatus = ResizeStatusError;
+        mErrorMessage = e.what();
+        return false;
+      }
     }
   }
-
+  
   mStatus = ResizeStatusSuccess;
 
   return true;
