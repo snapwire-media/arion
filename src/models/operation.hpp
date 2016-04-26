@@ -64,7 +64,7 @@ class Operation : boost::noncopyable
     boost::property_tree::ptree getParams() const;
     
     virtual bool run() = 0;
-    virtual void getJpeg(std::vector<unsigned char>& data) = 0;
+    virtual bool getJpeg(std::vector<unsigned char>& data) = 0;
     
     // There is no obvious way to make use of polymorphism for the writer object
     // so we rely on the preprocessor

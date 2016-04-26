@@ -26,15 +26,28 @@ extern "C" {
     char* outputUrl;
   };
   
-  struct ArionResult {
+  struct ArionResizeResult {
+    
+    // The JPG encoded image bytes
     unsigned char* outputData;
+    
+    // The size of the JPEG encoded image bytes
     int outputSize;
+    
+    // An error message if an error is encountered
+    char* errorMessage;
+    
+    // The JSON formated summary of the operation
     char* resultJson;
   };
 
+  // This is strictly a JSON endpoint and does not accept or pass back image data
+  // All operations such as reading the image and resizing is handled
+  // inside the wrapper function and the JSON result is returned directly
   const char* ArionRunJson(const char* inputJson);
-  struct ArionResult ArionResize(struct ArionInputOptions inputOptions,
-                                 struct ArionResizeOptions resizeOptions);
+  
+  struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
+                                       struct ArionResizeOptions resizeOptions);
 
 #ifdef __cplusplus
 }

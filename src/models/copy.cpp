@@ -215,6 +215,7 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Copy::getJpeg(std::vector<unsigned char>& data)
+bool Copy::getJpeg(std::vector<unsigned char>& data)
 {
+  return false;
 }

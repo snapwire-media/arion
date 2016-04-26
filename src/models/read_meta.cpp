@@ -299,6 +299,7 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Read_meta::getJpeg(std::vector<unsigned char>& data)
+bool Read_meta::getJpeg(std::vector<unsigned char>& data)
 {
+  return false;
 }

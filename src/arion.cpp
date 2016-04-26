@@ -884,9 +884,17 @@ std::string Arion::getJson() const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Arion::getJpeg(std::vector<unsigned char>& data)
+bool Arion::getJpeg(unsigned operationIndex, std::vector<unsigned char>& data)
 {
-  Operation& operation = mOperations.at(0);
   
-  operation.getJpeg(data);
+  if (operationIndex >= mOperations.size())
+  {
+    return false;
+  }
+  
+  Operation& operation = mOperations.at(operationIndex);
+  
+  bool result = operation.getJpeg(data);
+  
+  return result;
 }

@@ -6,8 +6,10 @@
 #include <string.h>
 
 //------------------------------------------------------------------------------
+// Helper function for generating c string on heap
+// WARNING: Don't forget to free this memory!
 //------------------------------------------------------------------------------
-char* returnChars(const std::string& string)
+char* getChars(const std::string& string)
 {
   const char* localOutputJson = string.c_str();
   
@@ -31,20 +33,20 @@ const char* ArionRunJson(const char* inputJsonChar)
   
   if (!arion.setup(inputJson))
   {
-    return returnChars(arion.getJson());
+    return getChars(arion.getJson());
   }
   
   arion.run();
 
-  return (const char*)returnChars(arion.getJson());
+  return (const char*)getChars(arion.getJson());
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-struct ArionResult ArionResize(struct ArionInputOptions inputOptions,
-                               struct ArionResizeOptions resizeOptions)
+struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
+                                     struct ArionResizeOptions resizeOptions)
 {
-  struct ArionResult result;
+  struct ArionResizeResult result;
   std::string inputUrl = std::string(inputOptions.inputUrl);
   std::vector<unsigned char> buffer;
   
@@ -52,16 +54,36 @@ struct ArionResult ArionResize(struct ArionInputOptions inputOptions,
   arion.setInputUrl(inputUrl);
   arion.setCorrectOrientation(true);
   arion.addResizeOperation(resizeOptions);
-  arion.run();
-  arion.getJpeg(buffer);
   
+  // We just passed in one operation, use the 0th index
+  int operation = 0;
+    
+  if (!arion.run())
+  {
+    result.outputData   = 0;
+    result.outputSize   = 0;
+    result.errorMessage = getChars("Resize operation failed");
+    result.resultJson   = getChars(arion.getJson());
+    return result; 
+  }
+  
+  result.resultJson = getChars(arion.getJson());
+
+  if (!arion.getJpeg(operation, buffer))
+  {
+    result.outputData = 0;
+    result.outputSize = 0;
+    result.errorMessage = getChars("Jpeg encoding failed");
+    return result; 
+  }
+  
+  result.errorMessage = 0;
+  result.outputSize = buffer.size();
   result.outputData = (unsigned char *)malloc(buffer.size());
-  result.resultJson = returnChars(arion.getJson());
   
+  // Get our data onto the heap
   // TODO: is there a way without this memcpy?
   memcpy(result.outputData, &buffer[0], buffer.size());
-  
-  result.outputSize = buffer.size();
   
   return result;
 }

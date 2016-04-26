@@ -70,7 +70,7 @@ class Read_meta : public Operation
 
     virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
-    virtual void getJpeg(std::vector<unsigned char>& data);
+    virtual bool getJpeg(std::vector<unsigned char>& data);
     
     bool getStatus() const;
     
