@@ -151,8 +151,6 @@ class Resize : public Operation
 
     int mStatus;
     std::string mErrorMessage;
-    
-    
 
 };
 

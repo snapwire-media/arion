@@ -889,12 +889,21 @@ bool Arion::getJpeg(unsigned operationIndex, std::vector<unsigned char>& data)
   
   if (operationIndex >= mOperations.size())
   {
+    mErrorMessage = "Invalid operation to JPEG encode";
+    constructErrorJson();
+    
     return false;
   }
   
   Operation& operation = mOperations.at(operationIndex);
   
   bool result = operation.getJpeg(data);
+  
+  if (!result)
+  {
+    mErrorMessage = "Could not encode JPEG";
+    constructErrorJson();
+  }
   
   return result;
 }

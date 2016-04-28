@@ -47,11 +47,21 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
                                      struct ArionResizeOptions resizeOptions)
 {
   struct ArionResizeResult result;
-  std::string inputUrl = std::string(inputOptions.inputUrl);
+
   std::vector<unsigned char> buffer;
   
   Arion arion;
-  arion.setInputUrl(inputUrl);
+    
+  std::string inputUrl = std::string(inputOptions.inputUrl);
+  
+  if (!arion.setInputUrl(inputUrl))
+  {
+    result.outputData = 0;
+    result.outputSize = 0;
+    result.resultJson = getChars(arion.getJson());
+    result.returnCode = -1;
+  }
+
   arion.setCorrectOrientation(true);
   arion.addResizeOperation(resizeOptions);
   
@@ -60,11 +70,11 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
     
   if (!arion.run())
   {
-    result.outputData   = 0;
-    result.outputSize   = 0;
-    result.errorMessage = getChars("Resize operation failed");
-    result.resultJson   = getChars(arion.getJson());
-    return result; 
+    result.outputData = 0;
+    result.outputSize = 0;
+    result.resultJson = getChars(arion.getJson());
+    result.returnCode = -1;
+    return result;
   }
   
   result.resultJson = getChars(arion.getJson());
@@ -73,17 +83,19 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
   {
     result.outputData = 0;
     result.outputSize = 0;
-    result.errorMessage = getChars("Jpeg encoding failed");
-    return result; 
+    result.resultJson = getChars(arion.getJson());
+    result.returnCode = -1;
+    return result;
   }
   
-  result.errorMessage = 0;
   result.outputSize = buffer.size();
   result.outputData = (unsigned char *)malloc(buffer.size());
   
   // Get our data onto the heap
   // TODO: is there a way without this memcpy?
   memcpy(result.outputData, &buffer[0], buffer.size());
+  
+  result.returnCode = 0;
   
   return result;
 }

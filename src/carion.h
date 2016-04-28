@@ -6,9 +6,14 @@ extern "C" {
 #endif
   
   struct ArionInputOptions {
+    // If set to 0 the image orientation will not be corrected
+    // (based on the EXIF orientation flag)
     unsigned correctOrientation;
-    //void* inputBytes;
+        
+    // The location of the input image
     char* inputUrl;
+    
+    // If an output URL is provided the image will be saved there
     char* outputUrl;
   };
   
@@ -34,11 +39,14 @@ extern "C" {
     // The size of the JPEG encoded image bytes
     int outputSize;
     
-    // An error message if an error is encountered
-    char* errorMessage;
+    // The result of the operation
+    // 0 - success
+    // -1 - failure
+    int returnCode;
     
     // The JSON formated summary of the operation
     char* resultJson;
+    
   };
 
   // This is strictly a JSON endpoint and does not accept or pass back image data
