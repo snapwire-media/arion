@@ -26,6 +26,7 @@ ADD_EXECUTABLE( arion main.cpp
                       models/resize.cpp
                       models/read_meta.cpp
                       models/copy.cpp
+					  models/fingerprint.cpp
                       utils/utils.cpp)
 
 TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
@@ -39,6 +40,7 @@ add_library(carion SHARED carion.cpp
                           models/resize.cpp
                           models/read_meta.cpp
                           models/copy.cpp
+						  models/fingerprint.cpp
                           utils/utils.cpp)
 
 TARGET_LINK_LIBRARIES( carion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )

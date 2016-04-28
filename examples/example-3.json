@@ -6,6 +6,12 @@
             "params": {
                 "info": true
             }
+        },
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
+            }
         }
     ]
 }

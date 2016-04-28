@@ -125,8 +125,8 @@ class Resize : public Operation
     void readType(const boost::property_tree::ptree& params);
     void readGravity(const boost::property_tree::ptree& params);
     
-    void decodeGravity(const std::string& gravity);
     void decodeType(const std::string& type);
+    void decodeGravity(const std::string& gravity);
     void decodeWatermarkUrl(const std::string& watermarkUrl);
     void decodeOutputUrl(const std::string& outputUrl);
 

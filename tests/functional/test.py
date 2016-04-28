@@ -602,7 +602,6 @@ class TestArion(unittest.TestCase):
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
     self.verifySuccess(output, 1296, 864);
-    #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     #-----------------------------
     #  Now read back image data
@@ -611,7 +610,6 @@ class TestArion(unittest.TestCase):
     output = self.read_image(output_url)
 
     self.verifySuccess(output, 200, 133);
-    #self.assertEqual(output['md5'], '4ec4ec2abde005187852424a153d4c48')
 
     info = output['info'][0]
     self.assertTrue(info['result'])
@@ -796,7 +794,6 @@ class TestArion(unittest.TestCase):
     output = self.read_image(self.IMAGE_1_PATH)
 
     self.verifySuccess(output, 1296, 864);
-    #self.assertEqual(output['md5'], 'c8d342a627da420e77c2e90a10f75689')
 
     info = output['info'][0]
     self.assertTrue(info['result'])

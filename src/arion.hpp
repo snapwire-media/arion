@@ -106,7 +106,6 @@ class Arion
     Exiv2::XmpData* mpXmpData;
     Exiv2::IptcData* mpIptcData;
     Exiv2::Image::AutoPtr mExivImage;
-    char* mpPixelMd5;
 
     // The following describe the result of the operations
     bool mResult;

@@ -1,6 +1,9 @@
+#ifndef FINGERPRINT_HPP
+#define FINGERPRINT_HPP
+
 //------------------------------------------------------------------------------
 //
-// Copyright (c) 2015 Paul Filitchkin, Snapwire
+// Copyright (c) 2015-2016 Paul Filitchkin
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -31,69 +34,70 @@
 //
 //------------------------------------------------------------------------------
 
+#include <string>
+#include <vector>
+
+// Boost
+#include <boost/property_tree/ptree.hpp>
+
+// OpenCV
+#include <opencv2/core/core.hpp>
+
+// Exiv2
+#include <exiv2/exiv2.hpp>
+
+// Local
 #include "models/operation.hpp"
 
-#include <iostream>
-#include <string>
-#include <ostream>
-
-#include <boost/exception/info.hpp>
-#include <boost/exception/error_info.hpp>
-#include <boost/exception/all.hpp>
-#include <boost/foreach.hpp>
-
-using boost::property_tree::ptree;
-using namespace std;
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-Operation::Operation() :     
-    mpExifData(0),
-    mpXmpData(0),
-    mpIptcData(0)
+enum
 {
-}
+  FingerprintStatusDidNotTry = 0,
+  FingerprintStatusPending   = 1,
+  FingerprintStatusSuccess   = 2,
+  FingerprintStatusError     = 3,
+};
+
+enum
+{
+  FingerprintTypeInvalid = 0,
+  FingerprintTypeMD5     = 1,
+};
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::~Operation()
+class Fingerprint : public Operation
 {
-  mpExifData = 0;
-  mpXmpData = 0;
-  mpIptcData = 0;
-}
+  public:
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-ptree Operation::getParams() const
-{
-  return mParams;
-}
+    Fingerprint();
+    virtual ~Fingerprint();
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Operation::setExifData(const Exiv2::ExifData* exifData)
-{
-  mpExifData = exifData;
-}
+    virtual void setup(const boost::property_tree::ptree& params);
+    virtual bool run();
+    virtual bool getJpeg(std::vector<unsigned char>& data);
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Operation::setXmpData(const Exiv2::XmpData* xmpData)
-{
-  mpXmpData = xmpData;
-}
+    void setType(const std::string& type);
+    bool getStatus() const;
+    void outputStatus(std::ostream& s, unsigned indent) const;
+    
+  #ifdef JSON_PRETTY_OUTPUT
+    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+  #else
+    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
+  #endif
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Operation::setIptcData(const Exiv2::IptcData* iptcData)
-{
-  mpIptcData = iptcData;
-}
+  private:
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Operation::setImage(cv::Mat& image)
-{
-  mImage = image;
-}
+    void readType(const boost::property_tree::ptree& params);    
+    void decodeType(const std::string& type);
+    
+    boost::property_tree::ptree mParams;
+    
+    unsigned mStatus;
+    unsigned mType;
+    std::string mErrorMessage;
+    char* mpPixelMd5;
+
+};
+
+#endif // FINGERPRINT_HPP

@@ -44,6 +44,7 @@
 #include "models/resize.hpp"
 #include "models/read_meta.hpp"
 #include "models/copy.hpp"
+#include "models/fingerprint.hpp"
 #include "utils/utils.hpp"
 #include "arion.hpp"
 
@@ -578,24 +579,28 @@ bool Arion::parseOperations(const ptree& pt)
       {
         // This is a resize operation so create the corresponding object
         operation = new Resize();
-        operation->setup(paramsTree);
       }
       else if (type == "read_meta")
       {
         // This is a read_meta operation so create the corresponding object
         operation = new Read_meta();
-        operation->setup(paramsTree);
       }
       else if (type == "copy")
       {
         // This is a copy operation so create the corresponding object
         operation = new Copy(mInputFile);
-        operation->setup(paramsTree);
+      }
+      else if (type == "fingerprint")
+      {
+        // This is a copy operation so create the corresponding object
+        operation = new Fingerprint();
       }
       else
       {
         throw operationNotSupportedException;
       }
+      
+      operation->setup(paramsTree);
       
       // Add to operation queue
       mOperations.push_back(operation);
@@ -689,15 +694,6 @@ void Arion::extractImage(const string& imageFilePath)
   {
     throw extractException;
   }
-
-  //--------------------------------
-  //      Compute Image MD5
-  //--------------------------------
-
-  // We need this until the very end, so memory deallocation will be handled
-  // when the program exits and the heap is deallocated
-  // TODO: make this optional
-  mpPixelMd5 = Utils::computeMd5((char*)mSourceImage.data, (int)mSourceImage.step[0] * mSourceImage.rows);
 }
 
 //------------------------------------------------------------------------------
@@ -766,10 +762,6 @@ bool Arion::run()
   
   writer.String("width");
   writer.Uint(mSourceImage.cols);
-  
-  // md5 of pixels
-  writer.String("md5");
-  writer.String(mpPixelMd5);
   
   //----------------------------------
   //       Execute operations
