@@ -66,7 +66,7 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
   arion.addResizeOperation(resizeOptions);
   
   // We just passed in one operation, use the 0th index
-  int operation = 0;
+  const int operation = 0;
     
   if (!arion.run())
   {
