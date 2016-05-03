@@ -60,6 +60,7 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
     result.outputSize = 0;
     result.resultJson = getChars(arion.getJson());
     result.returnCode = -1;
+    return result;
   }
 
   arion.setCorrectOrientation(true);
@@ -94,7 +95,7 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
   // Get our data onto the heap
   // TODO: is there a way without this memcpy?
   memcpy(result.outputData, &buffer[0], buffer.size());
-  
+  //std::cout << arion.getJson() << std::endl;
   result.returnCode = 0;
   
   return result;

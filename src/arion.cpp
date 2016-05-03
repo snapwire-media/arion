@@ -708,7 +708,8 @@ bool Arion::run()
   {
     try
     {
-      // TODO: only read pixels if required by operations...
+      // TODO: only read pixels if required by operations 
+      // (e.g. copy operation does not require read here)
       // We have an input file, so lets read it
       extractImage(mInputFile);
     }
@@ -717,6 +718,14 @@ bool Arion::run()
 
       mResult = false;
       mErrorMessage = "Error extracting image";
+      constructErrorJson();
+      
+      return false;
+    }
+    catch (std::exception& e)
+    {
+      mResult = false;
+      mErrorMessage = e.what();;
       constructErrorJson();
       
       return false;
