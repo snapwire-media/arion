@@ -145,14 +145,20 @@ namespace Utils
           break;
 
         // determine the opacity of the foreground pixel, using its fourth (alpha) channel.
-        double opacity = blendConstant * ((double) foreground.data[fY * foreground.step + fX * foreground.channels() + 3]);
-
-        // and now combine the background and foreground pixel, using the opacity, but only if opacity > 0.
-        for (int c = 0; opacity > 0 && c < output.channels(); ++c)
+        unsigned char alpha = foreground.data[fY * foreground.step + fX * foreground.channels() + 3];
+        
+        // Only apply watermark if alpha is non-zero
+        if (alpha)
         {
-          unsigned char foregroundPx = foreground.data[fY * foreground.step + fX * foreground.channels() + c];
-          unsigned char backgroundPx = background.data[y * background.step + x * background.channels() + c];
-          output.data[y * output.step + output.channels() * x + c] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
+          double opacity = blendConstant * ((double) alpha);
+
+          // Combine the background and foreground pixel, using the opacity, 
+          for (int c = 0; c < output.channels(); ++c)
+          {
+            unsigned char foregroundPx = foreground.data[fY * foreground.step + fX * foreground.channels() + c];
+            unsigned char backgroundPx = background.data[y * background.step + x * background.channels() + c];
+            output.data[y * output.step + output.channels() * x + c] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
+          }
         }
       }
     }
