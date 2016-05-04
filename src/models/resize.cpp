@@ -803,7 +803,7 @@ void Resize::watermark()
   
   for (int y = 0; y < mImageResizedFinal.rows; ++y)
   {
-    // we are done or we have processed all rows of the watermark
+    // If the final image is taller than the watermark, repeat it
     if (y >= watermark.rows)
     {
       wy = y % watermark.rows;
@@ -815,10 +815,10 @@ void Resize::watermark()
 
     for (int x = 0; x < mImageResizedFinal.cols; ++x)
     {
-      // we are done with this row if the column is outside of the watermark image
+      // If the final image is wider than the watermark, repeat it
       if (x >= watermark.cols)
       {
-        wx = x % watermark.rows;
+        wx = x % watermark.cols;
       }
       else
       {
