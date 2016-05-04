@@ -129,6 +129,8 @@ class Resize : public Operation
     void decodeGravity(const std::string& gravity);
     void decodeWatermarkUrl(const std::string& watermarkUrl);
     void decodeOutputUrl(const std::string& outputUrl);
+    
+    void watermark();
 
     int mType;
     unsigned mHeight;

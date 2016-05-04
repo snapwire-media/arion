@@ -104,8 +104,13 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   #  Helper function for creating output url
   # -------------------------------------------------------------------------------
-  def outputUrl(self, filename):
+  def outputUrlHelper(self, filename):
     return 'file://' + self.OUTPUT_IMAGE_PATH + filename
+  
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def urlHelper(self, filename):
+    return 'file://' + filename
     
   # -------------------------------------------------------------------------------
   #  Helper function for testing fill operation
@@ -116,7 +121,7 @@ class TestArion(unittest.TestCase):
                      str(options['width']) + 'x' + str(options['height']) + \
                      '_' + str(options['type']) + '.jpg'
     
-    outputUrl = self.outputUrl(outputFilename)
+    outputUrl = self.outputUrlHelper(outputFilename)
     
     resize_operation = {
       'type': 'resize',
@@ -144,7 +149,122 @@ class TestArion(unittest.TestCase):
 
     self.verifySuccess(output, options['width'], options['height']);
     
-  
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------  
+  def testWatermark(self):
+    
+    watermark_url = self.urlHelper('../images/watermark.png')
+
+    # Output size is the same as the watermark
+    output_url = self.outputUrlHelper('test_resize_fill_watermark_1.jpg')
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            400,
+        'height':           400,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_amount': 0.5,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.verifySuccess(output);
+    
+    # Output size is smaller than watermark
+    output_url = self.outputUrlHelper('test_resize_fill_watermark_2.jpg')
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            200,
+        'height':           200,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_amount': 0.5,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.verifySuccess(output);
+    
+    # Output size is larger than watermark
+    output_url = self.outputUrlHelper('test_resize_fill_watermark_3.jpg')
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            600,
+        'height':           600,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_amount': 0.5,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.verifySuccess(output);
+    
+    # Output width is larger than watermark, but height is smaller
+    output_url = self.outputUrlHelper('test_resize_fill_watermark_4.jpg')
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            600,
+        'height':           200,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_amount': 0.5,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.verifySuccess(output);
+    
+    # Output height is larger than watermark, but width is smaller
+    output_url = self.outputUrlHelper('test_resize_fill_watermark_5.jpg')
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            200,
+        'height':           600,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_amount': 0.5,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    
+    self.verifySuccess(output);
+
   # -------------------------------------------------------------------------------
   # Here we have a tall source image and we are always cropping a tall portion at
   # the center of the image
@@ -582,7 +702,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     #       Resize image
     #-----------------------------
-    output_url = self.outputUrl('test_basic_jpg_resize.jpg')
+    output_url = self.outputUrlHelper('test_basic_jpg_resize.jpg')
 
     # Use low JPG quality to make sure parameter is working
     resize_operation = {
@@ -632,7 +752,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_width_limit(self):
 
-    output_url = self.outputUrl('test_resize_shrink_width_limit.jpg')
+    output_url = self.outputUrlHelper('test_resize_shrink_width_limit.jpg')
 
     operation = {
       'type': 'resize',
@@ -662,7 +782,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_height(self):
 
-    output_url = self.outputUrl('test_resize_shrink_height.jpg')
+    output_url = self.outputUrlHelper('test_resize_shrink_height.jpg')
 
     operation = {
       'type': 'resize',
@@ -692,7 +812,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_height_limit(self):
 
-    output_url = self.outputUrl('test_resize_shrink_height_limit.jpg')
+    output_url = self.outputUrlHelper('test_resize_shrink_height_limit.jpg')
 
     operation = {
       'type': 'resize',
@@ -722,7 +842,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_shrink_square(self):
 
-    output_url = self.outputUrl('test_resize_shrink_square.jpg')
+    output_url = self.outputUrlHelper('test_resize_shrink_square.jpg')
 
     # Height should not matter here...
     resize_operation = {
@@ -755,9 +875,8 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_resize_fill(self):
 
-    output_url = self.outputUrl('test_resize_fill.jpg')
+    output_url = self.outputUrlHelper('test_resize_fill.jpg')
 
-    # Height should not matter here...
     resize_operation = {
       'type': 'resize',
       'params':
@@ -829,28 +948,28 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   def test_jpg_orienation(self):
 
-    output = self.copy_image(self.LANDSCAPE_1_PATH, self.outputUrl('Landscape_1.jpg'))
+    output = self.copy_image(self.LANDSCAPE_1_PATH, self.outputUrlHelper('Landscape_1.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_2_PATH, self.outputUrl('Landscape_2.jpg'))
+    output = self.copy_image(self.LANDSCAPE_2_PATH, self.outputUrlHelper('Landscape_2.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_3_PATH, self.outputUrl('Landscape_3.jpg'))
+    output = self.copy_image(self.LANDSCAPE_3_PATH, self.outputUrlHelper('Landscape_3.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_4_PATH, self.outputUrl('Landscape_4.jpg'))
+    output = self.copy_image(self.LANDSCAPE_4_PATH, self.outputUrlHelper('Landscape_4.jpg'))
     self.verifySuccess(output);
 
-    output = self.copy_image(self.LANDSCAPE_5_PATH, self.outputUrl('Landscape_5.jpg'))
+    output = self.copy_image(self.LANDSCAPE_5_PATH, self.outputUrlHelper('Landscape_5.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_6_PATH, self.outputUrl('Landscape_6.jpg'))
+    output = self.copy_image(self.LANDSCAPE_6_PATH, self.outputUrlHelper('Landscape_6.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_7_PATH, self.outputUrl('Landscape_7.jpg'))
+    output = self.copy_image(self.LANDSCAPE_7_PATH, self.outputUrlHelper('Landscape_7.jpg'))
     self.verifySuccess(output);
     
-    output = self.copy_image(self.LANDSCAPE_8_PATH, self.outputUrl('Landscape_8.jpg'))
+    output = self.copy_image(self.LANDSCAPE_8_PATH, self.outputUrlHelper('Landscape_8.jpg'))
     self.verifySuccess(output);
 
   # -------------------------------------------------------------------------------

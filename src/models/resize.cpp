@@ -718,38 +718,7 @@ bool Resize::run()
 
     if (mWatermarkFile.length())
     {
-
-      Mat watermark = imread(mWatermarkFile, IMREAD_UNCHANGED);
-
-      int x = 0;
-      int y = 0;
-      int width;
-      int height;
-
-      if (mImageResizedFinal.cols > watermark.cols)
-      {
-        width = watermark.cols;
-      }
-      else
-      {
-        width = mImageResizedFinal.cols;
-      }
-
-      if (mImageResizedFinal.rows > watermark.rows)
-      {
-        height = watermark.rows;
-      }
-      else
-      {
-        height = mImageResizedFinal.rows;
-      }
-
-      Rect roi(x, y, width, height);
-
-      Mat watermarkRoi = watermark(roi);
-
-      Utils::overlayImage(mImageResizedFinal, watermarkRoi, mImageResizedFinal, cv::Point(0, 0), mWatermarkAmount);
-
+      watermark();
     }
   }
   catch(boost::exception& e)
@@ -817,6 +786,54 @@ bool Resize::run()
   mStatus = ResizeStatusSuccess;
 
   return true;
+}
+
+//------------------------------------------------------------------------------
+// Apply the watermark in place
+//------------------------------------------------------------------------------
+void Resize::watermark()
+{
+  Mat watermark = imread(mWatermarkFile, IMREAD_UNCHANGED);
+  
+  //background.copyTo(output);
+  double blendConstant = mWatermarkAmount / 255.0;
+
+  for (int y = 0; y < mImageResizedFinal.rows; ++y)
+  {
+    // we are done or we have processed all rows of the watermark
+    if (y >= watermark.rows)
+      break;
+
+    for (int x = 0; x < mImageResizedFinal.cols; ++x)
+    {
+      // we are done with this row if the column is outside of the watermark image
+      if (x >= watermark.cols)
+        break;
+
+      int watermarkIdx = y * watermark.step + x * watermark.channels();
+      
+      // determine the opacity of the foreground pixel, using its fourth (alpha) channel.
+      unsigned char alpha = watermark.data[watermarkIdx + 3];
+
+      // Only apply watermark if alpha is non-zero
+      if (alpha)
+      {
+        double opacity = blendConstant * ((double) alpha);
+
+        // Combine the background and watermark pixel, using the opacity, 
+        for (int c = 0; c < mImageResizedFinal.channels(); ++c)
+        {
+          int bgIndex = y * mImageResizedFinal.step + x * mImageResizedFinal.channels() + c;
+          
+          unsigned char foregroundPx = watermark.data[watermarkIdx + c];
+          unsigned char backgroundPx = mImageResizedFinal.data[bgIndex];
+          
+          // Apply in place
+          mImageResizedFinal.data[bgIndex] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
+        }
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
