@@ -205,8 +205,8 @@ class TestArion(unittest.TestCase):
       'type': 'resize',
       'params':
       {
-        'width':            600,
-        'height':           600,
+        'width':            1000,
+        'height':           1000,
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
@@ -227,7 +227,7 @@ class TestArion(unittest.TestCase):
       'type': 'resize',
       'params':
       {
-        'width':            600,
+        'width':            1000,
         'height':           200,
         'type':             'fill',
         'quality':          92,
@@ -250,7 +250,7 @@ class TestArion(unittest.TestCase):
       'params':
       {
         'width':            200,
-        'height':           600,
+        'height':           1000,
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,

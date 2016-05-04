@@ -798,19 +798,34 @@ void Resize::watermark()
   //background.copyTo(output);
   double blendConstant = mWatermarkAmount / 255.0;
 
+  int wx = 0;
+  int wy = 0;
+  
   for (int y = 0; y < mImageResizedFinal.rows; ++y)
   {
     // we are done or we have processed all rows of the watermark
     if (y >= watermark.rows)
-      break;
+    {
+      wy = y % watermark.rows;
+    }
+    else
+    {
+      wy = y;
+    }
 
     for (int x = 0; x < mImageResizedFinal.cols; ++x)
     {
       // we are done with this row if the column is outside of the watermark image
       if (x >= watermark.cols)
-        break;
+      {
+        wx = x % watermark.rows;
+      }
+      else
+      {
+        wx = x;
+      }
 
-      int watermarkIdx = y * watermark.step + x * watermark.channels();
+      int watermarkIdx = wy * watermark.step + wx * watermark.channels();
       
       // determine the opacity of the foreground pixel, using its fourth (alpha) channel.
       unsigned char alpha = watermark.data[watermarkIdx + 3];
