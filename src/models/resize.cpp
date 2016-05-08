@@ -69,7 +69,10 @@ Resize::Resize() :
     mSharpenRadius(0.0),
     mPreserveMeta(false),
     mWatermarkFile(),
+    mWatermarkType(ResizeWatermarkTypeStandard),
     mWatermarkAmount(0.05),
+    mWatermarkMin(0.05),
+    mWatermarkMax(0.5),
     mStatus(ResizeStatusDidNotTry),
     mErrorMessage()
 {
@@ -93,6 +96,7 @@ void Resize::setup(const ptree& params)
   
   try
   {
+    // TODO: height validation
     mHeight = params.get<unsigned>("height");
   }
   catch (boost::exception& e)
@@ -102,6 +106,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
+    // TODO: width validation
     mWidth = params.get<unsigned>("width");
   }
   catch (boost::exception& e)
@@ -113,7 +118,7 @@ void Resize::setup(const ptree& params)
   {
     string outputUrl = params.get<string>("output_url");
 
-    decodeOutputUrl(outputUrl);
+    validateOutputUrl(outputUrl);
   }
   catch (boost::exception& e)
   {
@@ -147,7 +152,8 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    mPreFilter= params.get<bool>("pre_filter");
+    // TODO: validation
+    mPreFilter = params.get<bool>("pre_filter");
   }
   catch (boost::exception& e)
   {
@@ -176,8 +182,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    string watermarkUrl = params.get<string>("watermark_url");
-    decodeWatermarkUrl(watermarkUrl);
+    validateWatermarkType(params.get<string>("watermark_type"));
   }
   catch (boost::exception& e)
   {
@@ -186,8 +191,26 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: validation
-    mWatermarkAmount = params.get<float>("watermark_amount");
+    validateWatermarkUrl(params.get<string>("watermark_url"));
+  }
+  catch (boost::exception& e)
+  {
+    // Not required
+  }
+
+  try
+  {
+    validateWatermarkAmount(params.get<float>("watermark_amount"));
+  }
+  catch (boost::exception& e)
+  {
+    // Not required
+  }
+
+  try
+  {
+    validateWatermarkMinMax(params.get<float>("watermark_min"),
+                            params.get<float>("watermark_max"));
   }
   catch (boost::exception& e)
   {
@@ -197,33 +220,9 @@ void Resize::setup(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Resize::decodeOutputUrl(const std::string& outputUrl)
-{
-  int pos = outputUrl.find(Utils::FILE_SOURCE);
-
-  if (pos != string::npos)
-  {
-    mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
-  }
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Resize::decodeWatermarkUrl(const std::string& watermarkUrl)
-{
-  int pos = watermarkUrl.find(Utils::FILE_SOURCE);
-
-  if (pos != string::npos)
-  {
-    mWatermarkFile = Utils::getStringTail(watermarkUrl, pos + Utils::FILE_SOURCE.length());
-  }
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 void Resize::setType(const std::string& type)
 {
-  decodeType(type);
+  validateType(type);
 }
 
 //------------------------------------------------------------------------------
@@ -253,7 +252,7 @@ void Resize::setQuality(unsigned quality)
 //------------------------------------------------------------------------------
 void Resize::setGravity(std::string gravity)
 {
-  decodeGravity(gravity);
+  validateGravity(gravity);
 }
 
 //------------------------------------------------------------------------------
@@ -281,7 +280,7 @@ void Resize::setPreserveMeta(bool preserveMeta)
 //------------------------------------------------------------------------------
 void Resize::setWatermarkUrl(const std::string& watermarkUrl)
 {
-  decodeWatermarkUrl(watermarkUrl);
+  validateWatermarkUrl(watermarkUrl);
 }
 
 //------------------------------------------------------------------------------
@@ -295,7 +294,39 @@ void Resize::setWatermarkAmount(float watermarkAmount)
 //------------------------------------------------------------------------------
 void Resize::setOutputUrl(const std::string& outputUrl)
 {
-  decodeOutputUrl(outputUrl);
+  validateOutputUrl(outputUrl);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+std::string Resize::getOutputFile() const
+{
+  return mOutputFile;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Resize::getPreserveMeta() const
+{
+  return mPreserveMeta;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Resize::getStatus() const
+{
+  return mStatus;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Resize::getJpeg(std::vector<unsigned char>& data)
+{
+  vector<int> compression_params;
+  compression_params.push_back(IMWRITE_JPEG_QUALITY);
+  compression_params.push_back(mQuality);
+
+  return imencode(".jpg", mImageResizedFinal, data, compression_params);
 }
 
 //------------------------------------------------------------------------------
@@ -309,7 +340,7 @@ void Resize::readType(const ptree& params)
     // Make sure it's lowercase
     transform(type.begin(), type.end(), type.begin(), ::tolower);
     
-    decodeType(type);
+    validateType(type);
     
   }
   catch (boost::exception& e)
@@ -320,7 +351,7 @@ void Resize::readType(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Resize::decodeType(const std::string& type)
+void Resize::validateType(const std::string& type)
 {
   if (type == "width")
   {
@@ -356,7 +387,7 @@ void Resize::readGravity(const ptree& params)
     // Make sure it's lowercase
     transform(gravity.begin(), gravity.end(), gravity.begin(), ::tolower);
     
-    decodeGravity(gravity);
+    validateGravity(gravity);
   }
   catch (boost::exception& e)
   {
@@ -366,7 +397,7 @@ void Resize::readGravity(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Resize::decodeGravity(const string& gravity)
+void Resize::validateGravity(const string& gravity)
 {
   if (gravity == "center" || gravity == "c")
   {
@@ -408,34 +439,82 @@ void Resize::decodeGravity(const string& gravity)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-std::string Resize::getOutputFile() const
+void Resize::validateOutputUrl(const std::string& outputUrl)
 {
-  return mOutputFile;
+  int pos = outputUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
+  }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Resize::getPreserveMeta() const
+void Resize::validateWatermarkUrl(const std::string& watermarkUrl)
 {
-  return mPreserveMeta;
+  int pos = watermarkUrl.find(Utils::FILE_SOURCE);
+
+  if (pos != string::npos)
+  {
+    mWatermarkFile = Utils::getStringTail(watermarkUrl, pos + Utils::FILE_SOURCE.length());
+  }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Resize::getStatus() const
+void Resize::validateWatermarkType(const string& watermarkType)
 {
-  return mStatus;
+  if (watermarkType == "standard")
+  {
+    mWatermarkType = ResizeWatermarkTypeStandard;
+  }
+  else if (watermarkType == "adaptive")
+  {
+    mWatermarkType = ResizeWatermarkTypeAdaptive;
+  }
 }
 
 //------------------------------------------------------------------------------
+// This value only applies to the standard watermark type
 //------------------------------------------------------------------------------
-bool Resize::getJpeg(std::vector<unsigned char>& data)
+void Resize::validateWatermarkAmount(float watermarkAmount)
 {
-  vector<int> compression_params;
-  compression_params.push_back(IMWRITE_JPEG_QUALITY);
-  compression_params.push_back(mQuality);
+  if ((watermarkAmount < 0.0) || (watermarkAmount > 1.0))
+  {
+    // Keep constructor default
+    return;
+  }
 
-  return imencode(".jpg", mImageResizedFinal, data, compression_params);
+  mWatermarkAmount = watermarkAmount;
+}
+
+//------------------------------------------------------------------------------
+// These values only apply to the adaptive watermark type
+//------------------------------------------------------------------------------
+void Resize::validateWatermarkMinMax(float watermarkMin, float watermarkMax)
+{
+  if ((watermarkMin < 0.0) || (watermarkMin > 1.0))
+  {
+    // Keep constructor defaults
+    return;
+  }
+
+  if ((watermarkMax < 0.0) || (watermarkMax > 1.0))
+  {
+    // Keep constructor defaults
+    return;
+  }
+
+  if (watermarkMax < watermarkMin)
+  {
+    // Keep constructor defaults
+    return;
+  }
+
+  mWatermarkMin = watermarkMin;
+  mWatermarkMax  = watermarkMax;
+
 }
 
 //------------------------------------------------------------------------------
@@ -524,7 +603,6 @@ void Resize::computeSizeFill()
   const unsigned sourceHeight = mImage.rows;
   const unsigned sourceWidth = mImage.cols;
   
-  //double sourceAspect = (double)sourceHeight / (double)sourceWidth;
   double destAspect = (double)mHeight / (double)mWidth;
   
   double xf = (double)mWidth / (double)sourceWidth;
@@ -718,7 +796,7 @@ bool Resize::run()
 
     if (mWatermarkFile.length())
     {
-      watermark();
+      applyWatermark();
     }
   }
   catch(boost::exception& e)
@@ -791,12 +869,19 @@ bool Resize::run()
 //------------------------------------------------------------------------------
 // Apply the watermark in place
 //------------------------------------------------------------------------------
-void Resize::watermark()
+void Resize::applyWatermark()
 {
   Mat watermark = imread(mWatermarkFile, IMREAD_UNCHANGED);
-  
-  //background.copyTo(output);
-  double blendConstant = mWatermarkAmount / 255.0;
+
+  double blend = mWatermarkAmount / 255.0;
+  const double blendMin = mWatermarkMin / 255.0;
+  const double blendMax = mWatermarkMax / 255.0;
+
+  // In case we can't compute brightness for adaptive watermark use the min blend specified
+  if (mWatermarkType == ResizeWatermarkTypeAdaptive)
+  {
+    blend = blendMin;
+  }
 
   int wx = 0;
   int wy = 0;
@@ -833,18 +918,37 @@ void Resize::watermark()
       // Only apply watermark if alpha is non-zero
       if (alpha)
       {
-        double opacity = blendConstant * ((double) alpha);
+        int i = y * mImageResizedFinal.step + x * mImageResizedFinal.channels();
+
+        if ((mWatermarkType == ResizeWatermarkTypeAdaptive) && mImageResizedFinal.channels() >= 3)
+        {
+          unsigned char b = mImageResizedFinal.data[i];
+          unsigned char g = mImageResizedFinal.data[i+1];
+          unsigned char r = mImageResizedFinal.data[i+2];
+
+          // Use a fast approximation for brightness
+          // http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
+          unsigned brightness = (r+r+r+b+g+g+g+g)>>3;
+
+          blend = blendMax * ((double)brightness/255.0);
+
+          if (blend < blendMin)
+          {
+            blend = blendMin;
+          }
+        }
+
+        double opacity = blend * ((double) alpha);
 
         // Combine the background and watermark pixel, using the opacity, 
         for (int c = 0; c < mImageResizedFinal.channels(); ++c)
         {
-          int bgIndex = y * mImageResizedFinal.step + x * mImageResizedFinal.channels() + c;
-          
+          int finalOffset = i + c;
           unsigned char foregroundPx = watermark.data[watermarkIdx + c];
-          unsigned char backgroundPx = mImageResizedFinal.data[bgIndex];
+          unsigned char backgroundPx = mImageResizedFinal.data[finalOffset];
           
           // Apply in place
-          mImageResizedFinal.data[bgIndex] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
+          mImageResizedFinal.data[finalOffset] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
         }
       }
     }

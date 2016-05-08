@@ -48,7 +48,7 @@ class TestArion(unittest.TestCase):
 
     # DEBUG
     # print cmd_output[0]
-
+    
     return output
     
   # -------------------------------------------------------------------------------
@@ -153,10 +153,13 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------  
   def testWatermark(self):
     
+    # -----------------------------------------
+    #               Standard 1:1
+    # -----------------------------------------
     watermark_url = self.urlHelper('../images/watermark.png')
-
-    # Output size is the same as the watermark
-    output_url = self.outputUrlHelper('test_resize_fill_watermark_1.jpg')
+    output_url = self.outputUrlHelper('test_watermark_1_standard.jpg')
+    input_url = self.urlHelper('../images/watermark_test_input.jpg')
+    
     resize_operation = {
       'type': 'resize',
       'params':
@@ -166,19 +169,53 @@ class TestArion(unittest.TestCase):
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
-        'watermark_amount': 0.5,
+        'watermark_type':   'standard',
+        'watermark_amount': 0.3,
         'output_url':       output_url
       }
     }
 
     operations = [resize_operation];
 
-    output = self.call_arion(self.IMAGE_1_PATH, operations)
+    output = self.call_arion(input_url, operations)
     
     self.verifySuccess(output);
     
-    # Output size is smaller than watermark
-    output_url = self.outputUrlHelper('test_resize_fill_watermark_2.jpg')
+    # -----------------------------------------
+    #              Adaptive 1:1
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark.png')
+    output_url = self.outputUrlHelper('test_watermark_2_adaptive.jpg')
+    input_url = self.urlHelper('../images/watermark_test_input.jpg')
+    
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            400,
+        'height':           400,
+        'type':             'fill',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.3,
+        'watermark_max':    1.0,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(input_url, operations)
+    
+    self.verifySuccess(output);
+    
+    # -----------------------------------------
+    #   Output size is smaller than watermark
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark2.png')
+    output_url = self.outputUrlHelper('test_watermark_2_photo.jpg')
+    
     resize_operation = {
       'type': 'resize',
       'params':
@@ -188,7 +225,9 @@ class TestArion(unittest.TestCase):
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
-        'watermark_amount': 0.5,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.1,
+        'watermark_max':    0.5,
         'output_url':       output_url
       }
     }
@@ -199,8 +238,12 @@ class TestArion(unittest.TestCase):
     
     self.verifySuccess(output);
     
-    # Output size is larger than watermark
-    output_url = self.outputUrlHelper('test_resize_fill_watermark_3.jpg')
+    # -----------------------------------------
+    #   Output size is larger than watermark
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark2.png')
+    output_url = self.outputUrlHelper('test_watermark_3_photo.jpg')
+    
     resize_operation = {
       'type': 'resize',
       'params':
@@ -210,7 +253,9 @@ class TestArion(unittest.TestCase):
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
-        'watermark_amount': 0.5,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.1,
+        'watermark_max':    0.5,
         'output_url':       output_url
       }
     }
@@ -221,8 +266,11 @@ class TestArion(unittest.TestCase):
     
     self.verifySuccess(output);
     
-    # Output width is larger than watermark, but height is smaller
-    output_url = self.outputUrlHelper('test_resize_fill_watermark_4.jpg')
+    # -----------------------------------------
+    # Output width is larger than watermark, 
+    # but height is smaller
+    # -----------------------------------------
+    output_url = self.outputUrlHelper('test_watermark_4_photo.jpg')
     resize_operation = {
       'type': 'resize',
       'params':
@@ -232,7 +280,9 @@ class TestArion(unittest.TestCase):
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
-        'watermark_amount': 0.5,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.1,
+        'watermark_max':    0.5,
         'output_url':       output_url
       }
     }
@@ -243,8 +293,11 @@ class TestArion(unittest.TestCase):
     
     self.verifySuccess(output);
     
-    # Output height is larger than watermark, but width is smaller
-    output_url = self.outputUrlHelper('test_resize_fill_watermark_5.jpg')
+    # -----------------------------------------
+    # Output height is larger than watermark, 
+    # but width is smaller
+    # -----------------------------------------
+    output_url = self.outputUrlHelper('test_watermark_5_photo.jpg')
     resize_operation = {
       'type': 'resize',
       'params':
@@ -254,7 +307,10 @@ class TestArion(unittest.TestCase):
         'type':             'fill',
         'quality':          92,
         'watermark_url':    watermark_url,
-        'watermark_amount': 0.5,
+        'watermark_url':    watermark_url,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.1,
+        'watermark_max':    0.5,
         'output_url':       output_url
       }
     }

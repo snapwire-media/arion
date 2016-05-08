@@ -76,6 +76,12 @@ enum
   ResizeGravitySouthEast = 8
 };
 
+enum
+{
+  ResizeWatermarkTypeStandard = 0,
+  ResizeWatermarkTypeAdaptive = 1,
+};
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 class Resize : public Operation
@@ -125,12 +131,16 @@ class Resize : public Operation
     void readType(const boost::property_tree::ptree& params);
     void readGravity(const boost::property_tree::ptree& params);
     
-    void decodeType(const std::string& type);
-    void decodeGravity(const std::string& gravity);
-    void decodeWatermarkUrl(const std::string& watermarkUrl);
-    void decodeOutputUrl(const std::string& outputUrl);
+    void validateType(const std::string& type);
+    void validateGravity(const std::string& gravity);
+    void validateWatermarkUrl(const std::string& watermarkUrl);
+    void validateWatermarkType(const std::string& watermarkType);
+    void validateOutputUrl(const std::string& outputUrl);
     
-    void watermark();
+    void validateWatermarkAmount(float watermarkAmount);
+    void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
+    
+    void applyWatermark();
 
     int mType;
     unsigned mHeight;
@@ -142,7 +152,10 @@ class Resize : public Operation
     float mSharpenRadius;
     bool mPreserveMeta;
     std::string mWatermarkFile;
-    float mWatermarkAmount;
+    unsigned mWatermarkType;
+    double mWatermarkAmount;
+    double mWatermarkMin;
+    double mWatermarkMax;
     std::string mOutputFile;
 
     cv::Mat mImageResized;
