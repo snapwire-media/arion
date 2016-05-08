@@ -151,6 +151,97 @@ class TestArion(unittest.TestCase):
     
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------  
+  def testImageFormats(self):
+    
+    # -----------------------------------------
+    #                  JPG
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark.png')
+    output_url = self.outputUrlHelper('test_format_jpg.jpg')
+    input_url = self.urlHelper('../images/small_input.jpg')
+    
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            100,
+        'height':           400,
+        'type':             'width',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.3,
+        'watermark_max':    1.0,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(input_url, operations)
+    
+    self.verifySuccess(output);
+    
+    # -----------------------------------------
+    #                  PNG
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark.png')
+    output_url = self.outputUrlHelper('test_format_png.jpg')
+    input_url = self.urlHelper('../images/small_input.png')
+    
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            100,
+        'height':           400,
+        'type':             'width',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.3,
+        'watermark_max':    1.0,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(input_url, operations)
+    
+    self.verifySuccess(output);
+    
+    # -----------------------------------------
+    #                  TIFF
+    # -----------------------------------------
+    watermark_url = self.urlHelper('../images/watermark.png')
+    output_url = self.outputUrlHelper('test_format_tif.jpg')
+    input_url = self.urlHelper('../images/small_input.tif')
+    
+    resize_operation = {
+      'type': 'resize',
+      'params':
+      {
+        'width':            100,
+        'height':           400,
+        'type':             'width',
+        'quality':          92,
+        'watermark_url':    watermark_url,
+        'watermark_type':   'adaptive',
+        'watermark_min':    0.3,
+        'watermark_max':    1.0,
+        'output_url':       output_url
+      }
+    }
+
+    operations = [resize_operation];
+
+    output = self.call_arion(input_url, operations)
+    
+    self.verifySuccess(output);
+    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------  
   def testWatermark(self):
     
     # -----------------------------------------
