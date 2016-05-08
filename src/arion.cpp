@@ -648,7 +648,7 @@ void Arion::extractImageData(const string& imageFilePath)
   {
     // If we are taking metadata into account first read the image into memory
     // and then extract pixel and metadata from memory...
-    std::ifstream input(imageFilePath, std::ios::binary);
+    std::ifstream input(imageFilePath.c_str(), std::ios::binary);
 
     // copies all data into buffer
     std::vector<char> buffer((std::istreambuf_iterator<char>(input)),(std::istreambuf_iterator<char>()));
