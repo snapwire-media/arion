@@ -63,7 +63,16 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
     return result;
   }
 
-  arion.setCorrectOrientation(true);
+  // In addition to the performance benefit there seems to be a
+  // strange intermittent error when reading meta data through
+  // EXIV2 in a multi-threaded fashion. Until this has been
+  // resolved metadata will not be read here
+  arion.setIgnoreMetadata(true);
+
+  // Since we cannot read metadata we cannot correct for
+  // orientation
+  arion.setCorrectOrientation(false);
+
   arion.addResizeOperation(resizeOptions);
   
   // We just passed in one operation, use the 0th index

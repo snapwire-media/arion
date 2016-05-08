@@ -66,6 +66,7 @@ class Arion
     cv::Mat& getSourceImage();
     bool setInputUrl(const std::string& inputUrl);
     bool setOutputUrl(const std::string& outputUrl);
+    void setIgnoreMetadata(bool ignoreMetadata);
     void setCorrectOrientation(bool correctOrientation);
     void addResizeOperation(struct ArionResizeOptions options);
     
@@ -81,8 +82,7 @@ class Arion
     //--------------------
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
     bool parseOperations(const boost::property_tree::ptree& pt);
-    void extractImage(const std::string& imageFilePath);
-    void extractMetadata(const std::string& imageFilePath);
+    void extractImageData(const std::string& imageFilePath);
     void overrideMeta(const boost::property_tree::ptree& pt);
     void constructErrorJson();
     void parseInputUrl(std::string inputUrl);
@@ -93,6 +93,7 @@ class Arion
     boost::property_tree::ptree mInputTree;
     std::string mInputFile;
     bool mCorrectOrientation;
+    bool mIgnoreMetadata;
     cv::Mat mSourceImage;
     
     typedef boost::ptr_vector<Operation> Operations;

@@ -120,7 +120,8 @@ Arion::Arion() :
   mInputFile(),
   mTotalOperations(0),
   mFailedOperations(0),
-  mResult(false)
+  mResult(false),
+  mIgnoreMetadata(false)
 {
 }
 
@@ -200,6 +201,13 @@ bool Arion::setup(const string& inputJson)
 void Arion::setSourceImage(cv::Mat& sourceImage)
 {
   mSourceImage = sourceImage;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::setIgnoreMetadata(bool ignoreMetadata)
+{
+  mIgnoreMetadata = ignoreMetadata;
 }
 
 //------------------------------------------------------------------------------
@@ -626,70 +634,88 @@ bool Arion::parseOperations(const ptree& pt)
   return true;
 }
 
-//--------------------------------
-//   Extract Image Meta Data
-//--------------------------------
-void Arion::extractMetadata(const string& imageFilePath)
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::extractImageData(const string& imageFilePath)
 {
-  try
+  
+  if (mIgnoreMetadata)
   {
-    mExivImage = Exiv2::ImageFactory::open(imageFilePath.c_str());
+    // If the ignore metadata flag is set simply read the image data
+    mSourceImage = cv::imread(imageFilePath);
+  }
+  else
+  {
+    // If we are taking metadata into account first read the image into memory
+    // and then extract pixel and metadata from memory...
+    std::ifstream input(imageFilePath, std::ios::binary);
 
-    if (mExivImage.get() != 0)
+    // copies all data into buffer
+    std::vector<char> buffer((std::istreambuf_iterator<char>(input)),(std::istreambuf_iterator<char>()));
+
+    if (buffer.empty())
     {
-      mExivImage->readMetadata();
+      throw extractException;
+    }
 
-      Exiv2::ExifData& exifData = mExivImage->exifData();
+    try
+    {
+      mExivImage = Exiv2::ImageFactory::open((const Exiv2::byte *)&buffer.front(), (long)buffer.size());
 
-      if (!exifData.empty())
+      if (mExivImage.get() != 0)
       {
-        mpExifData = &exifData;
+        mExivImage->readMetadata();
 
-#if DEBUG
-        Utils::exifDebug(exifData);
-#endif
+        Exiv2::ExifData& exifData = mExivImage->exifData();
 
-        if (mCorrectOrientation)
+        if (!exifData.empty())
         {
-          handleOrientation(exifData, mSourceImage);
+          mpExifData = &exifData;
+
+  #if DEBUG
+          Utils::exifDebug(exifData);
+  #endif
+
+          if (mCorrectOrientation)
+          {
+            handleOrientation(exifData, mSourceImage);
+          }
+        }
+
+        Exiv2::XmpData& xmpData = mExivImage->xmpData();
+
+        if (!xmpData.empty())
+        {
+          mpXmpData = &xmpData;
+
+  #if DEBUG
+          Utils::xmpDebug(xmpData);
+  #endif
+        }
+
+        Exiv2::IptcData& iptcData = mExivImage->iptcData();
+
+        if (!iptcData.empty())
+        {
+          mpIptcData = &iptcData;
+
+  #if DEBUG
+          Utils::iptcDebug(iptcData);
+  #endif
         }
       }
-
-      Exiv2::XmpData& xmpData = mExivImage->xmpData();
-
-      if (!xmpData.empty())
-      {
-        mpXmpData = &xmpData;
-
-#if DEBUG
-        Utils::xmpDebug(xmpData);
-#endif
-      }
-
-      Exiv2::IptcData& iptcData = mExivImage->iptcData();
-
-      if (!iptcData.empty())
-      {
-        mpIptcData = &iptcData;
-
-#if DEBUG
-        Utils::iptcDebug(iptcData);
-#endif
-      }
     }
-  }
-  catch (Exiv2::AnyError& e)
-  {
-    // Not the end of the world if reading EXIF data failed
-  }
-}
+    catch (Exiv2::AnyError& e)
+    {
+      // Not the end of the world if reading EXIF data failed
+    }
 
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-void Arion::extractImage(const string& imageFilePath)
-{
-  mSourceImage = cv::imread(imageFilePath);
+    // Now actually decode the bytes
+    cv::InputArray buf(buffer);
 
+    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
+  }
+  
   if (mSourceImage.empty())
   {
     throw extractException;
@@ -711,7 +737,7 @@ bool Arion::run()
       // TODO: only read pixels if required by operations 
       // (e.g. copy operation does not require read here)
       // We have an input file, so lets read it
-      extractImage(mInputFile);
+      extractImageData(mInputFile);
     }
     catch (boost::exception& e)
     {
@@ -730,11 +756,6 @@ bool Arion::run()
       
       return false;
     }
-
-    //----------------------------------
-    //     Read metadata from file
-    //----------------------------------
-    extractMetadata(mInputFile);
   }
   
   //----------------------------------
