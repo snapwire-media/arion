@@ -103,67 +103,6 @@ namespace Utils
     return out;
   }
 
- //----------------------------------------------------------------------------
- //
- // Copies a transparent 4-channel image over a non-transparent 3 channel 
- // background image.
- //
- // Original source: 
- //  http://jepsonsblog.blogspot.com.br/2012/10/overlay-transparent-image-in-opencv.html
- // 
- // background: must be 3-channel BGR.
- // foreground: must be 4-channel RGBA.
- // output: the destination Mat.
- // location: offset starting point.
- //
- //----------------------------------------------------------------------------
-  static void overlayImage(const cv::Mat &background, 
-                           const cv::Mat &foreground, 
-                           cv::Mat &output, 
-                           cv::Point2i location, 
-                           double blend)
-  {
-    background.copyTo(output);
-    double blendConstant = blend / 255.0;
-
-    // start at the row indicated by location, or at row 0 if location.y is negative.
-    for (int y = std::max(location.y, 0); y < background.rows; ++y)
-    {
-      int fY = y - location.y; // because of the translation
-
-      // we are done or we have processed all rows of the foreground image.
-      if (fY >= foreground.rows)
-        break;
-
-      // start at the column indicated by location, or at column 0 if location.x is negative.
-      for (int x = std::max(location.x, 0); x < background.cols; ++x)
-      {
-        int fX = x - location.x; // because of the translation.
-
-        // we are done with this row if the column is outside of the foreground image.
-        if (fX >= foreground.cols)
-          break;
-
-        // determine the opacity of the foreground pixel, using its fourth (alpha) channel.
-        unsigned char alpha = foreground.data[fY * foreground.step + fX * foreground.channels() + 3];
-        
-        // Only apply watermark if alpha is non-zero
-        if (alpha)
-        {
-          double opacity = blendConstant * ((double) alpha);
-
-          // Combine the background and foreground pixel, using the opacity, 
-          for (int c = 0; c < output.channels(); ++c)
-          {
-            unsigned char foregroundPx = foreground.data[fY * foreground.step + fX * foreground.channels() + c];
-            unsigned char backgroundPx = background.data[y * background.step + x * background.channels() + c];
-            output.data[y * output.step + output.channels() * x + c] = backgroundPx * (1.0 - opacity) + foregroundPx * opacity;
-          }
-        }
-      }
-    }
-  }
-  
   //------------------------------------------------------------------------------
   //------------------------------------------------------------------------------
   static void exifDebug(Exiv2::ExifData& exifData)
@@ -277,33 +216,6 @@ namespace Utils
 
     exit(-1);
   }
-  
-  //------------------------------------------------------------------------------
-  //------------------------------------------------------------------------------
-//  static std::string outputJsonError(std::string errorMessage, unsigned total_operations, unsigned failed_operations)
-//  {
-//    rapidjson::StringBuffer s;
-//
-//    #ifdef JSON_PRETTY_OUTPUT
-//      rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
-//    #else
-//      rapidjson::Writer<rapidjson::StringBuffer> writer(s);
-//    #endif
-//
-//    writer.StartObject();
-//
-//    // Result
-//    writer.String("result");
-//    writer.Bool(false);
-//
-//    // Error message
-//    writer.String("error_message");
-//    writer.String(errorMessage);
-//
-//    writer.EndObject();
-//
-//    return s.GetString();
-//  }
 
   //------------------------------------------------------------------------------
   // Returns a character representation of an OpenCV image type
