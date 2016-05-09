@@ -285,9 +285,23 @@ void Resize::setWatermarkUrl(const std::string& watermarkUrl)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::setWatermarkType(const std::string& watermarkType)
+{
+  validateWatermarkType(watermarkType);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Resize::setWatermarkAmount(float watermarkAmount)
 {
   mWatermarkAmount = watermarkAmount;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setWatermarkMinMax(float watermarkMin, float watermarkMax)
+{
+  validateWatermarkMinMax(watermarkMin, watermarkMax);
 }
 
 //------------------------------------------------------------------------------
@@ -513,7 +527,7 @@ void Resize::validateWatermarkMinMax(float watermarkMin, float watermarkMax)
   }
 
   mWatermarkMin = watermarkMin;
-  mWatermarkMax  = watermarkMax;
+  mWatermarkMax = watermarkMax;
 
 }
 

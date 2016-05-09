@@ -27,7 +27,10 @@ extern "C" {
     float sharpenRadius;
     unsigned preserveMeta;
     char* watermarkUrl;
+    char* watermarkType;
     float watermarkAmount;
+    float watermarkMin;
+    float watermarkMax;
     char* outputUrl;
   };
   

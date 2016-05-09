@@ -104,7 +104,9 @@ class Resize : public Operation
     void setSharpenRadius(float radius);
     void setPreserveMeta(bool preserveMeta);
     void setWatermarkUrl(const std::string& watermarkUrl);
+    void setWatermarkType(const std::string& watermarkType);
     void setWatermarkAmount(float watermarkAmount);
+    void setWatermarkMinMax(float watermarkMin, float watermarkMax);
     void setOutputUrl(const std::string& outputUrl);
     
     std::string getOutputFile() const;
@@ -136,7 +138,6 @@ class Resize : public Operation
     void validateWatermarkUrl(const std::string& watermarkUrl);
     void validateWatermarkType(const std::string& watermarkType);
     void validateOutputUrl(const std::string& outputUrl);
-    
     void validateWatermarkAmount(float watermarkAmount);
     void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
     

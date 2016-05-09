@@ -292,8 +292,15 @@ void Arion::addResizeOperation(struct ArionResizeOptions options)
     string watermarkUrl(options.watermarkUrl);
     resize->setWatermarkUrl(watermarkUrl);
     resize->setWatermarkAmount(options.watermarkAmount);
+    resize->setWatermarkMinMax(options.watermarkMin, options.watermarkMax);
   }
   
+  if (options.watermarkType)
+  {
+    string watermarkType(options.watermarkType);
+    resize->setWatermarkType(watermarkType);
+  }
+
   // Output Url
   if (options.outputUrl)
   {
