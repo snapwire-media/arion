@@ -85,6 +85,20 @@ cmake ../src/
 make
 ```
 
+For a more optimized/minimal build use the following options. This requires installation of [libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo).  
+
+```
+cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
+      -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF \
+      -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF \
+      -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF \
+      -DWITH_JPEG=ON -DBUILD_JPEG=OFF \
+      -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
+      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib64/libjpeg.a \
+      -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
+      -DENABLE_AVX=ON ..
+```
+
 **Run Examples**
 
 There are two example images provided and a wide range of example operations via a shell script. 
