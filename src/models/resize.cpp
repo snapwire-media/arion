@@ -952,21 +952,21 @@ void Resize::applyWatermark()
           unsigned brightness = (r+r+r+b+g+g+g+g)>>3;
 
           // Log-based blend
-          // blend = (blendMax - blendMin) * log ( 9*(brightness / 255) + 1) + blendMin
-          blend = blendDelta * log(1.0 + normFactor * (double)brightness) + blendMin;
+          // blend = (blendMax - blendMin) * log10 ( 9*(brightness / 255) + 1) + blendMin
+          blend = blendDelta * log10(1.0 + normFactor * (double)brightness) + blendMin;
 
           // Linear blend
 //          blend = (blendMax - blendMin) * ((double)brightness/255.0) + blendMin;
 
           // Just in case...
-          if (blend < blendMin)
-          {
-            blend = blendMin;
-          }
-          else if (blend > blendMax)
-          {
-            blend = blendMax;
-          }
+//          if (blend < blendMin)
+//          {
+//            blend = blendMin;
+//          }
+//          else if (blend > blendMax)
+//          {
+//            blend = blendMax;
+//          }
         }
 
         double opacity = blend * ((double) alpha);
