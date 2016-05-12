@@ -887,9 +887,16 @@ void Resize::applyWatermark()
 {
   Mat watermark = imread(mWatermarkFile, IMREAD_UNCHANGED);
 
+  if (watermark.empty())
+  {
+    return;
+  }
+
   double blend = mWatermarkAmount / 255.0;
   const double blendMin = mWatermarkMin / 255.0;
   const double blendMax = mWatermarkMax / 255.0;
+  const double blendDelta = blendMax - blendMin;
+  const double normFactor = 9.0 / 255.0;
 
   // In case we can't compute brightness for adaptive watermark use the min blend specified
   if (mWatermarkType == ResizeWatermarkTypeAdaptive)
@@ -944,11 +951,21 @@ void Resize::applyWatermark()
           // http://stackoverflow.com/questions/596216/formula-to-determine-brightness-of-rgb-color
           unsigned brightness = (r+r+r+b+g+g+g+g)>>3;
 
-          blend = blendMax * ((double)brightness/255.0);
+          // Log-based blend
+          // blend = (blendMax - blendMin) * log ( 9*(brightness / 255) + 1) + blendMin
+          blend = blendDelta * log(1.0 + normFactor * (double)brightness) + blendMin;
 
+          // Linear blend
+//          blend = (blendMax - blendMin) * ((double)brightness/255.0) + blendMin;
+
+          // Just in case...
           if (blend < blendMin)
           {
             blend = blendMin;
+          }
+          else if (blend > blendMax)
+          {
+            blend = blendMax;
           }
         }
 

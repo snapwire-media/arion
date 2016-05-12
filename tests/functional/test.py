@@ -261,7 +261,7 @@ class TestArion(unittest.TestCase):
         'quality':          92,
         'watermark_url':    watermark_url,
         'watermark_type':   'standard',
-        'watermark_amount': 0.3,
+        'watermark_amount': 0.1,
         'output_url':       output_url
       }
     }
@@ -289,8 +289,8 @@ class TestArion(unittest.TestCase):
         'quality':          92,
         'watermark_url':    watermark_url,
         'watermark_type':   'adaptive',
-        'watermark_min':    0.3,
-        'watermark_max':    1.0,
+        'watermark_min':    0.1,
+        'watermark_max':    0.5,
         'output_url':       output_url
       }
     }
