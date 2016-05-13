@@ -955,18 +955,9 @@ void Resize::applyWatermark()
           // blend = (blendMax - blendMin) * log10 ( 9*(brightness / 255) + 1) + blendMin
           blend = blendDelta * log10(1.0 + normFactor * (double)brightness) + blendMin;
 
-          // Linear blend
-//          blend = (blendMax - blendMin) * ((double)brightness/255.0) + blendMin;
+          // Linear blend - for reference...
+          // blend = (blendMax - blendMin) * ((double)brightness/255.0) + blendMin;
 
-          // Just in case...
-//          if (blend < blendMin)
-//          {
-//            blend = blendMin;
-//          }
-//          else if (blend > blendMax)
-//          {
-//            blend = blendMax;
-//          }
         }
 
         double opacity = blend * ((double) alpha);
