@@ -46,6 +46,8 @@
 // Local
 #include "models/operation.hpp"
 
+#define ARION_RESIZE_MAX_DIMENSION 10000
+
 enum
 {
   ResizeTypeInvalid     = -1,
@@ -140,6 +142,9 @@ class Resize : public Operation
     void validateOutputUrl(const std::string& outputUrl);
     void validateWatermarkAmount(float watermarkAmount);
     void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
+    void validateQuality(unsigned quality);
+    void validateSharpenAmount(unsigned sharpenAmount);
+    void validateSharpenRadius(float sharpenRadius);
     
     void applyWatermark();
 

@@ -96,7 +96,7 @@ void Resize::setup(const ptree& params)
   
   try
   {
-    // TODO: height validation
+    // Height validation handled in run()
     mHeight = params.get<unsigned>("height");
   }
   catch (boost::exception& e)
@@ -106,7 +106,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: width validation
+    // Width validation handled in run()
     mWidth = params.get<unsigned>("width");
   }
   catch (boost::exception& e)
@@ -142,8 +142,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: quality validation
-    mQuality = params.get<unsigned>("quality");
+    validateQuality(params.get<unsigned>("quality"));
   }
   catch (boost::exception& e)
   {
@@ -152,7 +151,6 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: validation
     mPreFilter = params.get<bool>("pre_filter");
   }
   catch (boost::exception& e)
@@ -162,8 +160,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: validation
-    mSharpenAmount = params.get<unsigned>("sharpen_amount");
+    validateSharpenAmount(params.get<unsigned>("sharpen_amount"));
   }
   catch (boost::exception& e)
   {
@@ -172,8 +169,7 @@ void Resize::setup(const ptree& params)
 
   try
   {
-    // TODO: validation
-    mSharpenRadius = params.get<float>("sharpen_radius");
+    validateSharpenRadius(params.get<float>("sharpen_radius"));
   }
   catch (boost::exception& e)
   {
@@ -229,7 +225,6 @@ void Resize::setType(const std::string& type)
 //------------------------------------------------------------------------------
 void Resize::setHeight(unsigned height)
 {
-  // TODO: validation
   mHeight = height;
 }
 
@@ -237,7 +232,6 @@ void Resize::setHeight(unsigned height)
 //------------------------------------------------------------------------------
 void Resize::setWidth(unsigned width)
 {
-  // TODO: validation
   mWidth = width;
 }
 
@@ -245,7 +239,7 @@ void Resize::setWidth(unsigned width)
 //------------------------------------------------------------------------------
 void Resize::setQuality(unsigned quality)
 {
-  mQuality = quality;
+  validateQuality(quality);
 }
 
 //------------------------------------------------------------------------------
@@ -259,14 +253,14 @@ void Resize::setGravity(std::string gravity)
 //------------------------------------------------------------------------------
 void Resize::setSharpenAmount(unsigned sharpenAmount)
 {
-  mSharpenAmount = sharpenAmount;
+  validateSharpenAmount(sharpenAmount);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Resize::setSharpenRadius(float radius)
 {
-  mSharpenRadius = radius;
+  validateSharpenRadius(radius);
 }
 
 //------------------------------------------------------------------------------
@@ -533,6 +527,36 @@ void Resize::validateWatermarkMinMax(float watermarkMin, float watermarkMax)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+void Resize::validateQuality(unsigned quality)
+{
+  if (quality <= 100)
+  {
+    mQuality = quality;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::validateSharpenAmount(unsigned sharpenAmount)
+{
+  if (sharpenAmount <= 1000)
+  {
+    mSharpenAmount = sharpenAmount;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::validateSharpenRadius(float sharpenRadius)
+{
+  if ((sharpenRadius > 0.0) && (sharpenRadius < 10.0))
+  {
+    mSharpenRadius = sharpenRadius;
+  }
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Resize::computeSizeSquare()
 {
   // Don't assume the height and width the user specified are the same
@@ -767,14 +791,26 @@ bool Resize::run()
     if (mHeight == 0)
     {
       mStatus = ResizeStatusError;
-      mErrorMessage = "Invalid height for resize";
+      mErrorMessage = "Height cannot be 0";
+      return false;
+    }
+    else if (mHeight > ARION_RESIZE_MAX_DIMENSION)
+    {
+      mStatus = ResizeStatusError;
+      mErrorMessage = "Maximum height exceeded";
       return false;
     }
     
     if (mWidth == 0)
     {
       mStatus = ResizeStatusError;
-      mErrorMessage = "Invalid width for resize";
+      mErrorMessage = "Width cannot be 0";
+      return false;
+    }
+    else if (mWidth > ARION_RESIZE_MAX_DIMENSION)
+    {
+      mStatus = ResizeStatusError;
+      mErrorMessage = "Maximum width exceeded";
       return false;
     }
     
