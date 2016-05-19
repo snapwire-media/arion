@@ -90,6 +90,12 @@ void Copy::setup(const ptree& params)
     {
       mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
     }
+    else
+    {
+      // Assume local file
+      mOutputFile = outputUrl;
+    }
+
   }
   catch (boost::exception& e)
   {

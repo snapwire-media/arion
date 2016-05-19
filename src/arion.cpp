@@ -102,13 +102,13 @@ class ArionOperationNotSupportedException: public exception
   }
 } operationNotSupportedException;
 
-class ArionInputSourceException: public exception
-{
-  virtual const char* what() const throw()
-  {
-    return "Unsupported input source. Use 'file://' prefix";
-  }
-} inputSourceException;
+//class ArionInputSourceException: public exception
+//{
+//  virtual const char* what() const throw()
+//  {
+//    return "Unsupported input source. Use 'file://' prefix";
+//  }
+//} inputSourceException;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -329,7 +329,9 @@ void Arion::parseInputUrl(std::string inputUrl)
   }
   else
   {
-    throw inputSourceException;
+    // Assume it's a local file...
+    mInputFile = inputUrl;
+    //throw inputSourceException;
   }
 }
 

@@ -10,12 +10,12 @@ class TestArion(unittest.TestCase):
 
   ARION_PATH = '../../build/arion'
   
-  # Images for general purpose testing
-  IMAGE_1_PATH = 'file://../../examples/images/image-1.jpg'
-  IMAGE_2_PATH = 'file://../../examples/images/image-2.jpg'
-  IMAGE_3_PATH = 'file://../../examples/images/image-3.jpg'
+  # Images for general purpose testing (leave off file:// for testing)
+  IMAGE_1_PATH = '../../examples/images/image-1.jpg'
+  IMAGE_2_PATH = '../../examples/images/image-2.jpg'
+  IMAGE_3_PATH = '../../examples/images/image-3.jpg'
   
-  # Images for JPG orientation tests
+  # Images for JPG orientation tests (include file:// for testing)
   # Images from https://github.com/recurser/exif-orientation-examples
   # Copyright (c) 2010 Dave Perrett.
   LANDSCAPE_1_PATH = 'file://../images/Landscape_1.jpg'
@@ -105,13 +105,8 @@ class TestArion(unittest.TestCase):
   #  Helper function for creating output url
   # -------------------------------------------------------------------------------
   def outputUrlHelper(self, filename):
-    return 'file://' + self.OUTPUT_IMAGE_PATH + filename
-  
-  # -------------------------------------------------------------------------------
-  # -------------------------------------------------------------------------------
-  def urlHelper(self, filename):
-    return 'file://' + filename
-    
+    return self.OUTPUT_IMAGE_PATH + filename
+      
   # -------------------------------------------------------------------------------
   #  Helper function for testing fill operation
   # -------------------------------------------------------------------------------
@@ -156,9 +151,9 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #                  JPG
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark.png')
-    output_url = self.outputUrlHelper('test_format_jpg.jpg')
-    input_url = self.urlHelper('../images/small_input.jpg')
+    input_url     = '../images/small_input.jpg'
+    watermark_url = '../images/watermark.png'
+    output_url    = self.outputUrlHelper('test_format_jpg.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -185,9 +180,10 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #                  PNG
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark.png')
-    output_url = self.outputUrlHelper('test_format_png.jpg')
-    input_url = self.urlHelper('../images/small_input.png')
+    input_url     = '../images/small_input.png'
+    watermark_url = '../images/watermark.png'
+    output_url    = self.outputUrlHelper('test_format_png.jpg')
+    
     
     resize_operation = {
       'type': 'resize',
@@ -214,9 +210,9 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #                  TIFF
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark.png')
-    output_url = self.outputUrlHelper('test_format_tif.jpg')
-    input_url = self.urlHelper('../images/small_input.tif')
+    input_url     = '../images/small_input.tif'
+    watermark_url = '../images/watermark.png'
+    output_url    = self.outputUrlHelper('test_format_tif.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -247,9 +243,9 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #               Standard 1:1
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark.png')
-    output_url = self.outputUrlHelper('test_watermark_1_standard.jpg')
-    input_url = self.urlHelper('../images/watermark_test_input.jpg')
+    input_url     = '../images/watermark_test_input.jpg'
+    watermark_url = '../images/watermark.png'
+    output_url    = self.outputUrlHelper('test_watermark_1_standard.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -275,9 +271,9 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #              Adaptive 1:1
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark.png')
-    output_url = self.outputUrlHelper('test_watermark_2_adaptive.jpg')
-    input_url = self.urlHelper('../images/watermark_test_input.jpg')
+    input_url     = '../images/watermark_test_input.jpg'
+    watermark_url = '../images/watermark.png'
+    output_url    = self.outputUrlHelper('test_watermark_2_adaptive.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -304,8 +300,8 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #   Output size is smaller than watermark
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark2.png')
-    output_url = self.outputUrlHelper('test_watermark_2_photo.jpg')
+    watermark_url = '../images/watermark2.png'
+    output_url    = self.outputUrlHelper('test_watermark_2_photo.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -332,8 +328,8 @@ class TestArion(unittest.TestCase):
     # -----------------------------------------
     #   Output size is larger than watermark
     # -----------------------------------------
-    watermark_url = self.urlHelper('../images/watermark2.png')
-    output_url = self.outputUrlHelper('test_watermark_3_photo.jpg')
+    watermark_url = '../images/watermark2.png'
+    output_url    = self.outputUrlHelper('test_watermark_3_photo.jpg')
     
     resize_operation = {
       'type': 'resize',
@@ -418,7 +414,7 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------  
   def test100x200TallCenter(self):
 
-    srcPath = "file://../images/100x200_tall_center.png"
+    srcPath      = "file://../images/100x200_tall_center.png"
     outputPrefix = "100x200_tall_center_to_"
 
     # Just a crop, take the center
@@ -452,7 +448,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test100x200TallLeft(self):
       
-    srcPath = "file://../images/100x200_tall_left.png"
+    srcPath      = "file://../images/100x200_tall_left.png"
     outputPrefix = "100x200_tall_left_to_"
 
     # Just a crop, take the left
@@ -488,7 +484,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test100x200TallRight(self):
 
-    srcPath = "file://../images/100x200_tall_right.png"
+    srcPath      = "file://../images/100x200_tall_right.png"
     outputPrefix = "100x200_tall_right_to_"
 
     # Just a crop, take the right
@@ -524,7 +520,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test100x200WideBottom(self):
 
-    srcPath = "file://../images/100x200_wide_bottom.png"
+    srcPath      = "file://../images/100x200_wide_bottom.png"
     outputPrefix = "100x200_wide_bottom_to_"
 
     # Just a crop, take the bottom
@@ -560,7 +556,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test100x200WideCenter(self):
 
-    srcPath = "file://../images/100x200_wide_center.png"
+    srcPath      = "file://../images/100x200_wide_center.png"
     outputPrefix = "100x200_wide_center_to_"
 
     # Just a crop, take the bottom
@@ -596,7 +592,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test100x200WideTop(self):
 
-    srcPath = "file://../images/100x200_wide_top.png"
+    srcPath      = "file://../images/100x200_wide_top.png"
     outputPrefix = "100x200_wide_top_to_"
 
     # Just a crop, take the top
@@ -632,7 +628,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100TallCenter(self):
 
-    srcPath = "file://../images/200x100_tall_center.png"
+    srcPath      = "file://../images/200x100_tall_center.png"
     outputPrefix = "200x100_tall_center_to_"
 
     # Just a crop, take the center
@@ -668,7 +664,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100TallLeft(self):
 
-    srcPath = "file://../images/200x100_tall_left.png"
+    srcPath      = "file://../images/200x100_tall_left.png"
     outputPrefix = "200x100_tall_left_to_"
 
     # Just a crop, take the left
@@ -704,7 +700,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100TallRight(self):
 
-    srcPath = "file://../images/200x100_tall_right.png"
+    srcPath      = "file://../images/200x100_tall_right.png"
     outputPrefix = "200x100_tall_right_to_"
 
     # Just a crop, take the right
@@ -740,7 +736,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100WideBottom(self):
 
-    srcPath = "file://../images/200x100_wide_bottom.png"
+    srcPath      = "file://../images/200x100_wide_bottom.png"
     outputPrefix = "200x100_wide_bottom_to_"
 
     # Just a crop, take the bottom
@@ -776,7 +772,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100WideCenter(self):
 
-    srcPath = "file://../images/200x100_wide_center.png"
+    srcPath      = "file://../images/200x100_wide_center.png"
     outputPrefix = "200x100_wide_center_to_"
 
     # Just a crop, take the bottom
@@ -812,7 +808,7 @@ class TestArion(unittest.TestCase):
   # ------------------------------------------------------------------------------- 
   def test200x100WideTop(self):
 
-    srcPath = "file://../images/200x100_wide_top.png"
+    srcPath      = "file://../images/200x100_wide_top.png"
     outputPrefix = "200x100_wide_top_to_"
 
     # Just a crop, take the top
@@ -1187,7 +1183,7 @@ class TestArion(unittest.TestCase):
     operation = {
       'type': 'copy',
       'params': {
-        'output_url': 'file://'
+        'output_url': ''
       }
     }
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
@@ -1203,7 +1199,7 @@ class TestArion(unittest.TestCase):
       {
         'width':      200,
         'height':     400,
-        'output_url': 'file://output.jpg'
+        'output_url': 'output.jpg'
       }
     }
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
@@ -1215,7 +1211,7 @@ class TestArion(unittest.TestCase):
       {
         'type':       'width',
         'height':     400,
-        'output_url': 'file://output.jpg'
+        'output_url': 'output.jpg'
       }
     }
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
@@ -1227,7 +1223,7 @@ class TestArion(unittest.TestCase):
       {
         'type':       'width',
         'width':      200,
-        'output_url': 'file://output.jpg'
+        'output_url': 'output.jpg'
       }
     }
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))

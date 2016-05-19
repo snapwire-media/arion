@@ -455,6 +455,11 @@ void Resize::validateOutputUrl(const std::string& outputUrl)
   {
     mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
   }
+  else
+  {
+    // Assume local file
+    mOutputFile = outputUrl;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -466,6 +471,11 @@ void Resize::validateWatermarkUrl(const std::string& watermarkUrl)
   if (pos != string::npos)
   {
     mWatermarkFile = Utils::getStringTail(watermarkUrl, pos + Utils::FILE_SOURCE.length());
+  }
+  else
+  {
+    // Assume local file
+    mWatermarkFile = watermarkUrl;
   }
 }
 
