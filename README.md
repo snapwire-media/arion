@@ -14,11 +14,11 @@ While there are several tools available to generate thumbnails and read image me
 * **Performance** - use a single command to batch generate thumbnails
 * **Aesthetics** - independently control output sharpening and JPEG quality on each thumbnail
 * **Functionality** - easily apply watermarks and preserve image metadata on thumbnails
-* **Compatability** - call from any framework that executes shell commands (see usage examples in **[Python](../../wiki/Examples#python)**, **[PHP](../../wiki/Examples#php)**, **[Ruby](../../wiki/Examples#ruby)**)
+* **Compatability** - call from anything that executes shell commands (see examples in **[Python](../../wiki/Examples#python)**, **[PHP](../../wiki/Examples#php)**, **[Ruby](../../wiki/Examples#ruby)**, **[Bash](../../wiki/Examples#shell)**)
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
-Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system.
+Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system. For Mac OS X see the following [instructions](../../wiki/Installation#mac-os-x). 
 
 **Requirements**
 * CMake
