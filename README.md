@@ -74,18 +74,8 @@ make
 sudo make install
 ```
 
-**Build Arion**
-
-This will create the final executable. You will need to create a new build directory and run CMake to generate the makefile.  CMake will let you know if any dependencies are missing.  
-
-```bash
-mkdir build
-cd build
-cmake ../src/
-make
-```
-
-For a more optimized/minimal build use the following options. This requires installation of [libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo).  
+For a more optimized/minimal OpenCV build use the following options. 
+NOTE: This requires installation of [libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo).  
 
 ```
 cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
@@ -97,6 +87,17 @@ cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
       -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib64/libjpeg.a \
       -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
       -DENABLE_AVX=ON ..
+```
+
+**Build Arion**
+
+This will create the final executable. You will need to create a new build directory and run CMake to generate the makefile.  CMake will let you know if any dependencies are missing.  
+
+```bash
+mkdir build
+cd build
+cmake ../src/
+make
 ```
 
 **Run Examples**
