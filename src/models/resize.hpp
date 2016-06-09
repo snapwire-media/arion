@@ -40,28 +40,48 @@
 // Boost
 #include <boost/property_tree/ptree.hpp>
 
-// OpenCV
-#include <opencv2/core/core.hpp>
-
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
 // Local
 #include "models/operation.hpp"
 
+#define ARION_RESIZE_MAX_DIMENSION 10000
+
 enum
 {
-  ResizeTypeFixedWidth = 0,
+  ResizeTypeInvalid     = -1,
+  ResizeTypeFixedWidth  = 0,
   ResizeTypeFixedHeight = 1,
-  ResizeTypeSquare = 2,
+  ResizeTypeSquare      = 2,
+  ResizeTypeFill        = 3
 };
 
 enum
 {
   ResizeStatusDidNotTry = 0,
-  ResizeStatusPending = 1,
-  ResizeStatusSuccess = 2,
-  ResizeStatusError = 3,
+  ResizeStatusPending   = 1,
+  ResizeStatusSuccess   = 2,
+  ResizeStatusError     = 3
+};
+
+enum
+{
+  ResizeGravitytCenter   = 0,
+  ResizeGravityNorth     = 1,
+  ResizeGravitySouth     = 2,
+  ResizeGravityWest      = 3,
+  ResizeGravityEast      = 4,
+  ResizeGravityNorthWest = 5,
+  ResizeGravityNorthEast = 6,
+  ResizeGravitySouthWest = 7,
+  ResizeGravitySouthEast = 8
+};
+
+enum
+{
+  ResizeWatermarkTypeStandard = 0,
+  ResizeWatermarkTypeAdaptive = 1,
 };
 
 //------------------------------------------------------------------------------
@@ -70,11 +90,27 @@ class Resize : public Operation
 {
   public:
 
-    Resize(const boost::property_tree::ptree& params, cv::Mat& image);
+    Resize();
     virtual ~Resize();
 
+    virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
-
+    virtual bool getJpeg(std::vector<unsigned char>& data);
+    
+    void setType(const std::string& type);
+    void setHeight(unsigned height);
+    void setWidth(unsigned width);
+    void setQuality(unsigned quality);
+    void setGravity(std::string gravity);
+    void setSharpenAmount(unsigned sharpenAmount);
+    void setSharpenRadius(float radius);
+    void setPreserveMeta(bool preserveMeta);
+    void setWatermarkUrl(const std::string& watermarkUrl);
+    void setWatermarkType(const std::string& watermarkType);
+    void setWatermarkAmount(float watermarkAmount);
+    void setWatermarkMinMax(float watermarkMin, float watermarkMax);
+    void setOutputUrl(const std::string& outputUrl);
+    
     std::string getOutputFile() const;
     bool getPreserveMeta() const;
     bool getStatus() const;
@@ -90,26 +126,49 @@ class Resize : public Operation
 
     int getAspectHeight(int resizeWidth, double aspect) const;
     int getAspectWidth(int resizeHeight, double aspect) const;
-
-    boost::property_tree::ptree mParams;
+    
+    void computeSizeSquare();
+    void computeSizeWidth();
+    void computeSizeHeight();
+    void computeSizeFill();
+    
+    void readType(const boost::property_tree::ptree& params);
+    void readGravity(const boost::property_tree::ptree& params);
+    
+    void validateType(const std::string& type);
+    void validateGravity(const std::string& gravity);
+    void validateWatermarkUrl(const std::string& watermarkUrl);
+    void validateWatermarkType(const std::string& watermarkType);
+    void validateOutputUrl(const std::string& outputUrl);
+    void validateWatermarkAmount(float watermarkAmount);
+    void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
+    void validateQuality(unsigned quality);
+    void validateSharpenAmount(unsigned sharpenAmount);
+    void validateSharpenRadius(float sharpenRadius);
+    
+    void applyWatermark();
 
     int mType;
-    int mHeight;
-    int mWidth;
-    int mQuality;
+    unsigned mHeight;
+    unsigned mWidth;
+    unsigned mQuality;
+    unsigned mGravity;
     bool mPreFilter;
-    int mSharpenAmount;
+    unsigned mSharpenAmount;
     float mSharpenRadius;
     bool mPreserveMeta;
     std::string mWatermarkFile;
-    float mWatermarkAmount;
+    unsigned mWatermarkType;
+    double mWatermarkAmount;
+    double mWatermarkMin;
+    double mWatermarkMax;
     std::string mOutputFile;
-
-    double mOperationTime;
 
     cv::Mat mImageResized;
     cv::Mat mImageResizedFinal;
-    cv::Mat& mImage;
+    
+    cv::Size mSize;
+    cv::Mat mImageToResize;
 
     int mStatus;
     std::string mErrorMessage;

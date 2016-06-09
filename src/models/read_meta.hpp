@@ -65,10 +65,12 @@ class Read_meta : public Operation
 {
   public:
 
-    Read_meta(const boost::property_tree::ptree& params);
+    Read_meta();
     virtual ~Read_meta();
 
+    virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
+    virtual bool getJpeg(std::vector<unsigned char>& data);
     
     bool getStatus() const;
     
@@ -116,7 +118,6 @@ class Read_meta : public Operation
     std::string mCountryName;
     std::string mCountryCode;
 
-    double mOperationTime;
 };
 
 #endif // READ_META_HPP

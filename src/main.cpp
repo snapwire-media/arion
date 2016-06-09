@@ -123,9 +123,25 @@ int main(int argc, char* argv[])
     }
     
     Arion arion;
-    
-    arion.run(inputJson);
 
+    if (!arion.setup(inputJson))
+    {
+      cout << arion.getJson();
+      exit(-1);
+    }
+    
+    bool result = arion.run();
+    
+    cout << arion.getJson();
+    
+    if (result)
+    {
+      exit(0);
+    }
+    else
+    {
+      exit(-1);
+    }
   }
   catch (std::exception& e)
   {

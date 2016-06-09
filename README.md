@@ -14,11 +14,11 @@ While there are several tools available to generate thumbnails and read image me
 * **Performance** - use a single command to batch generate thumbnails
 * **Aesthetics** - independently control output sharpening and JPEG quality on each thumbnail
 * **Functionality** - easily apply watermarks and preserve image metadata on thumbnails
-* **Compatability** - call from any framework that executes shell commands (see **[examples](../../wiki/Examples)**)
+* **Compatability** - call from anything that executes shell commands (see examples in **[Python](../../wiki/Examples#python)**, **[PHP](../../wiki/Examples#php)**, **[Ruby](../../wiki/Examples#ruby)**, **[Bash](../../wiki/Examples#shell)**)
 * **Extensibility** - use the modular operation framework and OpenCV to process images in new ways
 
 ## Installation
-Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system.
+Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system. For Mac OS X see the following [instructions](../../wiki/Installation#mac-os-x). 
 
 **Requirements**
 * CMake
@@ -61,12 +61,15 @@ sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-de
 
 **Install OpenCV**
 
-Arion requires OpenCV 3.0+ which must be compiled from source.  Download the archive from http://opencv.org/downloads.html
+Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget get version 3.0.0
 
 ```bash
+wget https://github.com/Itseez/opencv/archive/3.0.0.zip
+unzip 3.0.0.zip 
+cd opencv-3.0.0
 mkdir build
 cd build
-cmake ../
+cmake ..
 make
 sudo make install
 ```
@@ -80,6 +83,20 @@ mkdir build
 cd build
 cmake ../src/
 make
+```
+
+For a more optimized/minimal build use the following options. This requires installation of [libjpeg-turbo](https://github.com/libjpeg-turbo/libjpeg-turbo).  
+
+```
+cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
+      -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF \
+      -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF \
+      -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF \
+      -DWITH_JPEG=ON -DBUILD_JPEG=OFF \
+      -DJPEG_INCLUDE_DIR=/opt/libjpeg-turbo/include/ \
+      -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib64/libjpeg.a \
+      -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
+      -DENABLE_AVX=ON ..
 ```
 
 **Run Examples**

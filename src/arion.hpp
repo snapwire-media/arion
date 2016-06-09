@@ -39,6 +39,7 @@
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 
 // OpenCV
 #include <opencv2/core/core.hpp>
@@ -48,6 +49,7 @@
 
 // Local
 #include "models/operation.hpp"
+#include "carion.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -56,32 +58,64 @@ class Arion
   public:
 
     Arion();
+    ~Arion();
+    
+    bool setup(const std::string& inputJson);
 
-    void run(const std::string& inputJson);
+    void setSourceImage(cv::Mat& sourceImage);
+    cv::Mat& getSourceImage();
+    bool setInputUrl(const std::string& inputUrl);
+    bool setOutputUrl(const std::string& outputUrl);
+    void setIgnoreMetadata(bool ignoreMetadata);
+    void setCorrectOrientation(bool correctOrientation);
+    void addResizeOperation(struct ArionResizeOptions options);
+    
+    bool run();
+    std::string getJson() const;
+    
+    bool getJpeg(unsigned operationIndex, std::vector<unsigned char>& data);
     
   private:
 
-    bool mCorrectOrientation;
-    
+    //--------------------
+    //      Helpers
+    //--------------------
     bool handleOrientation(Exiv2::ExifData& exifData, cv::Mat& image);
-    void parseOperations(const boost::property_tree::ptree& pt);
-    void extractImage(const std::string& imageFilePath);
-    void extractMetadata(const std::string& imageFilePath);
+    bool parseOperations(const boost::property_tree::ptree& pt);
+    void extractImageData(const std::string& imageFilePath);
     void overrideMeta(const boost::property_tree::ptree& pt);
+    void constructErrorJson();
+    void parseInputUrl(std::string inputUrl);
     
-    std::vector<Operation*> mOperations;
+    //--------------------
+    //      Inputs
+    //--------------------
+    boost::property_tree::ptree mInputTree;
+    std::string mInputFile;
+    bool mCorrectOrientation;
+    bool mIgnoreMetadata;
+    cv::Mat mSourceImage;
     
+    typedef boost::ptr_vector<Operation> Operations;
+    
+    Operations mOperations;
+    
+    //--------------------
+    //     Image info
+    //--------------------
     Exiv2::ExifData* mpExifData;
     Exiv2::XmpData* mpXmpData;
     Exiv2::IptcData* mpIptcData;
-    
-    cv::Mat mSourceImage;
-    
     Exiv2::Image::AutoPtr mExivImage;
+
+    // The following describe the result of the operations
+    bool mResult;
+    std::string mErrorMessage;
+    unsigned mTotalOperations;
+    unsigned mFailedOperations;
     
-    char* mpPixelMd5;
-    
-    std::string mInputFile;
+    // This contains the resulting variables in JSON
+    std::string mJson;
 
 };
 

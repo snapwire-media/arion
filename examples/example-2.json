@@ -1,5 +1,5 @@
 {
-    "input_url": "file://../examples/images/image-2.jpg",
+    "input_url": "../examples/images/image-2.jpg",
     "correct_rotation":true,
     "write_meta":
     {
@@ -22,7 +22,7 @@
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.5,
                 "quality": 80,
-                "output_url": "file://../examples/image-2-150-height.jpg"
+                "output_url": "../examples/image-2-150-height.jpg"
             }
         },
         {
@@ -35,7 +35,7 @@
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.5,
                 "quality": 80,
-                "output_url": "file://../examples/image-2-150-square.jpg"
+                "output_url": "../examples/image-2-150-square.jpg"
             }
         },
         {
@@ -48,7 +48,7 @@
                 "sharpen_amount": 160,
                 "sharpen_radius": 0.6,
                 "quality": 85,
-                "output_url": "file://../examples/image-2-300-height.jpg"
+                "output_url": "../examples/image-2-300-height.jpg"
             }
         },
         {
@@ -61,15 +61,15 @@
                 "sharpen_amount": 200,
                 "sharpen_radius": 0.6,
                 "quality": 80,
-                "watermark_url":"file://../examples/images/watermark.png",
+                "watermark_url":"../examples/images/watermark.png",
                 "watermark_amount": 0.06,
-                "output_url": "file://../examples/image-2-800-watermark.jpg"
+                "output_url": "../examples/image-2-800-watermark.jpg"
             }
         },
         {
             "type": "copy",
             "params": {
-                "output_url": "file://../examples/image-2-copy.jpg"
+                "output_url": "../examples/image-2-copy.jpg"
             }
         }
     ]

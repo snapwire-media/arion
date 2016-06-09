@@ -1,9 +1,9 @@
-#ifndef COPY_HPP
-#define COPY_HPP
+#ifndef FINGERPRINT_HPP
+#define FINGERPRINT_HPP
 
 //------------------------------------------------------------------------------
 //
-// Copyright (c) 2015-2016 Paul Filitchkin, Snapwire
+// Copyright (c) 2015-2016 Paul Filitchkin
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -51,26 +51,32 @@
 
 enum
 {
-  CopyStatusDidNotTry = 0,
-  CopyStatusPending = 1,
-  CopyStatusSuccess = 2,
-  CopyStatusError = 3,
+  FingerprintStatusDidNotTry = 0,
+  FingerprintStatusPending   = 1,
+  FingerprintStatusSuccess   = 2,
+  FingerprintStatusError     = 3,
+};
+
+enum
+{
+  FingerprintTypeInvalid = 0,
+  FingerprintTypeMD5     = 1,
 };
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Copy : public Operation
+class Fingerprint : public Operation
 {
   public:
 
-    Copy(std::string inputFile);
-    virtual ~Copy();
+    Fingerprint();
+    virtual ~Fingerprint();
 
     virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
     virtual bool getJpeg(std::vector<unsigned char>& data);
 
-    std::string getOutputFile() const;
+    void setType(const std::string& type);
     bool getStatus() const;
     void outputStatus(std::ostream& s, unsigned indent) const;
     
@@ -82,14 +88,16 @@ class Copy : public Operation
 
   private:
 
+    void readType(const boost::property_tree::ptree& params);    
+    void decodeType(const std::string& type);
+    
     boost::property_tree::ptree mParams;
     
-    int mStatus;
+    unsigned mStatus;
+    unsigned mType;
     std::string mErrorMessage;
-    
-    std::string mInputFile;
-    std::string mOutputFile;
+    char* mpPixelMd5;
 
 };
 
-#endif // COPY_HPP
+#endif // FINGERPRINT_HPP

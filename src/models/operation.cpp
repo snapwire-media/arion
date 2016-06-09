@@ -47,19 +47,20 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::Operation(const ptree& params) :     
+Operation::Operation() :     
     mpExifData(0),
     mpXmpData(0),
     mpIptcData(0)
 {
-  // Make a copy from the const reference
-  mParams = ptree(params);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 Operation::~Operation()
 {
+  mpExifData = 0;
+  mpXmpData = 0;
+  mpIptcData = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -90,3 +91,9 @@ void Operation::setIptcData(const Exiv2::IptcData* iptcData)
   mpIptcData = iptcData;
 }
 
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setImage(cv::Mat& image)
+{
+  mImage = image;
+}

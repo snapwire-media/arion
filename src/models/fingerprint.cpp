@@ -31,7 +31,7 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/copy.hpp"
+#include "models/fingerprint.hpp"
 #include "utils/utils.hpp"
 
 #include <iostream>
@@ -58,44 +58,64 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Copy::Copy(string inputFile) :
+Fingerprint::Fingerprint() :
     Operation(),
-    mStatus(CopyStatusDidNotTry),
+    mStatus(FingerprintStatusDidNotTry),
     mErrorMessage(),
-    mInputFile(inputFile),
-    mOutputFile()
+    mType(FingerprintTypeInvalid),
+    mpPixelMd5(0)
 {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Copy::~Copy()
+Fingerprint::~Fingerprint()
 {
+  if (mpPixelMd5)
+  {
+    // DELETE
+  }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Copy::setup(const ptree& params)
+void Fingerprint::setup(const ptree& params)
 {
   // Make a copy from the const reference
   mParams = ptree(params);
   
+  readType(params);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Fingerprint::getStatus() const
+{
+  return mStatus;
+}
+
+//------------------------------------------------------------------------------
+// Manually set the fingerprint type
+//------------------------------------------------------------------------------
+void Fingerprint::setType(const std::string& type)
+{
+  decodeType(type);
+}
+
+//------------------------------------------------------------------------------
+// Private helper for reading type from a parameter tree (from JSON)
+//------------------------------------------------------------------------------
+void Fingerprint::readType(const ptree& params)
+{
   try
   {
-    string outputUrl = params.get<string>("output_url");
-
-    int pos = outputUrl.find(Utils::FILE_SOURCE);
-
-    if (pos != string::npos)
-    {
-      mOutputFile = Utils::getStringTail(outputUrl, pos + Utils::FILE_SOURCE.length());
-    }
-    else
-    {
-      // Assume local file
-      mOutputFile = outputUrl;
-    }
-
+    string type = params.get<std::string>("type");
+    
+    // Make sure it's lowercase
+    transform(type.begin(), type.end(), type.begin(), ::tolower);
+    
+    decodeType(type);
+    
   }
   catch (boost::exception& e)
   {
@@ -105,101 +125,70 @@ void Copy::setup(const ptree& params)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Copy::getStatus() const
+void Fingerprint::decodeType(const std::string& type)
 {
-  return mStatus;
+  if (type == "md5")
+  {
+    mType = FingerprintTypeMD5;
+  }
+  else
+  {
+    // Invalid
+    mType = FingerprintTypeInvalid;
+  }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Copy::run()
+bool Fingerprint::run()
 {
-  mStatus = CopyStatusPending;
+  mStatus = FingerprintStatusPending;
   
-  if (mOutputFile.length() == 0)
+  if (mImage.empty())
   {
-    mStatus = CopyStatusError;
-    mErrorMessage = "Invalid output url";
     return false;
   }
-
-  std::ifstream src(mInputFile.c_str(),  std::ios::binary);
-  std::ofstream dst(mOutputFile.c_str(), std::ios::binary);
-
-  dst << src.rdbuf();
-
-  //--------------------------------
-  //  Inherit EXIF data if needed
-  //--------------------------------
-  if (mpExifData || mpXmpData || mpIptcData)
+  
+  if (mType == FingerprintTypeMD5)
   {
-    try
+    //--------------------------------
+    //      Compute Image MD5
+    //--------------------------------
+    mpPixelMd5 = Utils::computeMd5((char*)mImage.data, (int)mImage.step[0] * mImage.rows);
+
+    if (mpPixelMd5)
     {
-      // NOTE: writing metadata is split out into separate data types for future
-      //       functionality where we may want to inject certain input data into
-      //       these formats
-      Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
-
-      if (outputExivImage.get() != 0)
-      {
-        if (mpExifData)
-        {
-          // Output image inherits input EXIF data
-          outputExivImage->setExifData(*mpExifData);
-        }
-
-        if (mpXmpData)
-        {
-          // Output image inherits input XMP data
-          outputExivImage->setXmpData(*mpXmpData);
-        }
-
-        if (mpIptcData)
-        {
-          // Output image inherits input IPTC data
-          outputExivImage->setIptcData(*mpIptcData);
-        }
-      }
-
-      outputExivImage->writeMetadata();
-
-    }
-    catch (Exiv2::AnyError& e)
-    {
-      mStatus = CopyStatusError;
-      mErrorMessage = e.what();
-      return false;
+      mStatus = FingerprintStatusSuccess;
+      return true;
     }
   }
-
-  mStatus = CopyStatusSuccess;
-
-  return true;
+  
+  return false;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #ifdef JSON_PRETTY_OUTPUT
-void Copy::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
+void Fingerprint::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
 #else
-void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
 #endif
 {
   writer.StartObject();
 
   // Result
   writer.String("type");
-  writer.String("copy");
+  writer.String("fingerprint");
 
-  // Output URL
-  writer.String("output_url");
-  writer.String("file://" + mOutputFile);
-
-  if (mStatus == CopyStatusSuccess)
+  if (mStatus == FingerprintStatusSuccess)
   {
     // Result
     writer.String("result");
     writer.Bool(true);
+    
+    // md5 of pixels
+    writer.String("md5");
+    writer.String(mpPixelMd5);
 
   }
   else
@@ -209,7 +198,7 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
     writer.Bool(false);
 
     // Error message
-    if ((mStatus == CopyStatusError) &&  !mErrorMessage.empty())
+    if ((mStatus == FingerprintStatusError) &&  !mErrorMessage.empty())
     {
       writer.String("error_message");
       writer.String(mErrorMessage);
@@ -221,7 +210,7 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Copy::getJpeg(std::vector<unsigned char>& data)
+bool Fingerprint::getJpeg(std::vector<unsigned char>& data)
 {
   return false;
 }

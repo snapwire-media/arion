@@ -7,3 +7,5 @@ build
 MakeLists.txt~
 README.md~
 nbproject/
+.DS_Store
+tests/functional/output

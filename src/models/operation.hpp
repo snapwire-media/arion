@@ -43,6 +43,9 @@
 // Boost
 #include <boost/property_tree/ptree.hpp>
 
+// OpenCV
+#include <opencv2/core/core.hpp>
+
 // Local Third party
 #include "thirdparty/rapidjson/writer.h"
 #include "thirdparty/rapidjson/prettywriter.h"
@@ -50,16 +53,18 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Operation
+class Operation : boost::noncopyable
 {
   public:
 
-    Operation(const boost::property_tree::ptree& params);
+    Operation();
     virtual ~Operation();
 
+    virtual void setup(const boost::property_tree::ptree& params) {};
     boost::property_tree::ptree getParams() const;
     
-    virtual bool run() {};
+    virtual bool run() = 0;
+    virtual bool getJpeg(std::vector<unsigned char>& data) = 0;
     
     // There is no obvious way to make use of polymorphism for the writer object
     // so we rely on the preprocessor
@@ -72,14 +77,18 @@ class Operation
     void setExifData(const Exiv2::ExifData* exifData);
     void setXmpData(const Exiv2::XmpData* xmpData);
     void setIptcData(const Exiv2::IptcData* iptcData);
+    void setImage(cv::Mat& image);
 
   protected:
-
+    
+    void operator=( const Operation& );
+    
     boost::property_tree::ptree mParams;
 
     const Exiv2::ExifData* mpExifData;
     const Exiv2::XmpData* mpXmpData;
     const Exiv2::IptcData* mpIptcData;
+    cv::Mat mImage;
 
 };
 

@@ -1,5 +1,5 @@
 {
-    "input_url": "file://../examples/images/image-1.jpg",
+    "input_url": "../examples/images/image-1.jpg",
     "correct_rotation":true,
     "operations": [
         {
@@ -10,10 +10,10 @@
                 "type": "width",
                 "preserve_meta": false,
                 "pre_filter": true,
-                "sharpen_amount": 200,
+                "sharpen_amount": 100,
                 "sharpen_radius": 0.5,
                 "quality": 85,
-                "output_url": "file://../examples/image-1-230.jpg"
+                "output_url": "../examples/image-1-230.jpg"
             }
         },
         {
@@ -26,7 +26,7 @@
                 "sharpen_amount": 100,
                 "sharpen_radius": 0.6,
                 "quality": 75,
-                "output_url": "file://../examples/image-1-640.jpg"
+                "output_url": "../examples/image-1-640.jpg"
             }
         },
         {
@@ -39,7 +39,7 @@
                 "sharpen_amount": 100,
                 "sharpen_radius": 0.6,
                 "quality": 75,
-                "output_url": "file://../examples/image-1-800.jpg"
+                "output_url": "../examples/image-1-800.jpg"
             }
         },
         {

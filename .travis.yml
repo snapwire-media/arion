@@ -34,6 +34,5 @@ before_script:
   - make -j4
   - cd ..
 
-script: cd examples && ./examples.sh
-
+script: cd tests/functional && python ./test.py
 

@@ -1,10 +1,16 @@
 {
-    "input_url": "file://../examples/image-2-800-watermark.jpg",
+    "input_url": "../examples/image-2-800-watermark.jpg",
     "operations": [
         {
             "type": "read_meta",
             "params": {
                 "info": true
+            }
+        },
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
             }
         }
     ]
