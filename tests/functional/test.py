@@ -1228,6 +1228,19 @@ class TestArion(unittest.TestCase):
     }
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
 
+    # Desire size too big
+    operation = {
+      'type': 'resize',
+      'params':
+        {
+          'type': 'width',
+          'width': 10000,
+          'height': 10001,
+          'output_url': 'output.jpg'
+        }
+    }
+    self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
+
   # -------------------------------------------------------------------------------
   #  Called only once
   # -------------------------------------------------------------------------------

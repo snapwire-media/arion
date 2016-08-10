@@ -804,12 +804,6 @@ bool Resize::run()
       mErrorMessage = "Height cannot be 0";
       return false;
     }
-    else if (mHeight > ARION_RESIZE_MAX_DIMENSION)
-    {
-      mStatus = ResizeStatusError;
-      mErrorMessage = "Maximum height exceeded";
-      return false;
-    }
     
     if (mWidth == 0)
     {
@@ -817,13 +811,15 @@ bool Resize::run()
       mErrorMessage = "Width cannot be 0";
       return false;
     }
-    else if (mWidth > ARION_RESIZE_MAX_DIMENSION)
+
+    // Don't attempt to resize an image to a size that's greater than our max
+    if (mHeight * mWidth > ARION_RESIZE_MAX_PIXELS)
     {
       mStatus = ResizeStatusError;
-      mErrorMessage = "Maximum width exceeded";
+      mErrorMessage = "Desired resize dimensions exceed maximum";
       return false;
     }
-    
+
     if (mPreFilter)
     {
       double sigma = (double)mImageToResize.cols/1000.0;
