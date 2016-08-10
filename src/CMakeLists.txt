@@ -16,6 +16,9 @@ ADD_DEFINITIONS( -DJSON_PRETTY_OUTPUT )
 
 # Uncomment this for additional console output (warning: may invalidate JSON output)
 #ADD_DEFINITIONS( -DDEBUG=1 )
+# Uncomment this to set a pixel limit for the resize command (the value below ensures
+# the desired output must be below 50MP)
+#ADD_DEFINITIONS( -DARION_RESIZE_MAX_PIXELS=50000000 )
 
 # -------------------------------------------
 #  This is the stand alone Arion executable
@@ -26,7 +29,7 @@ ADD_EXECUTABLE( arion main.cpp
                       models/resize.cpp
                       models/read_meta.cpp
                       models/copy.cpp
-					  models/fingerprint.cpp
+                      models/fingerprint.cpp
                       utils/utils.cpp)
 
 TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
@@ -40,7 +43,7 @@ add_library(carion SHARED carion.cpp
                           models/resize.cpp
                           models/read_meta.cpp
                           models/copy.cpp
-						  models/fingerprint.cpp
+                          models/fingerprint.cpp
                           utils/utils.cpp)
 
 TARGET_LINK_LIBRARIES( carion ${Boost_LIBRARIES} ${OpenCV_LIBS} exiv2 ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
