@@ -46,8 +46,12 @@
 // Local
 #include "models/operation.hpp"
 
-#define ARION_RESIZE_MAX_DIMENSION 10000
-
+// Resize images that are maximum 10,000 x 10,000 pixels
+// At the max this will use 3.2GB of memory (a 100MP image)
+// This can be overridden at build time
+#ifndef ARION_RESIZE_MAX_PIXELS
+#define ARION_RESIZE_MAX_PIXELS 100000000
+#endif
 enum
 {
   ResizeTypeInvalid     = -1,
