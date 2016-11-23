@@ -9,3 +9,5 @@ README.md~
 nbproject/
 .DS_Store
 tests/functional/output
+cmake-build-debug
+.idea
