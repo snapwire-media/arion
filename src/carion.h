@@ -15,6 +15,9 @@ extern "C" {
     
     // If an output URL is provided the image will be saved there
     char* outputUrl;
+
+    // The desired output format. 1 = JPEG, 2 = PNG
+    int outputFormat;
   };
   
   struct ArionResizeOptions {

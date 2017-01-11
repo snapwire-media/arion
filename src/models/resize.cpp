@@ -337,6 +337,13 @@ bool Resize::getJpeg(std::vector<unsigned char>& data)
   return imencode(".jpg", mImageResizedFinal, data, compression_params);
 }
 
+bool Resize::getPNG(std::vector<unsigned char>& data)
+{
+  vector<int> compression_params;
+
+  return imencode(".png", mImageResizedFinal, data, compression_params);
+}
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Resize::readType(const ptree& params)

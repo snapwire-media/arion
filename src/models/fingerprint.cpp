@@ -214,3 +214,10 @@ bool Fingerprint::getJpeg(std::vector<unsigned char>& data)
 {
   return false;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Fingerprint::getPNG(std::vector<unsigned char>& data)
+{
+  return false;
+}
