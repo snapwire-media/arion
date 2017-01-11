@@ -48,8 +48,8 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
 {
   struct ArionResizeResult result;
 
-  // Currently only two output formats are supported, JPEG (1) and PNG (2)
-  if (inputOptions.outputFormat < 1 || inputOptions.outputFormat > 2) {
+  // Currently only two output formats are supported, JPEG (0) and PNG (1)
+  if (inputOptions.outputFormat > 1) {
     result.outputData = 0;
     result.outputSize = 0;
     result.returnCode = -1;
@@ -98,7 +98,7 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
   
   result.resultJson = getChars(arion.getJson());
 
-  if (inputOptions.outputFormat == 1) {
+  if (inputOptions.outputFormat == 0) {
     if (!arion.getJpeg(operation, buffer)) // JPEG
     {
       result.outputData = 0;
