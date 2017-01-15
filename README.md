@@ -131,8 +131,6 @@ Running example operations on horizontal image
   "result" : true,
   "time" : 0.17,
   "height" : 864,
-  "width" : 1296,
-  "md5" : "636ee0572d42df5e3764372cb08d6ade",
-  
+  "width" : 1296
   ...
 ```
