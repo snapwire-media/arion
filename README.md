@@ -31,7 +31,13 @@ Currently this tool needs to be compiled from source to work on your host system
   * filesystem 
   * system
 
-**Install EXIV2**
+**Install dependencies**
+
+```bash
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev
+```
+
+**Install EXIV2 (before Ubuntu 16.04)**
 
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
@@ -49,6 +55,13 @@ Now build EXIV2 and install it into the system
 ```bash
 make
 sudo make install
+```
+
+**Install EXIV2 (Ubuntu 16.04+)**
+
+Ubuntu 16.04 come with EXIV2 0.25 from default. So you can skip manually build and install EXIV2 from repository
+```bash
+sudo apt-get isntall libexiv2-dev
 ```
 
 **Install Boost**
