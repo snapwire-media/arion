@@ -11,3 +11,4 @@ nbproject/
 tests/functional/output
 cmake-build-debug
 .idea
+CMakeLists.txt
