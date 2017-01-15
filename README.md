@@ -134,3 +134,39 @@ Running example operations on horizontal image
   "width" : 1296
   ...
 ```
+
+**Fingerprint generation (md5)**
+
+Fingerprint generation is separated operation. For JSON like that
+```JSON
+{
+    "input_url": "../examples/image-2-800-watermark.jpg",
+    "operations": [
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
+            }
+        }
+    ]
+}
+```
+
+Output will be:
+```JSON
+{
+    "height": 1000,
+    "width": 762,
+    "info": [
+        {
+            "type": "fingerprint",
+            "result": true,
+            "md5": "5e1c56695ee01492ee3976f86a8b7f68"
+        }
+    ],
+    "result": true,
+    "total_operations": 1,
+    "failed_operations": 0
+}
+
+```
