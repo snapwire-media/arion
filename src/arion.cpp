@@ -434,94 +434,35 @@ void Arion::overrideMeta(const ptree& pt)
   {
     mpIptcData = new Exiv2::IptcData();
   }
-  
-  try
-  {
-    string caption = writemetaTree.get<string>("caption");
-    
-    (*mpIptcData)["Iptc.Application2.Caption"] = caption;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string copyright = writemetaTree.get<string>("copyright");
-    
-    (*mpIptcData)["Iptc.Application2.Copyright"] = copyright;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string province_state = writemetaTree.get<string>("province_state");
-    
-    (*mpIptcData)["Iptc.Application2.ProvinceState"] = province_state;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string city = writemetaTree.get<string>("city");
-    
-    (*mpIptcData)["Iptc.Application2.City"] = city;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string country_name = writemetaTree.get<string>("country_name");
-    
-    (*mpIptcData)["Iptc.Application2.CountryName"] = country_name;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string country_code = writemetaTree.get<string>("country_code");
-    
-    (*mpIptcData)["Iptc.Application2.CountryCode"] = country_code;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string subject = writemetaTree.get<string>("subject");
-    
-    (*mpIptcData)["Iptc.Application2.Subject"] = subject;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string special_instructions = writemetaTree.get<string>("instructions");
-    
-    (*mpIptcData)["Iptc.Application2.SpecialInstructions"] = special_instructions;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
+    struct MetaData
+    {
+        string exiv2Key;
+        string ArionName;
+    };
+    MetaData metaData[] = {
+            {"Iptc.Application2.Caption","caption"},
+            {"Iptc.Application2.Copyright","copyright"},
+            {"Iptc.Application2.ProvinceState","province_state"},
+            {"Iptc.Application2.City","city"},
+            {"Iptc.Application2.CountryName","country_name"},
+            {"Iptc.Application2.CountryCode","country_code"},
+            {"Iptc.Application2.Subject","subject"},
+            {"Iptc.Application2.SpecialInstructions","instructions"},
+    };
+
+    for( unsigned int n = 0; n < (sizeof(metaData)/ sizeof(metaData[0])); n = n + 1 )
+    {
+        try
+        {
+            string textData = writemetaTree.get<string>((metaData[n]).ArionName);
+
+            (*mpIptcData)[(metaData[n]).exiv2Key] = textData;
+        }
+        catch (boost::exception& e)
+        {
+            // Optional
+        }
+    }
   
   //-------------------------------------
   //  Add keywords if any are included
