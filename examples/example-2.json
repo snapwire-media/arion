@@ -9,7 +9,10 @@
       "province_state": "Oregon",
       "country_name": "United States",
       "keywords": ["sculpture","abstract","outdoors","metal","birds"],
-      "instructions": "Property Released (PR)"
+      "instructions": "Property Released (PR)",
+      "location_name": "United States Oregon Corvallis",
+      "program": "Snapwi.re site",
+      "program_version": "3.6.10"
     },
     "operations": [
         {

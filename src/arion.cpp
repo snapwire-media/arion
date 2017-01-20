@@ -446,8 +446,11 @@ void Arion::overrideMeta(const ptree& pt)
             {"Iptc.Application2.City","city"},
             {"Iptc.Application2.CountryName","country_name"},
             {"Iptc.Application2.CountryCode","country_code"},
+            {"Iptc.Application2.LocationName","location_name"},
             {"Iptc.Application2.Subject","subject"},
             {"Iptc.Application2.SpecialInstructions","instructions"},
+            {"Iptc.Application2.Program","program"},
+            {"Iptc.Application2.ProgramVersion","program_version"},
     };
 
     for( unsigned int n = 0; n < (sizeof(metaData)/ sizeof(metaData[0])); n = n + 1 )
