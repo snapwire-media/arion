@@ -438,36 +438,38 @@ void Arion::overrideMeta(const ptree& pt)
     {
         string exiv2Key;
         string ArionName;
+        bool isRepeatable;
     };
   //http://www.exiv2.org/iptc.html
   //http://www.controlledvocabulary.com/imagedatabases/iptc_core_mapped.pdf
   //http://www.iptc.org/std/IIM/4.2/specification/IIMV4.2.pdf
   //http://www.photometadata.org/meta-resources-field-guide-to-metadata
     MetaData metaData[] = {
-            {"Iptc.Application2.ObjectName","object_name"},//Used as a shorthand reference for the object. Changes to exist-ing data. Document Title
-            {"Iptc.Application2.Urgency","urgency"},//Specifies the editorial urgency of content and not necessarily the envelope handling priority. The "1" is most urgent
-            {"Iptc.Application2.Subject","subject"},//This field can specify and categorize the content of a photograph by one or more subjects listed in the IPTC “Subject NewsCode” taxonomy available from http://www.newscodes.org/. Each subject term is represented as an eight-digit numerical string in an unordered list. Only subjects from a controlled vocabulary should populate this field; enter free-choice text in the Keyword field.
-            {"Iptc.Application2.Category","category"},//Identifies the subject of the object data in the opinion of the provider. A list of categories will be maintained by a regional registry
-            {"Iptc.Application2.SuppCategory","supplemental_category"},//Supplemental categories further refine the subject of an object data. A supplemental category may include any of the recognised categories as used in tag <Category>. Otherwise
-            {"Iptc.Application2.LocationName","location_name"},//Provides a full, publishable name of a country/geographical location referenced by the content of the object, according to guidelines of the provider
-            {"Iptc.Application2.SpecialInstructions","instructions"},//Store special instructions about the image (IPTC-specific, more details here http://www.photometadata.org/meta-resources-field-guide-to-metadata#Special%20Instructions)
-            {"Iptc.Application2.DateCreated","date_created"},//Represented in the form CCYYMMDD to designate the date the intellectual content of the object data was created rather than the date of the creation of the physical representation. Follows ISO 8601 standard.
-            {"Iptc.Application2.Program","program"},//Identifies the type of program used to originate the object data.
-            {"Iptc.Application2.ProgramVersion","program_version"},//Used to identify the version of the program mentioned in tag <Program>.
-            {"Iptc.Application2.Byline","byline"},//Contains name of the creator of the object data
-            {"Iptc.Application2.BylineTitle","byline_title"},//A by-line title is the title of the creator or creators of an object data. Where used
-            {"Iptc.Application2.City","city"},//Identifies city of object data origin according to guidelines established by the provider.
-            {"Iptc.Application2.ProvinceState","province_state"},//	Identifies Province/State of origin according to guidelines established by the provider.
-            {"Iptc.Application2.CountryCode","country_code"},//Indicates the code of the country/primary location where the intellectual property of the object data was created
-            {"Iptc.Application2.CountryName","country_name"},//Store country name
-            {"Iptc.Application2.TransmissionReference","transmission_reference"},//A code representing the location of original transmission according to practices of the provider.
-            {"Iptc.Application2.Headline","headline"},//A publishable entry providing a synopsis of the contents of the object data.
-            {"Iptc.Application2.Credit","credit"},//Identifies the provider of the object data
-            {"Iptc.Application2.Source","source"},//Identifies the original owner of the intellectual content of the object data. This could be an agency
-            {"Iptc.Application2.Copyright","copyright"},//	Contains any necessary copyright notice.
-            {"Iptc.Application2.Contact","contact"},//Identifies the person or organisation which can provide further background information on the object data.
-            {"Iptc.Application2.Caption","caption"},//A textual description of the object data.
-            {"Iptc.Application2.Writer","writer"},//Identification of the name of the person involved in the writing
+            {"Iptc.Application2.ObjectName","object_name",false},//Used as a shorthand reference for the object. Changes to exist-ing data. Document Title
+            {"Iptc.Application2.Urgency","urgency",false},//Specifies the editorial urgency of content and not necessarily the envelope handling priority. The "1" is most urgent
+            {"Iptc.Application2.Subject","subject",true},//This field can specify and categorize the content of a photograph by one or more subjects listed in the IPTC “Subject NewsCode” taxonomy available from http://www.newscodes.org/. Each subject term is represented as an eight-digit numerical string in an unordered list. Only subjects from a controlled vocabulary should populate this field; enter free-choice text in the Keyword field.
+            {"Iptc.Application2.Category","category",false},//Identifies the subject of the object data in the opinion of the provider. A list of categories will be maintained by a regional registry
+            {"Iptc.Application2.SuppCategory","supplemental_category",true},//Supplemental categories further refine the subject of an object data. A supplemental category may include any of the recognised categories as used in tag <Category>. Otherwise
+            {"Iptc.Application2.Keywords","keywords",true},// list of keywords
+            {"Iptc.Application2.LocationName","location_name",true},//Provides a full, publishable name of a country/geographical location referenced by the content of the object, according to guidelines of the provider
+            {"Iptc.Application2.SpecialInstructions","instructions",false},//Store special instructions about the image (IPTC-specific, more details here http://www.photometadata.org/meta-resources-field-guide-to-metadata#Special%20Instructions)
+            {"Iptc.Application2.DateCreated","date_created",false},//Represented in the form CCYYMMDD to designate the date the intellectual content of the object data was created rather than the date of the creation of the physical representation. Follows ISO 8601 standard.
+            {"Iptc.Application2.Program","program",false},//Identifies the type of program used to originate the object data.
+            {"Iptc.Application2.ProgramVersion","program_version",false},//Used to identify the version of the program mentioned in tag <Program>.
+            {"Iptc.Application2.Byline","byline",true},//Contains name of the creator of the object data
+            {"Iptc.Application2.BylineTitle","byline_title",true},//A by-line title is the title of the creator or creators of an object data. Where used
+            {"Iptc.Application2.City","city",false},//Identifies city of object data origin according to guidelines established by the provider.
+            {"Iptc.Application2.ProvinceState","province_state",false},//	Identifies Province/State of origin according to guidelines established by the provider.
+            {"Iptc.Application2.CountryCode","country_code",false},//Indicates the code of the country/primary location where the intellectual property of the object data was created
+            {"Iptc.Application2.CountryName","country_name",false},//Store country name
+            {"Iptc.Application2.TransmissionReference","transmission_reference",false},//A code representing the location of original transmission according to practices of the provider.
+            {"Iptc.Application2.Headline","headline",false},//A publishable entry providing a synopsis of the contents of the object data.
+            {"Iptc.Application2.Credit","credit",false},//Identifies the provider of the object data
+            {"Iptc.Application2.Source","source",false},//Identifies the original owner of the intellectual content of the object data. This could be an agency
+            {"Iptc.Application2.Copyright","copyright",false},//	Contains any necessary copyright notice.
+            {"Iptc.Application2.Contact","contact",true},//Identifies the person or organisation which can provide further background information on the object data.
+            {"Iptc.Application2.Caption","caption",false},//A textual description of the object data.
+            {"Iptc.Application2.Writer","writer",true},//Identification of the name of the person involved in the writing
 
     };
 
@@ -489,7 +491,7 @@ void Arion::overrideMeta(const ptree& pt)
   //  Add keywords if any are included
   //-------------------------------------
   boost::optional< const ptree& > keywordTreeOptional = writemetaTree.get_child_optional("keywords");
-  
+
   if (keywordTreeOptional)
   {
     Exiv2::IptcKey key = Exiv2::IptcKey("Iptc.Application2.Keywords");
