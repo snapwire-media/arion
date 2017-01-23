@@ -475,51 +475,52 @@ void Arion::overrideMeta(const ptree& pt)
 
     for( unsigned int n = 0; n < (sizeof(metaData)/ sizeof(metaData[0])); n = n + 1 )
     {
-        try
-        {
-            string textData = writemetaTree.get<string>((metaData[n]).ArionName);
 
-            (*mpIptcData)[(metaData[n]).exiv2Key] = textData;
+        try {
+            if (!(metaData[n]).isRepeatable) {//that not a  array
+                string textData = writemetaTree.get<string>((metaData[n]).ArionName);
+
+                (*mpIptcData)[(metaData[n]).exiv2Key] = textData;
+            } else {
+                //-------------------------------------
+                //  Add array values if any are included
+                //-------------------------------------
+                boost::optional<const ptree &> arrayTreeOptional = writemetaTree.get_child_optional(
+                        (metaData[n]).ArionName);
+
+                if (arrayTreeOptional) {
+                    Exiv2::IptcKey key = Exiv2::IptcKey((metaData[n]).exiv2Key);
+
+                    Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
+
+                    if (pos != mpIptcData->end()) {
+                        mpIptcData->erase(pos);
+                    }
+
+                    const ptree &arrayTree = arrayTreeOptional.get();
+
+                    BOOST_FOREACH (const ptree::value_type &node, arrayTree) {
+                                    try {
+                                        Exiv2::Value::AutoPtr v = Exiv2::Value::create(Exiv2::string);
+                                        v->read(node.second.get_value<std::string>());
+
+                                        mpIptcData->add(key, v.get());
+                                    }
+                                    catch (boost::exception &e) {
+                                        // Ignore issues
+                                    }
+                                }
+                }
+
+            }
+
         }
-        catch (boost::exception& e)
-        {
+        catch (boost::exception &e) {
             // Optional
         }
     }
   
-  //-------------------------------------
-  //  Add keywords if any are included
-  //-------------------------------------
-  boost::optional< const ptree& > keywordTreeOptional = writemetaTree.get_child_optional("keywords");
 
-  if (keywordTreeOptional)
-  {
-    Exiv2::IptcKey key = Exiv2::IptcKey("Iptc.Application2.Keywords");
-    
-    Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
-    
-    if (pos != mpIptcData->end())
-    {
-      mpIptcData->erase(pos);
-    }
-    
-    const ptree& keywordTree = keywordTreeOptional.get();
-    
-    BOOST_FOREACH (const ptree::value_type& node, keywordTree)
-    {
-      try
-      {
-        Exiv2::Value::AutoPtr v = Exiv2::Value::create(Exiv2::string);
-        v->read(node.second.get_value<std::string>());
-        
-        mpIptcData->add(key, v.get());
-      }
-      catch (boost::exception& e)
-      {
-        // Ignore issues
-      }
-    }
-  }
 }
 
 //------------------------------------------------------------------------------

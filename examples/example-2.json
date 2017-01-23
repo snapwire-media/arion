@@ -5,17 +5,17 @@
     {
       "object_name":"Sculpture of birds",
       "urgency":"2",
-      "subject":"20001135",
+      "subject":["20001135","20001136"],
       "category":"ACE",
+      "supplemental_category":["ACE","SCI"],
       "keywords": ["sculpture","abstract","outdoors","metal","birds"],
-      "supplemental_category":"ACE",
-      "location_name": "United States Oregon Corvallis",
+      "location_name": ["United States Oregon Corvallis"],
       "instructions": "Property Released (PR)",
       "date_created":"2017-01-22",
       "program": "Snapwi.re site",
       "program_version": "3.6.10",
-      "byline":"Paul Filitchkin",
-      "byline_title":"Paul Filitchkin",
+      "byline":["Paul Filitchkin","Snapwire team"],
+      "byline_title":["Paul Filitchkin","Snapwire team"],
       "city": "Corvallis",
       "province_state": "Oregon",
       "country_code":"USA",
@@ -25,9 +25,9 @@
       "credit":"https://www.snapwi.re",
       "source":"Paul Filitchkin",
       "copyright": "Paul Filitchkin",
-      "contact":"hello@snapwi.re",
+      "contact":["hello@snapwi.re","support@snapwi.re"],
       "caption": "Abstract sculpture of birds",
-      "writer":"Paul Filitchkin"
+      "writer":["Paul Filitchkin","Snapwire team"]
     },
     "operations": [
         {
