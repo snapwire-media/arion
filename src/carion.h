@@ -39,10 +39,10 @@ extern "C" {
   
   struct ArionResizeResult {
     
-    // The JPG encoded image bytes
+    // The encoded image bytes
     unsigned char* outputData;
     
-    // The size of the JPEG encoded image bytes
+    // The size of the encoded image bytes
     int outputSize;
     
     // The result of the operation
