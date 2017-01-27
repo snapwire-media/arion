@@ -159,6 +159,7 @@ class Resize : public Operation
     unsigned mQuality;
     unsigned mGravity;
     bool mPreFilter;
+    bool mPassThroughFullSize;
     unsigned mSharpenAmount;
     float mSharpenRadius;
     bool mPreserveMeta;
