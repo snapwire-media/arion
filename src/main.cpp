@@ -62,7 +62,7 @@
 using namespace boost::program_options;
 using namespace std;
 
-#define ARION_VERSION "0.1.0"
+#define ARION_VERSION "0.2.0-beta2"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

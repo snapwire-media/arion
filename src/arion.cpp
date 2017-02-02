@@ -434,128 +434,93 @@ void Arion::overrideMeta(const ptree& pt)
   {
     mpIptcData = new Exiv2::IptcData();
   }
-  
-  try
-  {
-    string caption = writemetaTree.get<string>("caption");
-    
-    (*mpIptcData)["Iptc.Application2.Caption"] = caption;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string copyright = writemetaTree.get<string>("copyright");
-    
-    (*mpIptcData)["Iptc.Application2.Copyright"] = copyright;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string province_state = writemetaTree.get<string>("province_state");
-    
-    (*mpIptcData)["Iptc.Application2.ProvinceState"] = province_state;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string city = writemetaTree.get<string>("city");
-    
-    (*mpIptcData)["Iptc.Application2.City"] = city;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string country_name = writemetaTree.get<string>("country_name");
-    
-    (*mpIptcData)["Iptc.Application2.CountryName"] = country_name;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string country_code = writemetaTree.get<string>("country_code");
-    
-    (*mpIptcData)["Iptc.Application2.CountryCode"] = country_code;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string subject = writemetaTree.get<string>("subject");
-    
-    (*mpIptcData)["Iptc.Application2.Subject"] = subject;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  try
-  {
-    string special_instructions = writemetaTree.get<string>("instructions");
-    
-    (*mpIptcData)["Iptc.Application2.SpecialInstructions"] = special_instructions;
-  }
-  catch (boost::exception& e)
-  {
-    // Optional
-  }
-  
-  //-------------------------------------
-  //  Add keywords if any are included
-  //-------------------------------------
-  boost::optional< const ptree& > keywordTreeOptional = writemetaTree.get_child_optional("keywords");
-  
-  if (keywordTreeOptional)
-  {
-    Exiv2::IptcKey key = Exiv2::IptcKey("Iptc.Application2.Keywords");
-    
-    Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
-    
-    if (pos != mpIptcData->end())
+    struct MetaData
     {
-      mpIptcData->erase(pos);
-    }
-    
-    const ptree& keywordTree = keywordTreeOptional.get();
-    
-    BOOST_FOREACH (const ptree::value_type& node, keywordTree)
+        string exiv2Key;
+        string ArionName;
+        bool isRepeatable;
+    };
+  //http://www.exiv2.org/iptc.html
+  //http://www.controlledvocabulary.com/imagedatabases/iptc_core_mapped.pdf
+  //http://www.iptc.org/std/IIM/4.2/specification/IIMV4.2.pdf
+  //http://www.photometadata.org/meta-resources-field-guide-to-metadata
+    MetaData metaData[] = {
+            {"Iptc.Application2.ObjectName","object_name",false},//Used as a shorthand reference for the object. Changes to exist-ing data. Document Title
+            {"Iptc.Application2.Urgency","urgency",false},//Specifies the editorial urgency of content and not necessarily the envelope handling priority. The "1" is most urgent
+            {"Iptc.Application2.Subject","subject",true},//This field can specify and categorize the content of a photograph by one or more subjects listed in the IPTC “Subject NewsCode” taxonomy available from http://www.newscodes.org/. Each subject term is represented as an eight-digit numerical string in an unordered list. Only subjects from a controlled vocabulary should populate this field; enter free-choice text in the Keyword field.
+            {"Iptc.Application2.Category","category",false},//Identifies the subject of the object data in the opinion of the provider. A list of categories will be maintained by a regional registry
+            {"Iptc.Application2.SuppCategory","supplemental_category",true},//Supplemental categories further refine the subject of an object data. A supplemental category may include any of the recognised categories as used in tag <Category>. Otherwise
+            {"Iptc.Application2.Keywords","keywords",true},// list of keywords
+            {"Iptc.Application2.LocationName","location_name",true},//Provides a full, publishable name of a country/geographical location referenced by the content of the object, according to guidelines of the provider
+            {"Iptc.Application2.SpecialInstructions","instructions",false},//Store special instructions about the image (IPTC-specific, more details here http://www.photometadata.org/meta-resources-field-guide-to-metadata#Special%20Instructions)
+            {"Iptc.Application2.DateCreated","date_created",false},//Represented in the form CCYYMMDD to designate the date the intellectual content of the object data was created rather than the date of the creation of the physical representation. Follows ISO 8601 standard.
+            {"Iptc.Application2.Program","program",false},//Identifies the type of program used to originate the object data.
+            {"Iptc.Application2.ProgramVersion","program_version",false},//Used to identify the version of the program mentioned in tag <Program>.
+            {"Iptc.Application2.Byline","byline",true},//Contains name of the creator of the object data
+            {"Iptc.Application2.BylineTitle","byline_title",true},//A by-line title is the title of the creator or creators of an object data. Where used
+            {"Iptc.Application2.City","city",false},//Identifies city of object data origin according to guidelines established by the provider.
+            {"Iptc.Application2.ProvinceState","province_state",false},//	Identifies Province/State of origin according to guidelines established by the provider.
+            {"Iptc.Application2.CountryCode","country_code",false},//Indicates the code of the country/primary location where the intellectual property of the object data was created
+            {"Iptc.Application2.CountryName","country_name",false},//Store country name
+            {"Iptc.Application2.TransmissionReference","transmission_reference",false},//A code representing the location of original transmission according to practices of the provider.
+            {"Iptc.Application2.Headline","headline",false},//A publishable entry providing a synopsis of the contents of the object data.
+            {"Iptc.Application2.Credit","credit",false},//Identifies the provider of the object data
+            {"Iptc.Application2.Source","source",false},//Identifies the original owner of the intellectual content of the object data. This could be an agency
+            {"Iptc.Application2.Copyright","copyright",false},//	Contains any necessary copyright notice.
+            {"Iptc.Application2.Contact","contact",true},//Identifies the person or organisation which can provide further background information on the object data.
+            {"Iptc.Application2.Caption","caption",false},//A textual description of the object data.
+            {"Iptc.Application2.Writer","writer",true},//Identification of the name of the person involved in the writing
+
+    };
+
+    for( unsigned int n = 0; n < (sizeof(metaData)/ sizeof(metaData[0])); n = n + 1 )
     {
-      try
-      {
-        Exiv2::Value::AutoPtr v = Exiv2::Value::create(Exiv2::string);
-        v->read(node.second.get_value<std::string>());
-        
-        mpIptcData->add(key, v.get());
-      }
-      catch (boost::exception& e)
-      {
-        // Ignore issues
-      }
+
+        try {
+            if (!(metaData[n]).isRepeatable) {//that not a  array
+                string textData = writemetaTree.get<string>((metaData[n]).ArionName);
+
+                (*mpIptcData)[(metaData[n]).exiv2Key] = textData;
+            } else {
+                //-------------------------------------
+                //  Add array values if any are included
+                //-------------------------------------
+                boost::optional<const ptree &> arrayTreeOptional = writemetaTree.get_child_optional(
+                        (metaData[n]).ArionName);
+
+                if (arrayTreeOptional) {
+                    Exiv2::IptcKey key = Exiv2::IptcKey((metaData[n]).exiv2Key);
+
+                    Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
+
+                    if (pos != mpIptcData->end()) {
+                        mpIptcData->erase(pos);
+                    }
+
+                    const ptree &arrayTree = arrayTreeOptional.get();
+
+                    BOOST_FOREACH (const ptree::value_type &node, arrayTree) {
+                                    try {
+                                        Exiv2::Value::AutoPtr v = Exiv2::Value::create(Exiv2::string);
+                                        v->read(node.second.get_value<std::string>());
+
+                                        mpIptcData->add(key, v.get());
+                                    }
+                                    catch (boost::exception &e) {
+                                        // Ignore issues
+                                    }
+                                }
+                }
+
+            }
+
+        }
+        catch (boost::exception &e) {
+            // Optional
+        }
     }
-  }
+  
+
 }
 
 //------------------------------------------------------------------------------

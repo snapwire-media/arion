@@ -31,7 +31,13 @@ Currently this tool needs to be compiled from source to work on your host system
   * filesystem 
   * system
 
-**Install EXIV2**
+**Install dependencies**
+
+```bash
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev
+```
+
+**Install EXIV2 (before Ubuntu 16.04)**
 
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
@@ -49,6 +55,13 @@ Now build EXIV2 and install it into the system
 ```bash
 make
 sudo make install
+```
+
+**Install EXIV2 (Ubuntu 16.04+)**
+
+Ubuntu 16.04 come with EXIV2 0.25 from default. So you can skip manually build and install EXIV2 from repository
+```bash
+sudo apt-get isntall libexiv2-dev
 ```
 
 **Install Boost**
@@ -118,8 +131,42 @@ Running example operations on horizontal image
   "result" : true,
   "time" : 0.17,
   "height" : 864,
-  "width" : 1296,
-  "md5" : "636ee0572d42df5e3764372cb08d6ade",
-  
+  "width" : 1296
   ...
+```
+
+**Fingerprint generation (md5)**
+
+Fingerprint generation is separated operation. For JSON like that
+```JSON
+{
+    "input_url": "../examples/image-2-800-watermark.jpg",
+    "operations": [
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
+            }
+        }
+    ]
+}
+```
+
+Output will be:
+```JSON
+{
+    "height": 1000,
+    "width": 762,
+    "info": [
+        {
+            "type": "fingerprint",
+            "result": true,
+            "md5": "5e1c56695ee01492ee3976f86a8b7f68"
+        }
+    ],
+    "result": true,
+    "total_operations": 1,
+    "failed_operations": 0
+}
+
 ```

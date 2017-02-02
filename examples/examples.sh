@@ -65,4 +65,23 @@ example_3_input=`cat example-3.json`
 if [ $? -ne 0 ] ; then echo "Failed example 3"; exit 1; fi
 
 echo
+echo '------------------------------------------------------------------------------------------'
+echo
+echo '             Example 4: Generate MD5 of image data (not file)'
+echo
+echo '------------------------------------------------------------------------------------------'
+echo
+echo 'Output: '
+echo
+
+example_4_input=`cat example-4.json`
+
+../build/arion --input "$example_4_input"
+
+if [ $? -ne 0 ] ; then echo "Failed example 4"; exit 1; fi
+
+echo
+echo
+
+echo
 echo
