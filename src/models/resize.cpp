@@ -793,7 +793,7 @@ bool Resize::run()
       {
         //--------------------------
         //      Square resize
-        //--------------------------
+        //--------------------------s
         case ResizeTypeSquare:
         {
           computeSizeSquare();
@@ -867,7 +867,7 @@ bool Resize::run()
       }
     } else {
       // The image already matches the requested dimensions, so no resize or retouch required.
-      mImageResizedFinal = mImage;
+      mImageResizedFinal = mImage.clone();
     }
 
     if (mWatermarkFile.length())
