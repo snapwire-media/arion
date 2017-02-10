@@ -878,55 +878,62 @@ bool Resize::run()
     //--------------------------------
     //  Inherit EXIF data if needed
     //--------------------------------
-      if (mpExifData || mpXmpData || mpIptcData) {
-          if (mPreserveMeta) {
-              try {
-                  Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+    if (mpExifData || mpXmpData || mpIptcData) {
+      if (mPreserveMeta) {
+        try {
+          Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
 
-                  if (outputExivImage.get() != 0) {
-                      if (mpExifData) {
-                          // Output image inherits input EXIF data
-                          outputExivImage->setExifData(*mpExifData);
-                      }
+          if (outputExivImage.get() != 0) {
+            if (mpExifData) {
+              // Output image inherits input EXIF data
+              outputExivImage->setExifData(*mpExifData);
+            }
 
-                      if (mpXmpData) {
-                          // Output image inherits input XMP data
-                          outputExivImage->setXmpData(*mpXmpData);
-                      }
+            if (mpXmpData) {
+              // Output image inherits input XMP data
+              outputExivImage->setXmpData(*mpXmpData);
+            }
 
-                      if (mpIptcData) {
-                          // Output image inherits input IPTC data
-                          outputExivImage->setIptcData(*mpIptcData);
-                      }
-                  }
-
-                  outputExivImage->writeMetadata();
-
-              }
-              catch (Exiv2::AnyError &e) {
-                  mStatus = ResizeStatusError;
-                  mErrorMessage = e.what();
-                  return false;
-              }
-          } else {
-              //WhiteList for Exif tags
-              string exifWhiteList[] = {"Exif.Image.Orientation"};
-              Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
-              if (outputExivImage.get() != 0) {
-                  Exiv2::ExifData blackListExifData;
-                  for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
-                      cout << '!' << i << " - " << exifWhiteList[i];
-                      Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
-                      if (mpExifData->findKey(key) != mpExifData->end()) {
-                          blackListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
-                      }
-                  }
-
-                  outputExivImage->setExifData(blackListExifData);
-                  outputExivImage->writeMetadata();
-              }
+            if (mpIptcData) {
+              // Output image inherits input IPTC data
+              outputExivImage->setIptcData(*mpIptcData);
+            }
           }
+
+          outputExivImage->writeMetadata();
+
+        }
+        catch (Exiv2::AnyError &e) {
+          mStatus = ResizeStatusError;
+          mErrorMessage = e.what();
+          return false;
+        }
+      } else {
+        //WhiteList for Exif tags
+        string exifWhiteList[] = {"Exif.Image.Orientation"};
+        bool needUpdateMeta = false;
+        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
+          Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
+          if (mpExifData->findKey(key) != mpExifData->end()) {
+            needUpdateMeta = true;
+          }
+        }
+        if (needUpdateMeta) {
+          Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+          if (outputExivImage.get() != 0) {
+            Exiv2::ExifData blackListExifData;
+            for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
+              Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
+              if (mpExifData->findKey(key) != mpExifData->end()) {
+                blackListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
+              }
+            }
+            outputExivImage->setExifData(blackListExifData);
+            outputExivImage->writeMetadata();
+          }
+        }
       }
+    }
   }
   
   mStatus = ResizeStatusSuccess;
