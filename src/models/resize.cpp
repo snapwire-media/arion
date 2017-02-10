@@ -914,6 +914,23 @@ bool Resize::run()
         mErrorMessage = e.what();
         return false;
       }
+    } else {
+        //WhiteList for Exif tags
+        string exifWhiteList[] = {"Exif.Image.Orientation"};
+        Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+        if (outputExivImage.get() != 0) {
+            Exiv2::ExifData blackListExifData;
+            for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
+                cout << '!' << i << " - " << exifWhiteList[i];
+                Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
+                if (mpExifData->findKey(key) != mpExifData->end()) {
+                    blackListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
+                }
+            }
+
+            outputExivImage->setExifData(blackListExifData);
+            outputExivImage->writeMetadata();
+        }
     }
   }
   
