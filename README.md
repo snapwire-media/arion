@@ -61,7 +61,7 @@ sudo make install
 
 Ubuntu 16.04 come with EXIV2 0.25 from default. So you can skip manually build and install EXIV2 from repository
 ```bash
-sudo apt-get isntall libexiv2-dev
+sudo apt-get install libexiv2-dev
 ```
 
 **Install Boost**
