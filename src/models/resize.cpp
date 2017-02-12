@@ -908,7 +908,7 @@ bool Resize::run()
           mErrorMessage = e.what();
           return false;
         }
-      } else {
+      } else if (mpExifData) {
         //WhiteList for Exif tags
         string exifWhiteList[] = {"Exif.Image.Orientation"};
         bool needUpdateMeta = false;
