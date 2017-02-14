@@ -1055,7 +1055,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     output = self.read_image(self.IMAGE_1_PATH)
 
-    self.verifySuccess(output, 1296, 864);
+    self.verifySuccess(output, 1296, 864)
 
     info = output['info'][0]
     self.assertTrue(info['result'])

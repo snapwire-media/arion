@@ -878,41 +878,54 @@ bool Resize::run()
     //--------------------------------
     //  Inherit EXIF data if needed
     //--------------------------------
-    if (mPreserveMeta && (mpExifData || mpXmpData || mpIptcData))
-    {
-      try
-      {
-        Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+    if (mpExifData || mpXmpData || mpIptcData) {
+      if (mPreserveMeta) {
+        try {
+          Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
 
-        if (outputExivImage.get() != 0)
-        {
-          if (mpExifData)
-          {
-            // Output image inherits input EXIF data
-            outputExivImage->setExifData(*mpExifData);
+          if (outputExivImage.get() != 0) {
+            if (mpExifData) {
+              // Output image inherits input EXIF data
+              outputExivImage->setExifData(*mpExifData);
+            }
+
+            if (mpXmpData) {
+              // Output image inherits input XMP data
+              outputExivImage->setXmpData(*mpXmpData);
+            }
+
+            if (mpIptcData) {
+              // Output image inherits input IPTC data
+              outputExivImage->setIptcData(*mpIptcData);
+            }
           }
 
-          if (mpXmpData)
-          {
-            // Output image inherits input XMP data
-            outputExivImage->setXmpData(*mpXmpData);
-          }
+          outputExivImage->writeMetadata();
 
-          if (mpIptcData)
-          {
-            // Output image inherits input IPTC data
-            outputExivImage->setIptcData(*mpIptcData);
+        }
+        catch (Exiv2::AnyError &e) {
+          mStatus = ResizeStatusError;
+          mErrorMessage = e.what();
+          return false;
+        }
+      }
+      else if (mpExifData) {
+        //WhiteList for Exif tags
+        string exifWhiteList[] = {"Exif.Image.Orientation"};
+        Exiv2::ExifData whiteListExifData;
+        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {//iterate over and try to find kay from whitelist
+          Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
+          if (mpExifData->findKey(key) != mpExifData->end()) {
+            whiteListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
           }
         }
-
-        outputExivImage->writeMetadata();
-
-      }
-      catch (Exiv2::AnyError& e)
-      {
-        mStatus = ResizeStatusError;
-        mErrorMessage = e.what();
-        return false;
+        if (!whiteListExifData.empty()) {
+          Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+          if (outputExivImage.get() != 0) {
+            outputExivImage->setExifData(whiteListExifData);
+            outputExivImage->writeMetadata();
+          }
+        }
       }
     }
   }
