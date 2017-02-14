@@ -908,27 +908,21 @@ bool Resize::run()
           mErrorMessage = e.what();
           return false;
         }
-      } else if (mpExifData) {
+      }
+      else if (mpExifData) {
         //WhiteList for Exif tags
         string exifWhiteList[] = {"Exif.Image.Orientation"};
-        bool needUpdateMeta = false;
-        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
+        Exiv2::ExifData whiteListExifData;
+        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {//iterate over and try to find kay from whitelist
           Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
           if (mpExifData->findKey(key) != mpExifData->end()) {
-            needUpdateMeta = true;
+            whiteListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
           }
         }
-        if (needUpdateMeta) {
+        if (!whiteListExifData.empty()) {
           Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
           if (outputExivImage.get() != 0) {
-            Exiv2::ExifData blackListExifData;
-            for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {
-              Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
-              if (mpExifData->findKey(key) != mpExifData->end()) {
-                blackListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
-              }
-            }
-            outputExivImage->setExifData(blackListExifData);
+            outputExivImage->setExifData(whiteListExifData);
             outputExivImage->writeMetadata();
           }
         }
