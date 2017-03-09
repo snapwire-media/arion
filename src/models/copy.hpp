@@ -69,6 +69,7 @@ class Copy : public Operation
     virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
     virtual bool getJpeg(std::vector<unsigned char>& data);
+    virtual bool getPNG(std::vector<unsigned char>& data);
 
     std::string getOutputFile() const;
     bool getStatus() const;

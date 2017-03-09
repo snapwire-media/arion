@@ -65,6 +65,7 @@ class Operation : boost::noncopyable
     
     virtual bool run() = 0;
     virtual bool getJpeg(std::vector<unsigned char>& data) = 0;
+    virtual bool getPNG(std::vector<unsigned char>& data) = 0;
     
     // There is no obvious way to make use of polymorphism for the writer object
     // so we rely on the preprocessor

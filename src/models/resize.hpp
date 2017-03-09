@@ -100,6 +100,7 @@ class Resize : public Operation
     virtual void setup(const boost::property_tree::ptree& params);
     virtual bool run();
     virtual bool getJpeg(std::vector<unsigned char>& data);
+    virtual bool getPNG(std::vector<unsigned char>& data);
     
     void setType(const std::string& type);
     void setHeight(unsigned height);
@@ -158,6 +159,7 @@ class Resize : public Operation
     unsigned mQuality;
     unsigned mGravity;
     bool mPreFilter;
+    bool mPassThroughFullSize;
     unsigned mSharpenAmount;
     float mSharpenRadius;
     bool mPreserveMeta;

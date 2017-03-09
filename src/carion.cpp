@@ -48,12 +48,21 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
 {
   struct ArionResizeResult result;
 
+  // Currently only two output formats are supported, JPEG (0) and PNG (1)
+  if (inputOptions.outputFormat > 1) {
+    result.outputData = 0;
+    result.outputSize = 0;
+    result.returnCode = -1;
+    return result;
+  }
+
   std::vector<unsigned char> buffer;
   
   Arion arion;
     
   std::string inputUrl = std::string(inputOptions.inputUrl);
   
+
   if (!arion.setInputUrl(inputUrl))
   {
     result.outputData = 0;
@@ -89,13 +98,24 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
   
   result.resultJson = getChars(arion.getJson());
 
-  if (!arion.getJpeg(operation, buffer))
-  {
-    result.outputData = 0;
-    result.outputSize = 0;
-    result.resultJson = getChars(arion.getJson());
-    result.returnCode = -1;
-    return result;
+  if (inputOptions.outputFormat == 0) {
+    if (!arion.getJpeg(operation, buffer)) // JPEG
+    {
+      result.outputData = 0;
+      result.outputSize = 0;
+      result.resultJson = getChars(arion.getJson());
+      result.returnCode = -1;
+      return result;
+    }
+  } else { // PNG
+    if (!arion.getPNG(operation, buffer)) // JPEG
+    {
+      result.outputData = 0;
+      result.outputSize = 0;
+      result.resultJson = getChars(arion.getJson());
+      result.returnCode = -1;
+      return result;
+    }
   }
   
   result.outputSize = buffer.size();

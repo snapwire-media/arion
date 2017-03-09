@@ -65,6 +65,7 @@ Resize::Resize() :
     mQuality(92),
     mGravity(ResizeGravitytCenter),
     mPreFilter(false),
+    mPassThroughFullSize(true),
     mSharpenAmount(0),
     mSharpenRadius(0.0),
     mPreserveMeta(false),
@@ -335,6 +336,13 @@ bool Resize::getJpeg(std::vector<unsigned char>& data)
   compression_params.push_back(mQuality);
 
   return imencode(".jpg", mImageResizedFinal, data, compression_params);
+}
+
+bool Resize::getPNG(std::vector<unsigned char>& data)
+{
+  vector<int> compression_params;
+
+  return imencode(".png", mImageResizedFinal, data, compression_params);
 }
 
 //------------------------------------------------------------------------------
@@ -745,109 +753,121 @@ bool Resize::run()
   }
 
   //---------------------------------------------------
+  //  Validate resize dimensions
+  //---------------------------------------------------
+  if (mHeight == 0)
+  {
+    mStatus = ResizeStatusError;
+    mErrorMessage = "Height cannot be 0";
+    return false;
+  }
+  
+  if (mWidth == 0)
+  {
+    mStatus = ResizeStatusError;
+    mErrorMessage = "Width cannot be 0";
+    return false;
+  }
+
+  // Don't attempt to resize an image to a size that's greater than our max
+  if (mHeight * mWidth > ARION_RESIZE_MAX_PIXELS)
+  {
+    mStatus = ResizeStatusError;
+    mErrorMessage = "Desired resize dimensions exceed maximum";
+    return false;
+  }
+
+  //---------------------------------------------------
   //  Perform the resize operation and write to disk
   //---------------------------------------------------
   try
   {
-    static const int interpolation = INTER_AREA;
+    //---------------------------------------------------
+    // Only resize if the requested image size does not
+    // already match the requested image
+    //---------------------------------------------------
+    if (mPassThroughFullSize && !(mHeight == mImage.rows && mWidth == mImage.cols)) {
+      static const int interpolation = INTER_AREA;
 
-    switch (mType)
-    {
-      //--------------------------
-      //      Square resize
-      //--------------------------
-      case ResizeTypeSquare:
+      switch (mType)
       {
-        computeSizeSquare();
-        break;
+        //--------------------------
+        //      Square resize
+        //--------------------------s
+        case ResizeTypeSquare:
+        {
+          computeSizeSquare();
+          break;
+        }
+
+        //--------------------------
+        //  Height priority resize
+        //--------------------------
+        case ResizeTypeFixedHeight:
+        {
+          computeSizeHeight();
+          break;
+        }
+        
+        //--------------------------
+        //      Fill resize
+        //--------------------------
+        case ResizeTypeFill:
+        {
+          computeSizeFill();
+          break;
+        }
+
+        //--------------------------
+        //  Width priority resize
+        //--------------------------
+        case ResizeTypeFixedWidth:
+        {
+          computeSizeWidth();
+          break;
+        }
+        
+        //--------------------------
+        //  Error (unknown type)
+        //--------------------------
+        default:
+          mStatus = ResizeStatusError;
+          mErrorMessage = "Invalid resize type";
+          return false;
       }
 
-      //--------------------------
-      //  Height priority resize
-      //--------------------------
-      case ResizeTypeFixedHeight:
+      if (mPreFilter)
       {
-        computeSizeHeight();
-        break;
+        double sigma = (double)mImageToResize.cols/1000.0;
+
+        // Make sure we're not editing the original...
+        Mat imageToResizeFiltered;
+
+        GaussianBlur(mImageToResize, imageToResizeFiltered, cv::Size(0, 0), sigma);
+
+        // Resize operation
+        resize(imageToResizeFiltered, mImageResized, mSize, 0, 0, interpolation);
       }
-      
-      //--------------------------
-      //      Fill resize
-      //--------------------------
-      case ResizeTypeFill:
+      else
       {
-        computeSizeFill();
-        break;
+        // Resize operation
+        resize(mImageToResize, mImageResized, mSize, 0, 0, interpolation);
       }
 
-      //--------------------------
-      //  Width priority resize
-      //--------------------------
-      case ResizeTypeFixedWidth:
+      if (mSharpenAmount)
       {
-        computeSizeWidth();
-        break;
+        GaussianBlur(mImageResized, mImageResizedFinal, cv::Size(0, 0), mSharpenRadius);
+
+        addWeighted(mImageResized, 1.0 + (mSharpenAmount/100.0), mImageResizedFinal, -(mSharpenAmount/100.0), 0, mImageResizedFinal);
       }
-      
-      //--------------------------
-      //  Error (unknown type)
-      //--------------------------
-      default:
-        mStatus = ResizeStatusError;
-        mErrorMessage = "Invalid resize type";
-        return false;
-    }
-    
-    if (mHeight == 0)
-    {
-      mStatus = ResizeStatusError;
-      mErrorMessage = "Height cannot be 0";
-      return false;
-    }
-    
-    if (mWidth == 0)
-    {
-      mStatus = ResizeStatusError;
-      mErrorMessage = "Width cannot be 0";
-      return false;
-    }
-
-    // Don't attempt to resize an image to a size that's greater than our max
-    if (mHeight * mWidth > ARION_RESIZE_MAX_PIXELS)
-    {
-      mStatus = ResizeStatusError;
-      mErrorMessage = "Desired resize dimensions exceed maximum";
-      return false;
-    }
-
-    if (mPreFilter)
-    {
-      double sigma = (double)mImageToResize.cols/1000.0;
-
-      // Make sure we're not editing the original...
-      Mat imageToResizeFiltered;
-
-      GaussianBlur(mImageToResize, imageToResizeFiltered, cv::Size(0, 0), sigma);
-
-      // Resize operation
-      resize(imageToResizeFiltered, mImageResized, mSize, 0, 0, interpolation);
-    }
-    else
-    {
-      // Resize operation
-      resize(mImageToResize, mImageResized, mSize, 0, 0, interpolation);
-    }
-
-    if (mSharpenAmount)
-    {
-      GaussianBlur(mImageResized, mImageResizedFinal, cv::Size(0, 0), mSharpenRadius);
-
-      addWeighted(mImageResized, 1.0 + (mSharpenAmount/100.0), mImageResizedFinal, -(mSharpenAmount/100.0), 0, mImageResizedFinal);
-    }
-    else
-    {
-      // Assign by reference
-      mImageResizedFinal = mImageResized;
+      else
+      {
+        // Assign by reference
+        mImageResizedFinal = mImageResized;
+      }
+    } else {
+      // The image already matches the requested dimensions, so no resize or retouch required.
+      mImageResizedFinal = mImage.clone();
     }
 
     if (mWatermarkFile.length())

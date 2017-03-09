@@ -74,6 +74,7 @@ class Arion
     std::string getJson() const;
     
     bool getJpeg(unsigned operationIndex, std::vector<unsigned char>& data);
+    bool getPNG(unsigned operationIndex, std::vector<unsigned char>& data);
     
   private:
 

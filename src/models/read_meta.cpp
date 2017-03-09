@@ -303,3 +303,10 @@ bool Read_meta::getJpeg(std::vector<unsigned char>& data)
 {
   return false;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Read_meta::getPNG(std::vector<unsigned char>& data)
+{
+  return false;
+}

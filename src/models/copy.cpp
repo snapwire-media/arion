@@ -225,3 +225,10 @@ bool Copy::getJpeg(std::vector<unsigned char>& data)
 {
   return false;
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Copy::getPNG(std::vector<unsigned char>& data)
+{
+  return false;
+}

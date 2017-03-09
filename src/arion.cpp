@@ -146,7 +146,7 @@ bool Arion::setup(const string& inputJson)
     string inputUrl = mInputTree.get<std::string>("input_url");
     
     parseInputUrl(inputUrl);
-    
+
   }
   catch (boost::exception& e)
   {
@@ -890,6 +890,32 @@ bool Arion::getJpeg(unsigned operationIndex, std::vector<unsigned char>& data)
   if (!result)
   {
     mErrorMessage = "Could not encode JPEG";
+    constructErrorJson();
+  }
+  
+  return result;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+bool Arion::getPNG(unsigned operationIndex, std::vector<unsigned char>& data)
+{
+  
+  if (operationIndex >= mOperations.size())
+  {
+    mErrorMessage = "Invalid operation to PNG encode";
+    constructErrorJson();
+    
+    return false;
+  }
+  
+  Operation& operation = mOperations.at(operationIndex);
+  
+  bool result = operation.getPNG(data);
+  
+  if (!result)
+  {
+    mErrorMessage = "Could not encode PNG";
     constructErrorJson();
   }
   
