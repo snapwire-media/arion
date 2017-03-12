@@ -253,6 +253,12 @@ void Arion::addResizeOperation(struct ArionResizeOptions options)
 
   resize->setHeight(options.height);
   resize->setWidth(options.width);
+
+  if (options.interpolation)
+  {
+    string interpolation(options.interpolation);
+    resize->setInterpolation(interpolation);
+  }
   
   // Gravity
   if (options.gravity)

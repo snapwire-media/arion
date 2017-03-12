@@ -31,8 +31,8 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/resize.hpp"
-#include "utils/utils.hpp"
+#include "./resize.hpp"
+#include "../utils/utils.hpp"
 
 #include <iostream>
 #include <string>
@@ -63,6 +63,7 @@ Resize::Resize() :
     mHeight(0),
     mWidth(0),
     mQuality(92),
+    mInterpolation(INTER_AREA),
     mGravity(ResizeGravitytCenter),
     mPreFilter(false),
     mSharpenAmount(0),
@@ -148,6 +149,17 @@ void Resize::setup(const ptree& params)
   {
     // Not required
   }
+
+   try
+   {
+     setInterpolation(params.get<string>("interpolation"));
+   }
+   catch (boost::exception& e)
+   {
+       // Not required
+   }
+
+
 
   try
   {
@@ -240,6 +252,23 @@ void Resize::setWidth(unsigned width)
 void Resize::setQuality(unsigned quality)
 {
   validateQuality(quality);
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Resize::setInterpolation(const std::string& interpolation)
+{
+    if (interpolation == "nearest"){
+        mInterpolation =  INTER_NEAREST;
+    } else if (interpolation == "linear"){
+        mInterpolation = INTER_LINEAR;
+    } else if (interpolation == "cubic"){
+        mInterpolation = INTER_CUBIC;
+    } else if (interpolation == "area"){
+        mInterpolation = INTER_AREA;
+    } else if (interpolation == "lanczon4"){
+        mInterpolation = INTER_LANCZOS4;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -749,7 +778,6 @@ bool Resize::run()
   //---------------------------------------------------
   try
   {
-    static const int interpolation = INTER_AREA;
 
     switch (mType)
     {
@@ -830,12 +858,12 @@ bool Resize::run()
       GaussianBlur(mImageToResize, imageToResizeFiltered, cv::Size(0, 0), sigma);
 
       // Resize operation
-      resize(imageToResizeFiltered, mImageResized, mSize, 0, 0, interpolation);
+      resize(imageToResizeFiltered, mImageResized, mSize, 0, 0, mInterpolation);
     }
     else
     {
       // Resize operation
-      resize(mImageToResize, mImageResized, mSize, 0, 0, interpolation);
+      resize(mImageToResize, mImageResized, mSize, 0, 0, mInterpolation);
     }
 
     if (mSharpenAmount)

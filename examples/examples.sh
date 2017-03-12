@@ -81,6 +81,26 @@ example_4_input=`cat example-4.json`
 if [ $? -ne 0 ] ; then echo "Failed example 4"; exit 1; fi
 
 echo
+echo '------------------------------------------------------------------------------------------'
+echo
+echo '             Example 5: Different interpolation methods'
+echo
+echo '------------------------------------------------------------------------------------------'
+echo
+echo 'Output: '
+echo
+
+example_5_input=`cat example-5.json`
+
+../build/arion --input "$example_5_input"
+
+if [ $? -ne 0 ] ; then echo "Failed example 5"; exit 1; fi
+
+echo
+echo
+
+
+echo
 echo
 
 echo

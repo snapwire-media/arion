@@ -21,6 +21,7 @@ extern "C" {
     char* algo;
     unsigned height;
     unsigned width;
+    char* interpolation;
     char* gravity;
     unsigned quality;
     unsigned sharpenAmount;

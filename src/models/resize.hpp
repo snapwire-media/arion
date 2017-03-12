@@ -105,6 +105,7 @@ class Resize : public Operation
     void setHeight(unsigned height);
     void setWidth(unsigned width);
     void setQuality(unsigned quality);
+    void setInterpolation(const std::string& interpolation);
     void setGravity(std::string gravity);
     void setSharpenAmount(unsigned sharpenAmount);
     void setSharpenRadius(float radius);
@@ -156,6 +157,7 @@ class Resize : public Operation
     unsigned mHeight;
     unsigned mWidth;
     unsigned mQuality;
+    int mInterpolation;
     unsigned mGravity;
     bool mPreFilter;
     unsigned mSharpenAmount;
