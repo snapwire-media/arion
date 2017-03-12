@@ -47,7 +47,7 @@
 #include <exiv2/exiv2.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
 enum
 {

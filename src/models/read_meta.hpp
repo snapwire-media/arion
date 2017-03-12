@@ -49,7 +49,7 @@
 #include <boost/foreach.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
 enum
 {

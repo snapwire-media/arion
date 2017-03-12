@@ -44,7 +44,7 @@
 #include <exiv2/exiv2.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
 // Resize images that are maximum 10,000 x 10,000 pixels
 // At the max this will use 3.2GB of memory (a 100MP image)

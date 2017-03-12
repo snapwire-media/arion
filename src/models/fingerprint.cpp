@@ -31,8 +31,8 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/fingerprint.hpp"
-#include "utils/utils.hpp"
+#include "./fingerprint.hpp"
+#include "../utils/utils.hpp"
 
 #include <iostream>
 #include <string>

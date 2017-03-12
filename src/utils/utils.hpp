@@ -49,9 +49,9 @@
 #include <exiv2/exiv2.hpp>
 
 // Local Third party
-#include "thirdparty/rapidjson/writer.h"
-#include "thirdparty/rapidjson/prettywriter.h"
-#include "thirdparty/rapidjson/stringbuffer.h"
+#include "../thirdparty/rapidjson/writer.h"
+#include "../thirdparty/rapidjson/prettywriter.h"
+#include "../thirdparty/rapidjson/stringbuffer.h"
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

@@ -31,8 +31,8 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/copy.hpp"
-#include "utils/utils.hpp"
+#include "./copy.hpp"
+#include "../utils/utils.hpp"
 
 #include <iostream>
 #include <string>
