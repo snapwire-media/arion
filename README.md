@@ -74,12 +74,12 @@ sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-de
 
 **Install OpenCV**
 
-Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget get version 3.0.0
+Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
 
 ```bash
-wget https://github.com/Itseez/opencv/archive/3.0.0.zip
-unzip 3.0.0.zip 
-cd opencv-3.0.0
+wget https://github.com/opencv/opencv/archive/3.2.0.zip
+unzip 3.2.0.zip
+cd opencv-3.2.0/
 mkdir build
 cd build
 cmake ..
