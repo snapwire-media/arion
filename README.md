@@ -59,7 +59,7 @@ sudo make install
 
 **Install EXIV2 (Ubuntu 16.04+)**
 
-Ubuntu 16.04 come with EXIV2 0.25 from default. So you can skip manually build and install EXIV2 from repository
+Ubuntu 16.04 comes with EXIV2 0.25 by default. So you can skip manually build and install EXIV2 from repository
 ```bash
 sudo apt-get install libexiv2-dev
 ```
