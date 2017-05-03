@@ -172,6 +172,19 @@ bool Copy::run()
     }
   }
 
+  //--------------------------------
+  //  Keep color profile if defined
+  //--------------------------------
+  if (mpIccProfile){
+    Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+    try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
+      outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
+      outputExivImage->writeMetadata();
+    } catch (...) {
+      //TODO
+    }
+  }
+
   mStatus = CopyStatusSuccess;
 
   return true;

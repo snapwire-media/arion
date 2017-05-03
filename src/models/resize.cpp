@@ -967,8 +967,6 @@ bool Resize::run()
         } catch (...) {
             //TODO
         }
-
-
     }
   }
   
