@@ -1,11 +1,11 @@
 # Arion [![Build Status](https://travis-ci.org/snapwire-media/arion.svg)](https://travis-ci.org/snapwire-media/arion)
 <img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
-Arion extracts metadata and creates beautiful thumbnails from your images. __
-* Batch generate thumbnails with one call__
-* Apply output sharpening on each thumbnail__
-* Resize with height priority, width priority, or square crop__
-* Apply user-defined watermark__
-* Get md5 hash of pixel data__
+Arion extracts metadata and creates beautiful thumbnails from your images.
+* Batch generate thumbnails with one call
+* Apply output sharpening on each thumbnail
+* Resize with height priority, width priority, or square crop
+* Apply user-defined watermark
+* Get md5 hash of pixel data
 
 Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the **[API Documentation](../../wiki/API-Documentation)** for more details.
 
