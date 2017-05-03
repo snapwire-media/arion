@@ -43,9 +43,11 @@ Download the latest version from http://www.exiv2.org/download.html (or use wget
 
 ```bash
 cd ~/
-wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26.zip
-unzip exiv2-0.26.zip
-cd exiv2-0.26/build
+wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+unzip exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+cd exiv2-fa449a4d2c58d63f0d75ff259f25683a98a44630
+mkdir build
+cd build
 cmake ../
 ```
 

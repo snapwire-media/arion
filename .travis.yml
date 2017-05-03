@@ -12,9 +12,11 @@ install:
   - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
 
 before_script:
-  - wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26.zip
-  - unzip exiv2-0.26.zip
-  - cd exiv2-0.26/build
+  - wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+  - unzip exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+  - cd exiv2-fa449a4d2c58d63f0d75ff259f25683a98a44630
+  - mkdir build
+  - cd build
   - cmake ../
   - make -j4
   - sudo make install
