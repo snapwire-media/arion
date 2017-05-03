@@ -1,11 +1,11 @@
 # Arion [![Build Status](https://travis-ci.org/snapwire-media/arion.svg)](https://travis-ci.org/snapwire-media/arion)
 <img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
-Arion extracts metadata and creates beautiful thumbnails from your images. 
-* Batch generate thumbnails with one call
-* Apply output sharpening on each thumbnail
-* Resize with height priority, width priority, or square crop
-* Apply user-defined watermark
-* Get md5 hash of pixel data
+Arion extracts metadata and creates beautiful thumbnails from your images. __
+* Batch generate thumbnails with one call__
+* Apply output sharpening on each thumbnail__
+* Resize with height priority, width priority, or square crop__
+* Apply user-defined watermark__
+* Get md5 hash of pixel data__
 
 Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the **[API Documentation](../../wiki/API-Documentation)** for more details.
 
@@ -22,7 +22,7 @@ Currently this tool needs to be compiled from source to work on your host system
 
 **Requirements**
 * CMake
-* EXIV2 0.25+
+* EXIV2 0.26+
 * OpenCV 3.0+
 * Boost 1.46+
   * core 
@@ -37,15 +37,15 @@ Currently this tool needs to be compiled from source to work on your host system
 sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev
 ```
 
-**Install EXIV2 (before Ubuntu 16.04)**
+**Install EXIV2 **
 
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
 ```bash
 cd ~/
-wget http://www.exiv2.org/exiv2-0.25.tar.gz
-tar -xvf ~/exiv2-0.25.tar.gz
-cd exiv2-0.25/build
+wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26.zip
+unzip exiv2-0.26.zip
+cd exiv2-0.26/build
 cmake ../
 ```
 
@@ -55,13 +55,6 @@ Now build EXIV2 and install it into the system
 ```bash
 make
 sudo make install
-```
-
-**Install EXIV2 (Ubuntu 16.04+)**
-
-Ubuntu 16.04 comes with EXIV2 0.25 by default. So you can skip manually build and install EXIV2 from repository
-```bash
-sudo apt-get install libexiv2-dev
 ```
 
 **Install Boost**
