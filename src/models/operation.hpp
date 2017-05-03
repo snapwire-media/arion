@@ -77,6 +77,7 @@ class Operation : boost::noncopyable
     void setExifData(const Exiv2::ExifData* exifData);
     void setXmpData(const Exiv2::XmpData* xmpData);
     void setIptcData(const Exiv2::IptcData* iptcData);
+    void setIccProfile(Exiv2::DataBuf* iccProfile);
     void setImage(cv::Mat& image);
 
   protected:
@@ -88,6 +89,7 @@ class Operation : boost::noncopyable
     const Exiv2::ExifData* mpExifData;
     const Exiv2::XmpData* mpXmpData;
     const Exiv2::IptcData* mpIptcData;
+    Exiv2::DataBuf* mpIccProfile;
     cv::Mat mImage;
 
 };

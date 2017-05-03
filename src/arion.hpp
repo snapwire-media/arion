@@ -106,6 +106,7 @@ class Arion
     Exiv2::ExifData* mpExifData;
     Exiv2::XmpData* mpXmpData;
     Exiv2::IptcData* mpIptcData;
+    Exiv2::DataBuf* mpIccProfile;
     Exiv2::Image::AutoPtr mExivImage;
 
     // The following describe the result of the operations

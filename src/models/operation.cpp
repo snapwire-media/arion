@@ -50,6 +50,7 @@ using namespace std;
 Operation::Operation() :     
     mpExifData(0),
     mpXmpData(0),
+    mpIccProfile(0),
     mpIptcData(0)
 {
 }
@@ -60,6 +61,7 @@ Operation::~Operation()
 {
   mpExifData = 0;
   mpXmpData = 0;
+  mpIccProfile = 0;
   mpIptcData = 0;
 }
 
@@ -89,6 +91,13 @@ void Operation::setXmpData(const Exiv2::XmpData* xmpData)
 void Operation::setIptcData(const Exiv2::IptcData* iptcData)
 {
   mpIptcData = iptcData;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setIccProfile(Exiv2::DataBuf* iccProfile)
+{
+  mpIccProfile = iccProfile;
 }
 
 //------------------------------------------------------------------------------

@@ -939,9 +939,9 @@ bool Resize::run()
       }
       else if (mpExifData) {
         //WhiteList for Exif tags
-        string exifWhiteList[] = {"Exif.Image.Orientation"};
+        string exifWhiteList[] = {"Exif.Image.Orientation","Exif.Image.InterColorProfile"};
         Exiv2::ExifData whiteListExifData;
-        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {//iterate over and try to find kay from whitelist
+        for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0])); i++) {//iterate over and try to find key from whitelist
           Exiv2::ExifKey key = Exiv2::ExifKey(exifWhiteList[i]);
           if (mpExifData->findKey(key) != mpExifData->end()) {
             whiteListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
@@ -955,6 +955,20 @@ bool Resize::run()
           }
         }
       }
+    }
+    //--------------------------------
+    //  Keep color profile if defined
+    //--------------------------------
+    if (mpIccProfile){
+     Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
+        try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
+            outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
+            outputExivImage->writeMetadata();
+        } catch (...) {
+            //TODO
+        }
+
+
     }
   }
   

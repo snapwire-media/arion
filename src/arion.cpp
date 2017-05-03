@@ -109,6 +109,7 @@ Arion::Arion() :
   mpExifData(0),
   mpXmpData(0),
   mpIptcData(0),
+  mpIccProfile(0),
   mInputFile(),
   mTotalOperations(0),
   mFailedOperations(0),
@@ -124,7 +125,8 @@ Arion::~Arion()
   mpExifData = 0;
   mpXmpData = 0;
   mpIptcData = 0;
-  
+  mpIccProfile = 0;
+
   mOperations.release();
   
 }
@@ -687,6 +689,11 @@ void Arion::extractImageData(const string& imageFilePath)
 
     mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
   }
+
+   if (mExivImage->iccProfileDefined())
+   {
+     mpIccProfile = mExivImage->iccProfile();
+   }
   
   if (mSourceImage.empty())
   {
@@ -794,6 +801,10 @@ bool Arion::run()
       if (mpIptcData)
       {
         operation.setIptcData(mpIptcData);
+      }
+      if (mpIccProfile)
+      {
+        operation.setIccProfile(mpIccProfile);
       }
       
       if (!operation.run())
