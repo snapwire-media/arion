@@ -95,36 +95,23 @@ void Resize::setup(const ptree& params)
   
   readType(params);
   
-  try
-  {
-    // Height validation handled in run()
-    mHeight = params.get<unsigned>("height");
-  }
-  catch (boost::exception& e)
-  {
-    // Required, but output error during run()
+  // Height validation handled in run()
+  boost::optional<unsigned> height = params.get_optional<unsigned>("height");
+  if (height) {// Required, but output error during run()
+    mHeight = *height;
   }
 
-  try
-  {
-    // Width validation handled in run()
-    mWidth = params.get<unsigned>("width");
+  // Width validation handled in run()
+  boost::optional<unsigned> width = params.get_optional<unsigned>("width");
+  if (width) {// Required, but output error during run()
+    mWidth = *width;
   }
-  catch (boost::exception& e)
-  {
-    // Required, but output error during run()
-  }
-  
-  try
-  {
-    string outputUrl = params.get<string>("output_url");
 
-    validateOutputUrl(outputUrl);
+  boost::optional<string> outputUrl = params.get_optional<string>("output_url");
+  if (outputUrl) {// Required, but output error during run()
+    validateOutputUrl(*outputUrl);
   }
-  catch (boost::exception& e)
-  {
-    // Required, but output error during run()
-  }
+
   
   //-------------------------
   //   Optional arguments
@@ -132,98 +119,51 @@ void Resize::setup(const ptree& params)
   
   readGravity(params);
 
-  try
-  {
-    mPreserveMeta = params.get<bool>("preserve_meta");
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  mPreserveMeta = params.get_optional<bool>("preserve_meta");//Not required
+
+  boost::optional<unsigned> quality = params.get_optional<unsigned>("quality");
+  if (quality) {// Not required
+    validateQuality(*quality);
   }
 
-  try
-  {
-    validateQuality(params.get<unsigned>("quality"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<string> interpolation = params.get_optional<string>("interpolation");
+  if (interpolation) {
+    setInterpolation(*interpolation);
   }
 
-   try
-   {
-     setInterpolation(params.get<string>("interpolation"));
-   }
-   catch (boost::exception& e)
-   {
-       // Not required
-   }
+  mPreFilter = params.get_optional<bool>("interpolation");//optional
 
-
-
-  try
-  {
-    mPreFilter = params.get<bool>("pre_filter");
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<unsigned> sharpen_amount = params.get_optional<unsigned>("sharpen_amount");
+  if (sharpen_amount) {// Not required
+    validateSharpenAmount(*sharpen_amount);
   }
 
-  try
-  {
-    validateSharpenAmount(params.get<unsigned>("sharpen_amount"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<float> sharpen_radius = params.get_optional<float>("sharpen_radius");
+  if (sharpen_radius) {// Not required
+    validateSharpenRadius(*sharpen_radius);
   }
 
-  try
-  {
-    validateSharpenRadius(params.get<float>("sharpen_radius"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<string> watermark_type = params.get_optional<string>("watermark_type");
+  if (watermark_type) {// Not required
+    validateWatermarkType(*watermark_type);
   }
 
-  try
-  {
-    validateWatermarkType(params.get<string>("watermark_type"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<string> watermark_url = params.get_optional<string>("watermark_url");
+  if (watermark_url) {// Not required
+    validateWatermarkUrl(*watermark_url);
   }
 
-  try
-  {
-    validateWatermarkUrl(params.get<string>("watermark_url"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<float> watermark_amount = params.get_optional<float>("watermark_amount");
+  if (watermark_amount) {// Not required
+    validateWatermarkAmount(*watermark_amount);
   }
 
-  try
-  {
-    validateWatermarkAmount(params.get<float>("watermark_amount"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
+  boost::optional<float> watermark_min = params.get_optional<float>("watermark_min");
+  boost::optional<float> watermark_max = params.get_optional<float>("watermark_max");
+  if (watermark_min && watermark_max) {// Not required
+    validateWatermarkMinMax(*watermark_min,*watermark_max);;
   }
 
-  try
-  {
-    validateWatermarkMinMax(params.get<float>("watermark_min"),
-                            params.get<float>("watermark_max"));
-  }
-  catch (boost::exception& e)
-  {
-    // Not required
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -370,19 +310,14 @@ bool Resize::getJpeg(std::vector<unsigned char>& data)
 //------------------------------------------------------------------------------
 void Resize::readType(const ptree& params)
 {
-  try
-  {
-    string type = params.get<std::string>("type");
-    
+  boost::optional<string> type = params.get_optional<string>("type");
+  if (type) {// Required, but output error during run()
+
+    string realType = *type;
     // Make sure it's lowercase
-    transform(type.begin(), type.end(), type.begin(), ::tolower);
-    
-    validateType(type);
-    
-  }
-  catch (boost::exception& e)
-  {
-    // Required, but output error during run()
+    transform(realType.begin(), realType.end(), realType.begin(), ::tolower);
+
+    validateType(realType);
   }
 }
 
@@ -417,19 +352,14 @@ void Resize::validateType(const std::string& type)
 //------------------------------------------------------------------------------
 void Resize::readGravity(const ptree& params)
 {
-  try
-  {
-    string gravity = params.get<std::string>("gravity");
-    
-    // Make sure it's lowercase
-    transform(gravity.begin(), gravity.end(), gravity.begin(), ::tolower);
-    
-    validateGravity(gravity);
+    boost::optional<string> gravity = params.get_optional<std::string>("gravity");
+    if (gravity){
+      string realGravity = *gravity;
+      // Make sure it's lowercase
+      transform(realGravity.begin(), realGravity.end(), realGravity.begin(), ::tolower);
+      validateGravity(realGravity);
   }
-  catch (boost::exception& e)
-  {
-    // Not critical error, just default to center gravity (set by constructor)
-  }
+
 }
 
 //------------------------------------------------------------------------------
