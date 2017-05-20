@@ -3,7 +3,20 @@ CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
 PROJECT (ARION)
 
 SET(CMAKE_MACOSX_RPATH 1)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
+SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../cmake/Modules/")
+
+# options and their default values
+OPTION( ARION_ENABLE_SHARED        "Build arion a shared "                 ON  )
+if (NOT ARION_ENABLE_SHARED)
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+    #SET(BUILD_SHARED_LIBRARIES OFF)
+    #SET(CMAKE_EXE_LINKER_FLAGS "-static")
+    SET(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE}  -lz -lxmp -lexpat -ldl")
+    #SET_TARGET_PROPERTIES (arion PROPERTIES LINK_SEARCH_START_STATIC 1)
+    #SET_TARGET_PROPERTIES (arion PROPERTIES LINK_SEARCH_END_STATIC 1)
+
+endif()
+
 
 FIND_PACKAGE( Boost 1.46 COMPONENTS program_options timer filesystem system REQUIRED )
 FIND_PACKAGE( OpenCV REQUIRED )
@@ -52,14 +65,27 @@ TARGET_LINK_LIBRARIES( arion ${Boost_LIBRARIES} ${OpenCV_LIBS} ${EXIV2_LIBRARIES
 # ---------------------------------------------------
 #  This is the shared Arion library with c bindings
 # ---------------------------------------------------
-add_library(carion SHARED carion.cpp
-                          arion.cpp
-                          models/operation.cpp
-                          models/resize.cpp
-                          models/read_meta.cpp
-                          models/copy.cpp
-                          models/fingerprint.cpp
-                          utils/utils.cpp)
+if (ARION_ENABLE_SHARED)
+    add_library(carion SHARED carion.cpp
+            arion.cpp
+            models/operation.cpp
+            models/resize.cpp
+            models/read_meta.cpp
+            models/copy.cpp
+            models/fingerprint.cpp
+            utils/utils.cpp)
+else ()
+    add_library(carion  STATIC carion.cpp
+            arion.cpp
+            models/operation.cpp
+            models/resize.cpp
+            models/read_meta.cpp
+            models/copy.cpp
+            models/fingerprint.cpp
+            utils/utils.cpp)
+
+endif()
+
 
 TARGET_LINK_LIBRARIES( carion ${Boost_LIBRARIES} ${OpenCV_LIBS} ${EXIV2_LIBRARIES} ${OPENSSL_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
 
