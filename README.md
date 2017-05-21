@@ -34,11 +34,23 @@ Currently this tool needs to be compiled from source to work on your host system
 
 **Install dependencies**
 
+***Ubuntu***
 ```bash
-sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng
 ```
 
-**Install EXIV2 **
+***Amazon linux***
+```bash
+sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++
+```
+
+For old version on Amazon linux upgrade cmake to version 3+
+```bash
+sudo yum install cmake3 --enablerepo=epel
+```
+Then for rest of installation guide replace "cmake" to "cmake3" command
+
+**Install EXIV2**
 
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
@@ -58,14 +70,6 @@ Now build EXIV2 and install it into the system
 ```bash
 make
 sudo make install
-```
-
-**Install Boost**
-
-Boost version 1.46+ is required to build Arion.  This is not a particularly new version so the package maintainers version will usually work.
-
-```bash
-sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
 ```
 
 **Install OpenCV**
@@ -96,6 +100,20 @@ cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
       -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib64/libjpeg.a \
       -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
       -DENABLE_AVX=ON ..
+```
+
+**Install Boost**
+
+Boost version 1.46+ is required to build Arion.  This is not a particularly new version so the package maintainers version will usually work.
+
+***Ubuntu***
+```bash
+sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
+```
+
+***Amazon linux***
+```bash
+sudo yum install boost-devel boost-program-options boost-timer boost-filesystem boost-system boost-static
 ```
 
 **Build Arion**
@@ -165,4 +183,49 @@ Output will be:
     "failed_operations": 0
 }
 
+```
+
+
+# Static build
+
+Sometimes you need to have a 'portable' version of Arion.
+For example to use it with AWS Lambda or services like that.
+Given services only allow to deploy precompiled binary without any operation system modification.
+At that case portable version is very usable.
+
+To build static version of Arion you need to build evix2 and Opencv as a static version.
+
+**If you already build regular version of Arion**
+
+Please clear cmake cache before to do a new build of Arion. You can remove content of build folders from arion,exiv2 and cmake.
+
+**Building**
+
+Please follow main manual except cmake commands.
+
+***Exiv2***
+
+```bash
+cmake -DEXIV2_ENABLE_SHARED=OFF ..
+```
+
+***OpenCV***
+```bash
+cmake -DBUILD_SHARED_LIBS=OFF
+```
+But you also can skip build on not necessary packages
+
+```bash
+cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
+      -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF \
+      -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF \
+      -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF \
+      -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
+      -DENABLE_AVX=ON -DENABLE_AVX2=ON -DENABLE_FMA3=ON \
+      -DBUILD_SHARED_LIBS=OFF ..
+```
+
+***Arion***
+```bash
+cmake -DARION_ENABLE_SHARED=OFF ../src/
 ```
