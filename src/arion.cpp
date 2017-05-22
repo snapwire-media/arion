@@ -178,8 +178,13 @@ bool Arion::setup(const string& inputJson)
   //--------------------------------
   //   Correct orientation flag
   //--------------------------------
-  mCorrectOrientation = mInputTree.get_optional<bool>("correct_rotation");//Not required
-  
+  boost::optional<bool> correct_rotation = mInputTree.get_optional<bool>("correct_rotation");
+  if (correct_rotation) {//Not required
+    mCorrectOrientation = true;
+  } else {
+    mCorrectOrientation = false;
+  }
+
   return true;
 }
 

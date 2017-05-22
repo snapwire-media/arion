@@ -119,7 +119,12 @@ void Resize::setup(const ptree& params)
   
   readGravity(params);
 
-  mPreserveMeta = params.get_optional<bool>("preserve_meta");//Not required
+  boost::optional<bool> preserve_meta = params.get_optional<bool>("preserve_meta");
+  if (preserve_meta) {//Not required
+    mPreserveMeta = true;
+  } else {
+    mPreserveMeta = false;
+  }
 
   boost::optional<unsigned> quality = params.get_optional<unsigned>("quality");
   if (quality) {// Not required
@@ -131,7 +136,12 @@ void Resize::setup(const ptree& params)
     setInterpolation(*interpolation);
   }
 
-  mPreFilter = params.get_optional<bool>("interpolation");//optional
+  boost::optional<bool> pre_filter = params.get_optional<bool>("pre_filter");
+  if (pre_filter) {//optional
+    mPreFilter = true;
+  } else {
+    mPreFilter = false;
+  }
 
   boost::optional<unsigned> sharpen_amount = params.get_optional<unsigned>("sharpen_amount");
   if (sharpen_amount) {// Not required
