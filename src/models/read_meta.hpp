@@ -111,6 +111,7 @@ class Read_meta : public Operation
     bool mPropertyReleased;
     std::string mInstructions;
     std::string mSubject;
+    std::string mByline;
     
     // Location
     std::string mCity;

@@ -165,6 +165,7 @@ void Read_meta::readIptc()
   const string iptcCountryNameKey   = "Iptc.Application2.CountryName";
   const string iptcCountryCodeKey   = "Iptc.Application2.CountryCode";
   const string iptcSubjectKey       = "Iptc.Application2.Subject";
+  const string iptcBylineKey        = "Iptc.Application2.Byline";
 
   const Exiv2::IptcData &iptcData = *mpIptcData;
   
@@ -180,7 +181,8 @@ void Read_meta::readIptc()
     readIptcStringByKey(md, iptcCountryNameKey,   &mCountryName);
     readIptcStringByKey(md, iptcCountryCodeKey,   &mCountryCode);
     readIptcStringByKey(md, iptcSubjectKey,       &mSubject);
-    
+    readIptcStringByKey(md, iptcBylineKey,        &mByline);
+
     if (md->key() == iptcKeywordsKey)
     {
       string keyword = md->toString();
@@ -254,6 +256,9 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
 
     writer.String("copyright");
     writer.String(mCopyright);
+
+    writer.String("byline");
+    writer.String(mByline);
 
     writer.String("city");
     writer.String(mCity);
