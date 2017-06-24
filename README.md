@@ -22,7 +22,7 @@ While there are several tools available to generate thumbnails and read image me
 Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system. For Mac OS X see the following [instructions](../../wiki/Installation#mac-os-x). 
 
 **Requirements**
-* CMake
+* CMake 3.1+
 * EXIV2 0.26+
 * OpenCV 3.0+
 * Boost 1.46+
@@ -44,7 +44,7 @@ sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-
 sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++
 ```
 
-For old version on Amazon linux upgrade cmake to version 3+
+For old version on Amazon linux upgrade cmake to version 3.1+
 ```bash
 sudo yum install cmake3 --enablerepo=epel
 ```
