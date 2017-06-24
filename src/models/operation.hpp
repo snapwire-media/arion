@@ -53,44 +53,43 @@
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Operation : boost::noncopyable
-{
-  public:
+class Operation : boost::noncopyable {
+ public:
 
-    Operation();
-    virtual ~Operation();
+  Operation();
+  virtual ~Operation();
 
-    virtual void setup(const boost::property_tree::ptree& params) {};
-    boost::property_tree::ptree getParams() const;
-    
-    virtual bool run() = 0;
-    virtual bool getJpeg(std::vector<unsigned char>& data) = 0;
-    
-    // There is no obvious way to make use of polymorphism for the writer object
-    // so we rely on the preprocessor
-  #ifdef JSON_PRETTY_OUTPUT
-    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const {};
-  #else
-    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const {};
-  #endif
+  virtual void setup(const boost::property_tree::ptree &params) {};
+  boost::property_tree::ptree getParams() const;
 
-    void setExifData(const Exiv2::ExifData* exifData);
-    void setXmpData(const Exiv2::XmpData* xmpData);
-    void setIptcData(const Exiv2::IptcData* iptcData);
-    void setIccProfile(Exiv2::DataBuf* iccProfile);
-    void setImage(cv::Mat& image);
+  virtual bool run() = 0;
+  virtual bool getJpeg(std::vector<unsigned char> &data) = 0;
 
-  protected:
-    
-    void operator=( const Operation& );
-    
-    boost::property_tree::ptree mParams;
+  // There is no obvious way to make use of polymorphism for the writer object
+  // so we rely on the preprocessor
+#ifdef JSON_PRETTY_OUTPUT
+  virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const {};
+#else
+  virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const {};
+#endif
 
-    const Exiv2::ExifData* mpExifData;
-    const Exiv2::XmpData* mpXmpData;
-    const Exiv2::IptcData* mpIptcData;
-    Exiv2::DataBuf* mpIccProfile;
-    cv::Mat mImage;
+  void setExifData(const Exiv2::ExifData *exifData);
+  void setXmpData(const Exiv2::XmpData *xmpData);
+  void setIptcData(const Exiv2::IptcData *iptcData);
+  void setIccProfile(Exiv2::DataBuf *iccProfile);
+  void setImage(cv::Mat &image);
+
+ protected:
+
+  void operator=(const Operation &);
+
+  boost::property_tree::ptree mParams;
+
+  const Exiv2::ExifData *mpExifData;
+  const Exiv2::XmpData *mpXmpData;
+  const Exiv2::IptcData *mpIptcData;
+  Exiv2::DataBuf *mpIccProfile;
+  cv::Mat mImage;
 
 };
 

@@ -52,132 +52,127 @@
 #ifndef ARION_RESIZE_MAX_PIXELS
 #define ARION_RESIZE_MAX_PIXELS 100000000
 #endif
-enum
-{
-  ResizeTypeInvalid     = -1,
-  ResizeTypeFixedWidth  = 0,
+enum {
+  ResizeTypeInvalid = -1,
+  ResizeTypeFixedWidth = 0,
   ResizeTypeFixedHeight = 1,
-  ResizeTypeSquare      = 2,
-  ResizeTypeFill        = 3
+  ResizeTypeSquare = 2,
+  ResizeTypeFill = 3
 };
 
-enum
-{
+enum {
   ResizeStatusDidNotTry = 0,
-  ResizeStatusPending   = 1,
-  ResizeStatusSuccess   = 2,
-  ResizeStatusError     = 3
+  ResizeStatusPending = 1,
+  ResizeStatusSuccess = 2,
+  ResizeStatusError = 3
 };
 
-enum
-{
-  ResizeGravitytCenter   = 0,
-  ResizeGravityNorth     = 1,
-  ResizeGravitySouth     = 2,
-  ResizeGravityWest      = 3,
-  ResizeGravityEast      = 4,
+enum {
+  ResizeGravitytCenter = 0,
+  ResizeGravityNorth = 1,
+  ResizeGravitySouth = 2,
+  ResizeGravityWest = 3,
+  ResizeGravityEast = 4,
   ResizeGravityNorthWest = 5,
   ResizeGravityNorthEast = 6,
   ResizeGravitySouthWest = 7,
   ResizeGravitySouthEast = 8
 };
 
-enum
-{
+enum {
   ResizeWatermarkTypeStandard = 0,
   ResizeWatermarkTypeAdaptive = 1,
 };
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Resize : public Operation
-{
-  public:
+class Resize : public Operation {
+ public:
 
-    Resize();
-    virtual ~Resize();
+  Resize();
+  virtual ~Resize();
 
-    virtual void setup(const boost::property_tree::ptree& params);
-    virtual bool run();
-    virtual bool getJpeg(std::vector<unsigned char>& data);
-    
-    void setType(const std::string& type);
-    void setHeight(unsigned height);
-    void setWidth(unsigned width);
-    void setQuality(unsigned quality);
-    void setInterpolation(const std::string& interpolation);
-    void setGravity(std::string gravity);
-    void setSharpenAmount(unsigned sharpenAmount);
-    void setSharpenRadius(float radius);
-    void setPreserveMeta(bool preserveMeta);
-    void setWatermarkUrl(const std::string& watermarkUrl);
-    void setWatermarkType(const std::string& watermarkType);
-    void setWatermarkAmount(float watermarkAmount);
-    void setWatermarkMinMax(float watermarkMin, float watermarkMax);
-    void setOutputUrl(const std::string& outputUrl);
-    
-    std::string getOutputFile() const;
-    bool getPreserveMeta() const;
-    bool getStatus() const;
-    void outputStatus(std::ostream& s, unsigned indent) const;
-    
-  #ifdef JSON_PRETTY_OUTPUT
-    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
-  #else
-    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
-  #endif
+  virtual void setup(const boost::property_tree::ptree &params);
+  virtual bool run();
+  virtual bool getJpeg(std::vector<unsigned char> &data);
 
-  private:
+  void setType(const std::string &type);
+  void setHeight(unsigned height);
+  void setWidth(unsigned width);
+  void setQuality(unsigned quality);
+  void setInterpolation(const std::string &interpolation);
+  void setGravity(std::string gravity);
+  void setSharpenAmount(unsigned sharpenAmount);
+  void setSharpenRadius(float radius);
+  void setPreserveMeta(bool preserveMeta);
+  void setWatermarkUrl(const std::string &watermarkUrl);
+  void setWatermarkType(const std::string &watermarkType);
+  void setWatermarkAmount(float watermarkAmount);
+  void setWatermarkMinMax(float watermarkMin, float watermarkMax);
+  void setOutputUrl(const std::string &outputUrl);
 
-    int getAspectHeight(int resizeWidth, double aspect) const;
-    int getAspectWidth(int resizeHeight, double aspect) const;
-    
-    void computeSizeSquare();
-    void computeSizeWidth();
-    void computeSizeHeight();
-    void computeSizeFill();
-    
-    void readType(const boost::property_tree::ptree& params);
-    void readGravity(const boost::property_tree::ptree& params);
-    
-    void validateType(const std::string& type);
-    void validateGravity(const std::string& gravity);
-    void validateWatermarkUrl(const std::string& watermarkUrl);
-    void validateWatermarkType(const std::string& watermarkType);
-    void validateOutputUrl(const std::string& outputUrl);
-    void validateWatermarkAmount(float watermarkAmount);
-    void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
-    void validateQuality(unsigned quality);
-    void validateSharpenAmount(unsigned sharpenAmount);
-    void validateSharpenRadius(float sharpenRadius);
-    
-    void applyWatermark();
+  std::string getOutputFile() const;
+  bool getPreserveMeta() const;
+  bool getStatus() const;
+  void outputStatus(std::ostream &s, unsigned indent) const;
 
-    int mType;
-    unsigned mHeight;
-    unsigned mWidth;
-    unsigned mQuality;
-    int mInterpolation;
-    unsigned mGravity;
-    bool mPreFilter;
-    unsigned mSharpenAmount;
-    float mSharpenRadius;
-    bool mPreserveMeta;
-    std::string mWatermarkFile;
-    unsigned mWatermarkType;
-    double mWatermarkAmount;
-    double mWatermarkMin;
-    double mWatermarkMax;
-    std::string mOutputFile;
+#ifdef JSON_PRETTY_OUTPUT
+  virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+#else
+  virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const;
+#endif
 
-    cv::Mat mImageResized;
-    cv::Mat mImageResizedFinal;
-    
-    cv::Size mSize;
-    cv::Mat mImageToResize;
+ private:
 
-    int mStatus;
-    std::string mErrorMessage;
+  int getAspectHeight(int resizeWidth, double aspect) const;
+  int getAspectWidth(int resizeHeight, double aspect) const;
+
+  void computeSizeSquare();
+  void computeSizeWidth();
+  void computeSizeHeight();
+  void computeSizeFill();
+
+  void readType(const boost::property_tree::ptree &params);
+  void readGravity(const boost::property_tree::ptree &params);
+
+  void validateType(const std::string &type);
+  void validateGravity(const std::string &gravity);
+  void validateWatermarkUrl(const std::string &watermarkUrl);
+  void validateWatermarkType(const std::string &watermarkType);
+  void validateOutputUrl(const std::string &outputUrl);
+  void validateWatermarkAmount(float watermarkAmount);
+  void validateWatermarkMinMax(float watermarkMin, float watermarkMax);
+  void validateQuality(unsigned quality);
+  void validateSharpenAmount(unsigned sharpenAmount);
+  void validateSharpenRadius(float sharpenRadius);
+
+  void applyWatermark();
+
+  int mType;
+  unsigned mHeight;
+  unsigned mWidth;
+  unsigned mQuality;
+  int mInterpolation;
+  unsigned mGravity;
+  bool mPreFilter;
+  unsigned mSharpenAmount;
+  float mSharpenRadius;
+  bool mPreserveMeta;
+  std::string mWatermarkFile;
+  unsigned mWatermarkType;
+  double mWatermarkAmount;
+  double mWatermarkMin;
+  double mWatermarkMax;
+  std::string mOutputFile;
+
+  cv::Mat mImageResized;
+  cv::Mat mImageResizedFinal;
+
+  cv::Size mSize;
+  cv::Mat mImageToResize;
+
+  int mStatus;
+  std::string mErrorMessage;
 
 };
 

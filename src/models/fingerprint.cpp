@@ -63,76 +63,63 @@ Fingerprint::Fingerprint() :
     mStatus(FingerprintStatusDidNotTry),
     mErrorMessage(),
     mType(FingerprintTypeInvalid),
-    mpPixelMd5(0)
-{
+    mpPixelMd5(0) {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Fingerprint::~Fingerprint()
-{
-  if (mpPixelMd5)
-  {
+Fingerprint::~Fingerprint() {
+  if (mpPixelMd5) {
     // DELETE
   }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Fingerprint::setup(const ptree& params)
-{
+void Fingerprint::setup(const ptree &params) {
   // Make a copy from the const reference
   mParams = ptree(params);
-  
+
   readType(params);
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Fingerprint::getStatus() const
-{
+bool Fingerprint::getStatus() const {
   return mStatus;
 }
 
 //------------------------------------------------------------------------------
 // Manually set the fingerprint type
 //------------------------------------------------------------------------------
-void Fingerprint::setType(const std::string& type)
-{
+void Fingerprint::setType(const std::string &type) {
   decodeType(type);
 }
 
 //------------------------------------------------------------------------------
 // Private helper for reading type from a parameter tree (from JSON)
 //------------------------------------------------------------------------------
-void Fingerprint::readType(const ptree& params)
-{
-  try
-  {
+void Fingerprint::readType(const ptree &params) {
+  try {
     string type = params.get<std::string>("type");
-    
+
     // Make sure it's lowercase
     transform(type.begin(), type.end(), type.begin(), ::tolower);
-    
+
     decodeType(type);
-    
+
   }
-  catch (boost::exception& e)
-  {
+  catch (boost::exception &e) {
     // Required, but output error during run()
   }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Fingerprint::decodeType(const std::string& type)
-{
-  if (type == "md5")
-  {
+void Fingerprint::decodeType(const std::string &type) {
+  if (type == "md5") {
     mType = FingerprintTypeMD5;
-  }
-  else
-  {
+  } else {
     // Invalid
     mType = FingerprintTypeInvalid;
   }
@@ -140,29 +127,25 @@ void Fingerprint::decodeType(const std::string& type)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Fingerprint::run()
-{
+bool Fingerprint::run() {
   mStatus = FingerprintStatusPending;
-  
-  if (mImage.empty())
-  {
+
+  if (mImage.empty()) {
     return false;
   }
-  
-  if (mType == FingerprintTypeMD5)
-  {
+
+  if (mType == FingerprintTypeMD5) {
     //--------------------------------
     //      Compute Image MD5
     //--------------------------------
-    mpPixelMd5 = Utils::computeMd5((char*)mImage.data, (int)mImage.step[0] * mImage.rows);
+    mpPixelMd5 = Utils::computeMd5((char *) mImage.data, (int) mImage.step[0] * mImage.rows);
 
-    if (mpPixelMd5)
-    {
+    if (mpPixelMd5) {
       mStatus = FingerprintStatusSuccess;
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -171,7 +154,7 @@ bool Fingerprint::run()
 #ifdef JSON_PRETTY_OUTPUT
 void Fingerprint::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
 #else
-void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const
 #endif
 {
   writer.StartObject();
@@ -180,26 +163,22 @@ void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) 
   writer.String("type");
   writer.String("fingerprint");
 
-  if (mStatus == FingerprintStatusSuccess)
-  {
+  if (mStatus == FingerprintStatusSuccess) {
     // Result
     writer.String("result");
     writer.Bool(true);
-    
+
     // md5 of pixels
     writer.String("md5");
     writer.String(mpPixelMd5);
 
-  }
-  else
-  {
+  } else {
     // Result
     writer.String("result");
     writer.Bool(false);
 
     // Error message
-    if ((mStatus == FingerprintStatusError) &&  !mErrorMessage.empty())
-    {
+    if ((mStatus == FingerprintStatusError) && !mErrorMessage.empty()) {
       writer.String("error_message");
       writer.String(mErrorMessage);
     }
@@ -210,7 +189,6 @@ void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) 
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Fingerprint::getJpeg(std::vector<unsigned char>& data)
-{
+bool Fingerprint::getJpeg(std::vector<unsigned char> &data) {
   return false;
 }

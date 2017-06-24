@@ -66,30 +66,27 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void showHelp(options_description& desc)
-{
+void showHelp(options_description &desc) {
   cerr << desc << endl;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-int main(int argc, char* argv[])
-{
-  try
-  {
+int main(int argc, char *argv[]) {
+  try {
     positional_options_description p;
     p.add("input", 1);
 
     string description = "Arion v";
     description += ARION_VERSION;
     description += "\n\n Arguments";
-    
+
     options_description desc(description);
 
     desc.add_options()
         ("help", "Produce this help message")
         ("version", "Print version")
-        ("input", value< string >(), "The input operations to execute in JSON");
+        ("input", value<string>(), "The input operations to execute in JSON");
 
     variables_map vm;
 
@@ -99,52 +96,42 @@ int main(int argc, char* argv[])
 
     string inputJson;
 
-    if (vm.count("help"))
-    {
+    if (vm.count("help")) {
       showHelp(desc);
       return 1;
     }
-    
-    if (vm.count("version"))
-    {
+
+    if (vm.count("version")) {
       cout << "{\"version\":\"" << ARION_VERSION << "\"}" << endl;
       return 0;
     }
 
-    if (vm.count("input"))
-    {
+    if (vm.count("input")) {
       inputJson = vm["input"].as<string>();
-    }
-    else
-    {
+    } else {
       cout << "You must provide the input operations to execute" << endl << endl;
       showHelp(desc);
       return 1;
     }
-    
+
     Arion arion;
 
-    if (!arion.setup(inputJson))
-    {
+    if (!arion.setup(inputJson)) {
       cout << arion.getJson();
       exit(-1);
     }
-    
+
     bool result = arion.run();
-    
+
     cout << arion.getJson();
-    
-    if (result)
-    {
+
+    if (result) {
       exit(0);
-    }
-    else
-    {
+    } else {
       exit(-1);
     }
   }
-  catch (std::exception& e)
-  {
+  catch (std::exception &e) {
     Utils::exitWithError(e.what());
   }
 
