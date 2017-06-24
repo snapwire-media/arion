@@ -882,7 +882,7 @@ class TestArion(unittest.TestCase):
     self.assertFalse(info['model_released'])
     self.assertFalse(info['property_released'])
     self.assertEqual(info['special_instructions'], '')
-    self.assertEqual(info['subject'], '')
+    self.assertEqual(info['subject'], [])
     self.assertEqual(info['copyright'], '')
     self.assertEqual(info['city'], '')
     self.assertEqual(info['province_state'], '')
@@ -1065,7 +1065,7 @@ class TestArion(unittest.TestCase):
     self.assertFalse(info['model_released'])
     self.assertFalse(info['property_released'])
     self.assertEqual(info['special_instructions'], 'Not Released (NR)')
-    self.assertEqual(info['subject'], '')
+    self.assertEqual(info['subject'], [])
     self.assertEqual(info['copyright'], 'Paul Filitchkin')
     self.assertEqual(info['city'], 'Bol')
     # TODO

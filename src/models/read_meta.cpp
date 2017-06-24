@@ -166,7 +166,7 @@ void Read_meta::readIptc() {
     readIptcStringByKey(md, iptcProvinceStateKey, &mProvinceState);
     readIptcStringByKey(md, iptcCountryNameKey, &mCountryName);
     readIptcStringByKey(md, iptcCountryCodeKey, &mCountryCode);
-    readIptcStringByKey(md, iptcSubjectKey, &mSubject);
+    //readIptcStringByKey(md, iptcSubjectKey, &mSubject);
     readIptcStringByKey(md, iptcBylineKey, &mByline);
 
     if (md->key() == iptcKeywordsKey) {
@@ -174,6 +174,13 @@ void Read_meta::readIptc() {
 
       if (!keyword.empty()) {
         mKeywords.push_back(keyword);
+      }
+    }
+    if (md->key() == iptcSubjectKey) {
+      string subject = md->toString();
+
+      if (!subject.empty()) {
+        mSubject.push_back(subject);
       }
     }
 
@@ -231,7 +238,16 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) co
     writer.String(mInstructions);
 
     writer.String("subject");
-    writer.String(mSubject);
+    writer.StartArray();
+
+    BOOST_FOREACH(
+    const std::string &subject, mSubject)
+    {
+      writer.String(subject);
+    }
+
+    writer.EndArray();
+   // writer.String(mSubject);
 
     writer.String("copyright");
     writer.String(mCopyright);

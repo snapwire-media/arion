@@ -416,7 +416,7 @@ void Arion::overrideMeta(const ptree &pt) {
       //Specifies the editorial urgency of content and not necessarily the envelope handling priority. The "1" is most urgent
       {"Iptc.Application2.Urgency", "urgency", false},
       //This field can specify and categorize the content of a photograph by one or more subjects listed in the IPTC “Subject NewsCode” taxonomy available from http://www.newscodes.org/. Each subject term is represented as an eight-digit numerical string in an unordered list. Only subjects from a controlled vocabulary should populate this field; enter free-choice text in the Keyword field.
-      {"Iptc.Application2.Subject", "subject", false},
+      {"Iptc.Application2.Subject", "subject", true},
       //Identifies the subject of the object data in the opinion of the provider. A list of categories will be maintained by a regional registry
       {"Iptc.Application2.Category", "category", false},
       //Supplemental categories further refine the subject of an object data. A supplemental category may include any of the recognised categories as used in tag <Category>. Otherwise
