@@ -846,7 +846,7 @@ bool Resize::run()
     //--------------------------------
     //  Inherit EXIF data if needed
     //--------------------------------
-    if (mpExifData || mpXmpData || mpIptcData) {
+    if (mpExifData || mpXmpData || mpIptcData || mpIccProfile) {
       if (mPreserveMeta) {
         try {
           Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
@@ -866,6 +866,16 @@ bool Resize::run()
               // Output image inherits input IPTC data
               outputExivImage->setIptcData(*mpIptcData);
             }
+              //--------------------------------
+              //  Keep color profile if defined
+              //--------------------------------
+              if (mpIccProfile){
+                  try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
+                      outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
+                  } catch (...) {
+                      //TODO
+                  }
+              }
           }
 
           outputExivImage->writeMetadata();
@@ -887,27 +897,26 @@ bool Resize::run()
             whiteListExifData[exifWhiteList[i]] = mpExifData->findKey(key)->value();
           }
         }
-        if (!whiteListExifData.empty()) {
+        if (!whiteListExifData.empty() || mpIccProfile) {
           Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
           if (outputExivImage.get() != 0) {
-            outputExivImage->setExifData(whiteListExifData);
+              if (!whiteListExifData.empty()){
+                  outputExivImage->setExifData(whiteListExifData);
+              }
+              if (mpIccProfile){
+                  try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
+                      outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
+                  } catch (...) {
+                      //TODO
+                  }
+              }
+
             outputExivImage->writeMetadata();
           }
         }
       }
     }
-    //--------------------------------
-    //  Keep color profile if defined
-    //--------------------------------
-    if (mpIccProfile){
-     Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
-        try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
-            outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
-            outputExivImage->writeMetadata();
-        } catch (...) {
-            //TODO
-        }
-    }
+
   }
   
   mStatus = ResizeStatusSuccess;

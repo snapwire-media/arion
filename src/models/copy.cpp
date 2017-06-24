@@ -79,7 +79,7 @@ void Copy::setup(const ptree& params)
 {
   // Make a copy from the const reference
   mParams = ptree(params);
-  
+
   try
   {
     string outputUrl = params.get<string>("output_url");
@@ -115,7 +115,7 @@ bool Copy::getStatus() const
 bool Copy::run()
 {
   mStatus = CopyStatusPending;
-  
+
   if (mOutputFile.length() == 0)
   {
     mStatus = CopyStatusError;
@@ -131,7 +131,7 @@ bool Copy::run()
   //--------------------------------
   //  Inherit EXIF data if needed
   //--------------------------------
-  if (mpExifData || mpXmpData || mpIptcData)
+  if (mpExifData || mpXmpData || mpIptcData || mpIccProfile)
   {
     try
     {
@@ -159,6 +159,16 @@ bool Copy::run()
           // Output image inherits input IPTC data
           outputExivImage->setIptcData(*mpIptcData);
         }
+          //--------------------------------
+          //  Keep color profile if defined
+          //--------------------------------
+          if (mpIccProfile){
+              try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
+                  outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
+              } catch (...) {
+                  //TODO
+              }
+          }
       }
 
       outputExivImage->writeMetadata();
@@ -172,18 +182,6 @@ bool Copy::run()
     }
   }
 
-  //--------------------------------
-  //  Keep color profile if defined
-  //--------------------------------
-  if (mpIccProfile){
-    Exiv2::Image::AutoPtr outputExivImage = Exiv2::ImageFactory::open(mOutputFile.c_str());
-    try { //TODO if we resizing from PNG to JPEG then it was failed. Fix that. See tests
-      outputExivImage->setIccProfile(*new Exiv2::DataBuf(mpIccProfile->pData_,mpIccProfile->size_));
-      outputExivImage->writeMetadata();
-    } catch (...) {
-      //TODO
-    }
-  }
 
   mStatus = CopyStatusSuccess;
 
