@@ -31,8 +31,8 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/read_meta.hpp"
-#include "utils/utils.hpp"
+#include "./read_meta.hpp"
+#include "../utils/utils.hpp"
 
 #include <iostream>
 #include <string>
@@ -43,7 +43,7 @@
 #include <boost/exception/error_info.hpp>
 #include <boost/exception/all.hpp>
 #include <boost/foreach.hpp>
-#include <boost/algorithm/string.hpp>    
+#include <boost/algorithm/string.hpp>
 
 // OpenCV
 #include <opencv2/imgproc.hpp>
@@ -53,9 +53,9 @@
 #include <exiv2/exiv2.hpp>
 
 // Local Third party
-#include "thirdparty/rapidjson/writer.h"
-#include "thirdparty/rapidjson/prettywriter.h"
-#include "thirdparty/rapidjson/stringbuffer.h"
+#include "../thirdparty/rapidjson/writer.h"
+#include "../thirdparty/rapidjson/prettywriter.h"
+#include "../thirdparty/rapidjson/stringbuffer.h"
 
 using boost::property_tree::ptree;
 using namespace cv;
@@ -75,67 +75,57 @@ Read_meta::Read_meta() :
     mModelReleased(false),
     mReadInfo(false),
     mCaption(""),
-    mCopyright("")
-{
+    mCopyright("") {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Read_meta::~Read_meta()
-{
+Read_meta::~Read_meta() {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Read_meta::setup(const ptree& params)
-{
+void Read_meta::setup(const ptree &params) {
   // Make a copy from the const reference
   mParams = ptree(params);
-  
-  try
-  {
+
+  try {
     mReadInfo = params.get<bool>("info");
   }
-  catch (boost::exception& e)
-  {
+  catch (boost::exception &e) {
     // Not required
   }
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Read_meta::getStatus() const
-{
+bool Read_meta::getStatus() const {
   return mStatus;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Read_meta::run()
-{
+bool Read_meta::run() {
 
   mStatus = ReadmetaStatusPending;
 
   readIptc();
-  
+
   mStatus = ReadmetaStatusSuccess;
-  
+
   return true;
 
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Read_meta::readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
-                                   const string& key,
-                                   string* value)
-{
-  if (md->key() == key)
-  {
+void Read_meta::readIptcStringByKey(Exiv2::IptcData::const_iterator md,
+                                    const string &key,
+                                    string *value) {
+  if (md->key() == key) {
     string v = md->toString();
 
-    if (!v.empty())
-    {
+    if (!v.empty()) {
       *value = v;
     }
   }
@@ -143,75 +133,67 @@ void Read_meta::readIptcStringByKey(Exiv2::IptcData::const_iterator md,
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Read_meta::readIptc()
-{
-  if (mpIptcData == 0)
-  {
-    return;
-  }
-  
-  // Currently just the read info parameter
-  if (!mReadInfo)
-  {
+void Read_meta::readIptc() {
+  if (mpIptcData == 0) {
     return;
   }
 
-  const string iptcCaptionKey       = "Iptc.Application2.Caption";
-  const string iptcKeywordsKey      = "Iptc.Application2.Keywords";
-  const string iptcCopyrightKey     = "Iptc.Application2.Copyright";
-  const string iptcInstructionsKey  = "Iptc.Application2.SpecialInstructions";
-  const string iptcCityKey          = "Iptc.Application2.City";
+  // Currently just the read info parameter
+  if (!mReadInfo) {
+    return;
+  }
+
+  const string iptcCaptionKey = "Iptc.Application2.Caption";
+  const string iptcKeywordsKey = "Iptc.Application2.Keywords";
+  const string iptcCopyrightKey = "Iptc.Application2.Copyright";
+  const string iptcInstructionsKey = "Iptc.Application2.SpecialInstructions";
+  const string iptcCityKey = "Iptc.Application2.City";
   const string iptcProvinceStateKey = "Iptc.Application2.ProvinceState";
-  const string iptcCountryNameKey   = "Iptc.Application2.CountryName";
-  const string iptcCountryCodeKey   = "Iptc.Application2.CountryCode";
-  const string iptcSubjectKey       = "Iptc.Application2.Subject";
+  const string iptcCountryNameKey = "Iptc.Application2.CountryName";
+  const string iptcCountryCodeKey = "Iptc.Application2.CountryCode";
+  const string iptcSubjectKey = "Iptc.Application2.Subject";
+  const string iptcBylineKey = "Iptc.Application2.Byline";
 
   const Exiv2::IptcData &iptcData = *mpIptcData;
-  
+
   Exiv2::IptcData::const_iterator end = iptcData.end();
-  
-  for (Exiv2::IptcData::const_iterator md = iptcData.begin(); md != end; ++md)
-  {
-    
-    readIptcStringByKey(md, iptcCaptionKey,       &mCaption);
-    readIptcStringByKey(md, iptcCopyrightKey,     &mCopyright);
-    readIptcStringByKey(md, iptcCityKey,          &mCity);
+
+  for (Exiv2::IptcData::const_iterator md = iptcData.begin(); md != end; ++md) {
+
+    readIptcStringByKey(md, iptcCaptionKey, &mCaption);
+    readIptcStringByKey(md, iptcCopyrightKey, &mCopyright);
+    readIptcStringByKey(md, iptcCityKey, &mCity);
     readIptcStringByKey(md, iptcProvinceStateKey, &mProvinceState);
-    readIptcStringByKey(md, iptcCountryNameKey,   &mCountryName);
-    readIptcStringByKey(md, iptcCountryCodeKey,   &mCountryCode);
-    readIptcStringByKey(md, iptcSubjectKey,       &mSubject);
-    
-    if (md->key() == iptcKeywordsKey)
-    {
+    readIptcStringByKey(md, iptcCountryNameKey, &mCountryName);
+    readIptcStringByKey(md, iptcCountryCodeKey, &mCountryCode);
+    readIptcStringByKey(md, iptcSubjectKey, &mSubject);
+    readIptcStringByKey(md, iptcBylineKey, &mByline);
+
+    if (md->key() == iptcKeywordsKey) {
       string keyword = md->toString();
-      
-      if (!keyword.empty())
-      {
+
+      if (!keyword.empty()) {
         mKeywords.push_back(keyword);
       }
     }
 
-    if (md->key() == iptcInstructionsKey)
-    {
+    if (md->key() == iptcInstructionsKey) {
       mInstructions = md->toString();
-      
-      if (!mInstructions.empty())
-      {
+
+      if (!mInstructions.empty()) {
         string instructions_lower = to_lower_copy(mInstructions);
-        
+
         std::size_t found;
-        
+
         found = instructions_lower.find(MODEL_RELEASED);
-        
-        if (found != std::string::npos)
-        {
+
+        if (found != std::string::npos) {
           mModelReleased = true;
         }
-        
+
         found = instructions_lower.find(PROPERTY_RELEASED);
-        
-        if (found != std::string::npos)
-        {
+
+        if (found != std::string::npos) {
           mPropertyReleased = true;
         }
       }
@@ -224,7 +206,7 @@ void Read_meta::readIptc()
 #ifdef JSON_PRETTY_OUTPUT
 void Read_meta::serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const
 #else
-void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const
+void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const
 #endif
 {
 
@@ -234,26 +216,28 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
   writer.String("type");
   writer.String("read_meta");
 
-  if (mStatus == ReadmetaStatusSuccess)
-  {
+  if (mStatus == ReadmetaStatusSuccess) {
     // Result
     writer.String("result");
     writer.Bool(true);
-    
+
     writer.String("model_released");
     writer.Bool(mModelReleased);
 
     writer.String("property_released");
     writer.Bool(mPropertyReleased);
-    
+
     writer.String("special_instructions");
     writer.String(mInstructions);
-    
+
     writer.String("subject");
     writer.String(mSubject);
 
     writer.String("copyright");
     writer.String(mCopyright);
+
+    writer.String("byline");
+    writer.String(mByline);
 
     writer.String("city");
     writer.String(mCity);
@@ -272,23 +256,21 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
 
     writer.String("keywords");
     writer.StartArray();
-    
-    BOOST_FOREACH (const std::string& keyword, mKeywords)
+
+    BOOST_FOREACH(
+    const std::string &keyword, mKeywords)
     {
       writer.String(keyword);
     }
-    
+
     writer.EndArray();
-  }
-  else
-  {
+  } else {
     // Result
     writer.String("result");
     writer.Bool(false);
 
     // Error message
-    if ((mStatus == ReadmetaStatusError) &&  !mErrorMessage.empty())
-    {
+    if ((mStatus == ReadmetaStatusError) && !mErrorMessage.empty()) {
       writer.String("error_message");
       writer.String(mErrorMessage);
     }
@@ -299,7 +281,6 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) co
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-bool Read_meta::getJpeg(std::vector<unsigned char>& data)
-{
+bool Read_meta::getJpeg(std::vector<unsigned char> &data) {
   return false;
 }

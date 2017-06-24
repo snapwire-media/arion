@@ -1055,7 +1055,7 @@ class TestArion(unittest.TestCase):
     #-----------------------------
     output = self.read_image(self.IMAGE_1_PATH)
 
-    self.verifySuccess(output, 1296, 864);
+    self.verifySuccess(output, 1296, 864)
 
     info = output['info'][0]
     self.assertTrue(info['result'])
@@ -1157,7 +1157,22 @@ class TestArion(unittest.TestCase):
     output = self.call_arion(self.IMAGE_1_PATH, [operation])
     
     self.assertFalse(output['result'])
-    
+  # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_md5(self):
+
+    operation = {
+      'type': 'fingerprint',
+      'params':
+        {
+          'type':      'md5'
+        }
+    }
+
+    operations = [operation];
+    output = self.call_arion(self.IMAGE_1_PATH, operations)
+
+    self.assertEqual(output['info'][0]['md5'], 'c8d342a627da420e77c2e90a10f75689')
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
   def testInvalidCopyParams(self):

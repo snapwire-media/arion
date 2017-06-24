@@ -47,56 +47,53 @@
 #include <exiv2/exiv2.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
-enum
-{
+enum {
   FingerprintStatusDidNotTry = 0,
-  FingerprintStatusPending   = 1,
-  FingerprintStatusSuccess   = 2,
-  FingerprintStatusError     = 3,
+  FingerprintStatusPending = 1,
+  FingerprintStatusSuccess = 2,
+  FingerprintStatusError = 3,
 };
 
-enum
-{
+enum {
   FingerprintTypeInvalid = 0,
-  FingerprintTypeMD5     = 1,
+  FingerprintTypeMD5 = 1,
 };
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Fingerprint : public Operation
-{
-  public:
+class Fingerprint : public Operation {
+ public:
 
-    Fingerprint();
-    virtual ~Fingerprint();
+  Fingerprint();
+  virtual ~Fingerprint();
 
-    virtual void setup(const boost::property_tree::ptree& params);
-    virtual bool run();
-    virtual bool getJpeg(std::vector<unsigned char>& data);
+  virtual void setup(const boost::property_tree::ptree &params);
+  virtual bool run();
+  virtual bool getJpeg(std::vector<unsigned char> &data);
 
-    void setType(const std::string& type);
-    bool getStatus() const;
-    void outputStatus(std::ostream& s, unsigned indent) const;
-    
-  #ifdef JSON_PRETTY_OUTPUT
-    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
-  #else
-    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
-  #endif
+  void setType(const std::string &type);
+  bool getStatus() const;
+  void outputStatus(std::ostream &s, unsigned indent) const;
 
-  private:
+#ifdef JSON_PRETTY_OUTPUT
+  virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+#else
+  virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const;
+#endif
 
-    void readType(const boost::property_tree::ptree& params);    
-    void decodeType(const std::string& type);
-    
-    boost::property_tree::ptree mParams;
-    
-    unsigned mStatus;
-    unsigned mType;
-    std::string mErrorMessage;
-    char* mpPixelMd5;
+ private:
+
+  void readType(const boost::property_tree::ptree &params);
+  void decodeType(const std::string &type);
+
+  boost::property_tree::ptree mParams;
+
+  unsigned mStatus;
+  unsigned mType;
+  std::string mErrorMessage;
+  char *mpPixelMd5;
 
 };
 

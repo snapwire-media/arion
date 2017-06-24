@@ -12,16 +12,18 @@ install:
   - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
 
 before_script:
-  - wget http://www.exiv2.org/exiv2-0.25.tar.gz
-  - tar -xvf exiv2-0.25.tar.gz
-  - cd exiv2-0.25/build
+  - wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+  - unzip exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+  - cd exiv2-fa449a4d2c58d63f0d75ff259f25683a98a44630
+  - mkdir build
+  - cd build
   - cmake ../
   - make -j4
   - sudo make install
   - cd ../..
-  - wget https://github.com/Itseez/opencv/archive/3.0.0.zip
-  - unzip 3.0.0.zip 
-  - cd opencv-3.0.0
+  - wget https://github.com/opencv/opencv/archive/3.2.0.zip
+  - unzip 3.2.0.zip
+  - cd opencv-3.2.0
   - mkdir build
   - cd build
   - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF ..

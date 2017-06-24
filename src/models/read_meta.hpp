@@ -49,10 +49,9 @@
 #include <boost/foreach.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
-enum
-{
+enum {
   ReadmetaStatusDidNotTry = 0,
   ReadmetaStatusPending = 1,
   ReadmetaStatusSuccess = 2,
@@ -61,62 +60,62 @@ enum
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Read_meta : public Operation
-{
-  public:
+class Read_meta : public Operation {
+ public:
 
-    Read_meta();
-    virtual ~Read_meta();
+  Read_meta();
+  virtual ~Read_meta();
 
-    virtual void setup(const boost::property_tree::ptree& params);
-    virtual bool run();
-    virtual bool getJpeg(std::vector<unsigned char>& data);
-    
-    bool getStatus() const;
-    
-    void outputStatus(std::ostream& s, unsigned indent) const;
-    
-  #ifdef JSON_PRETTY_OUTPUT
-    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
-  #else
-    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
-  #endif
-    
-  private:
-    
-    //-------------------
-    //  Private methods
-    //-------------------
-    void readIptc();
-    void readIptcStringByKey(Exiv2::IptcData::const_iterator md, 
-                             const std::string& key,
-                             std::string* value);
+  virtual void setup(const boost::property_tree::ptree &params);
+  virtual bool run();
+  virtual bool getJpeg(std::vector<unsigned char> &data);
 
-    //---------------
-    //    Params
-    //---------------
-    boost::property_tree::ptree mParams;
-    bool mReadInfo;
-    
-    int mStatus;
-    std::string mErrorMessage;
-    
-    //---------------
-    //     Info
-    //---------------
-    std::vector<std::string> mKeywords;
-    std::string mCaption;
-    std::string mCopyright;
-    bool mModelReleased;
-    bool mPropertyReleased;
-    std::string mInstructions;
-    std::string mSubject;
-    
-    // Location
-    std::string mCity;
-    std::string mProvinceState;
-    std::string mCountryName;
-    std::string mCountryCode;
+  bool getStatus() const;
+
+  void outputStatus(std::ostream &s, unsigned indent) const;
+
+#ifdef JSON_PRETTY_OUTPUT
+  virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+#else
+  virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const;
+#endif
+
+ private:
+
+  //-------------------
+  //  Private methods
+  //-------------------
+  void readIptc();
+  void readIptcStringByKey(Exiv2::IptcData::const_iterator md,
+                           const std::string &key,
+                           std::string *value);
+
+  //---------------
+  //    Params
+  //---------------
+  boost::property_tree::ptree mParams;
+  bool mReadInfo;
+
+  int mStatus;
+  std::string mErrorMessage;
+
+  //---------------
+  //     Info
+  //---------------
+  std::vector <std::string> mKeywords;
+  std::string mCaption;
+  std::string mCopyright;
+  bool mModelReleased;
+  bool mPropertyReleased;
+  std::string mInstructions;
+  std::string mSubject;
+  std::string mByline;
+
+  // Location
+  std::string mCity;
+  std::string mProvinceState;
+  std::string mCountryName;
+  std::string mCountryCode;
 
 };
 

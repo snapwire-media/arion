@@ -31,7 +31,7 @@
 //
 //------------------------------------------------------------------------------
 
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
 #include <iostream>
 #include <string>
@@ -47,53 +47,54 @@ using namespace std;
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::Operation() :     
+Operation::Operation() :
     mpExifData(0),
     mpXmpData(0),
-    mpIptcData(0)
-{
+    mpIccProfile(0),
+    mpIptcData(0) {
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-Operation::~Operation()
-{
+Operation::~Operation() {
   mpExifData = 0;
   mpXmpData = 0;
+  mpIccProfile = 0;
   mpIptcData = 0;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-ptree Operation::getParams() const
-{
+ptree Operation::getParams() const {
   return mParams;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Operation::setExifData(const Exiv2::ExifData* exifData)
-{
+void Operation::setExifData(const Exiv2::ExifData *exifData) {
   mpExifData = exifData;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Operation::setXmpData(const Exiv2::XmpData* xmpData)
-{
+void Operation::setXmpData(const Exiv2::XmpData *xmpData) {
   mpXmpData = xmpData;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Operation::setIptcData(const Exiv2::IptcData* iptcData)
-{
+void Operation::setIptcData(const Exiv2::IptcData *iptcData) {
   mpIptcData = iptcData;
 }
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void Operation::setImage(cv::Mat& image)
-{
+void Operation::setIccProfile(Exiv2::DataBuf *iccProfile) {
+  mpIccProfile = iccProfile;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Operation::setImage(cv::Mat &image) {
   mImage = image;
 }

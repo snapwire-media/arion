@@ -1,0 +1,57 @@
+{
+  "input_url": "../examples/images/image-2.jpg",
+  "operations": [
+    {
+      "type": "resize",
+      "params": {
+        "width": 800,
+        "height": 1000,
+        "interpolation": "nearest",
+        "type": "width",
+        "output_url": "../examples/image-5-800-nearest.jpg"
+      }
+    },
+    {
+      "type": "resize",
+      "params": {
+        "width": 800,
+        "height": 1000,
+        "interpolation": "linear",
+        "type": "width",
+        "output_url": "../examples/image-5-800-linear.jpg"
+      }
+    },
+    {
+      "type": "resize",
+      "params": {
+        "width": 800,
+        "height": 1000,
+        "interpolation":"cubic",
+        "type": "width",
+        "output_url": "../examples/image-5-800-cubic.jpg"
+      }
+    },
+    {
+      "type": "resize",
+      "params": {
+        "width": 800,
+        "height": 1000,
+        "interpolation":"area",
+        "type": "width",
+        "output_url": "../examples/image-5-800-area.jpg"
+      }
+    },
+    {
+      "type": "resize",
+      "params": {
+        "width": 800,
+        "height": 1000,
+        "interpolation":"lanczon4",
+        "type": "width",
+        "output_url": "../examples/image-5-800-lanczon4.jpg"
+      }
+    }
+
+
+  ]
+}

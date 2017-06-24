@@ -1,0 +1,11 @@
+{
+    "input_url": "../examples/image-2-800-watermark.jpg",
+    "operations": [
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
+            }
+        }
+    ]
+}

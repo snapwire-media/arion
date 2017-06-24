@@ -1,6 +1,7 @@
 # Arion [![Build Status](https://travis-ci.org/snapwire-media/arion.svg)](https://travis-ci.org/snapwire-media/arion)
 <img align="right" style="margin-left:4px;" src="https://raw.githubusercontent.com/wiki/snapwire-media/arion/images/arion-logo.png?token=ABLvVTS8ATmDqkb6_Al5kWmLIbUPJraeks5WLDi5wA%3D%3D">
-Arion extracts metadata and creates beautiful thumbnails from your images. 
+Arion extracts metadata and creates beautiful thumbnails from your images.
+
 * Batch generate thumbnails with one call
 * Apply output sharpening on each thumbnail
 * Resize with height priority, width priority, or square crop
@@ -21,8 +22,8 @@ While there are several tools available to generate thumbnails and read image me
 Currently this tool needs to be compiled from source to work on your host system. Install instructions are for Ubuntu, but can be easily modified to work on any *nix-based system. For Mac OS X see the following [instructions](../../wiki/Installation#mac-os-x). 
 
 **Requirements**
-* CMake
-* EXIV2 0.25+
+* CMake 3.1+
+* EXIV2 0.26+
 * OpenCV 3.0+
 * Boost 1.46+
   * core 
@@ -31,15 +32,35 @@ Currently this tool needs to be compiled from source to work on your host system
   * filesystem 
   * system
 
+**Install dependencies**
+
+***Ubuntu***
+```bash
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng
+```
+
+***Amazon linux***
+```bash
+sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++
+```
+
+For old version on Amazon linux upgrade cmake to version 3.1+
+```bash
+sudo yum install cmake3 --enablerepo=epel
+```
+Then for rest of installation guide replace "cmake" to "cmake3" command
+
 **Install EXIV2**
 
 Download the latest version from http://www.exiv2.org/download.html (or use wget command below)
 
 ```bash
 cd ~/
-wget http://www.exiv2.org/exiv2-0.25.tar.gz
-tar -xvf ~/exiv2-0.25.tar.gz
-cd exiv2-0.25/build
+wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+unzip exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
+cd exiv2-fa449a4d2c58d63f0d75ff259f25683a98a44630
+mkdir build
+cd build
 cmake ../
 ```
 
@@ -51,22 +72,14 @@ make
 sudo make install
 ```
 
-**Install Boost**
-
-Boost version 1.46+ is required to build Arion.  This is not a particularly new version so the package maintainers version will usually work.
-
-```bash
-sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
-```
-
 **Install OpenCV**
 
-Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget get version 3.0.0
+Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
 
 ```bash
-wget https://github.com/Itseez/opencv/archive/3.0.0.zip
-unzip 3.0.0.zip 
-cd opencv-3.0.0
+wget https://github.com/opencv/opencv/archive/3.2.0.zip
+unzip 3.2.0.zip
+cd opencv-3.2.0/
 mkdir build
 cd build
 cmake ..
@@ -87,6 +100,20 @@ cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
       -DJPEG_LIBRARY=/opt/libjpeg-turbo/lib64/libjpeg.a \
       -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
       -DENABLE_AVX=ON ..
+```
+
+**Install Boost**
+
+Boost version 1.46+ is required to build Arion.  This is not a particularly new version so the package maintainers version will usually work.
+
+***Ubuntu***
+```bash
+sudo apt-get install libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
+```
+
+***Amazon linux***
+```bash
+sudo yum install boost-devel boost-program-options boost-timer boost-filesystem boost-system boost-static
 ```
 
 **Build Arion**
@@ -118,8 +145,87 @@ Running example operations on horizontal image
   "result" : true,
   "time" : 0.17,
   "height" : 864,
-  "width" : 1296,
-  "md5" : "636ee0572d42df5e3764372cb08d6ade",
-  
+  "width" : 1296
   ...
+```
+
+**Fingerprint generation (md5)**
+
+Fingerprint generation is separated operation. For JSON like that
+```JSON
+{
+    "input_url": "../examples/image-2-800-watermark.jpg",
+    "operations": [
+        {
+            "type": "fingerprint",
+            "params": {
+                "type": "md5"
+            }
+        }
+    ]
+}
+```
+
+Output will be:
+```JSON
+{
+    "height": 1000,
+    "width": 762,
+    "info": [
+        {
+            "type": "fingerprint",
+            "result": true,
+            "md5": "5e1c56695ee01492ee3976f86a8b7f68"
+        }
+    ],
+    "result": true,
+    "total_operations": 1,
+    "failed_operations": 0
+}
+
+```
+
+
+# Static build
+
+Sometimes you need to have a 'portable' version of Arion.
+For example to use it with AWS Lambda or services like that.
+Given services only allow to deploy precompiled binary without any operation system modification.
+At that case portable version is very usable.
+
+To build static version of Arion you need to build evix2 and Opencv as a static version.
+
+**If you already build regular version of Arion**
+
+Please clear cmake cache before to do a new build of Arion. You can remove content of build folders from arion,exiv2 and cmake.
+
+**Building**
+
+Please follow main manual except cmake commands.
+
+***Exiv2***
+
+```bash
+cmake -DEXIV2_ENABLE_SHARED=OFF ..
+```
+
+***OpenCV***
+```bash
+cmake -DBUILD_SHARED_LIBS=OFF
+```
+But you also can skip build on not necessary packages
+
+```bash
+cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF \
+      -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF \
+      -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF \
+      -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF \
+      -DENABLE_SSSE3=ON -DENABLE_SSE41=ON -DENABLE_SSE42=ON \
+      -DENABLE_AVX=ON -DENABLE_AVX2=ON -DENABLE_FMA3=ON \
+      -DBUILD_SHARED_LIBS=OFF ..
+```
+
+***Arion***
+```bash
+cmake -DARION_ENABLE_SHARED=OFF ../src/
 ```

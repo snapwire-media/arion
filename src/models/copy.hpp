@@ -47,10 +47,9 @@
 #include <exiv2/exiv2.hpp>
 
 // Local
-#include "models/operation.hpp"
+#include "./operation.hpp"
 
-enum
-{
+enum {
   CopyStatusDidNotTry = 0,
   CopyStatusPending = 1,
   CopyStatusSuccess = 2,
@@ -59,36 +58,35 @@ enum
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-class Copy : public Operation
-{
-  public:
+class Copy : public Operation {
+ public:
 
-    Copy(std::string inputFile);
-    virtual ~Copy();
+  Copy(std::string inputFile);
+  virtual ~Copy();
 
-    virtual void setup(const boost::property_tree::ptree& params);
-    virtual bool run();
-    virtual bool getJpeg(std::vector<unsigned char>& data);
+  virtual void setup(const boost::property_tree::ptree &params);
+  virtual bool run();
+  virtual bool getJpeg(std::vector<unsigned char> &data);
 
-    std::string getOutputFile() const;
-    bool getStatus() const;
-    void outputStatus(std::ostream& s, unsigned indent) const;
-    
-  #ifdef JSON_PRETTY_OUTPUT
-    virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
-  #else
-    virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer>& writer) const;
-  #endif
+  std::string getOutputFile() const;
+  bool getStatus() const;
+  void outputStatus(std::ostream &s, unsigned indent) const;
 
-  private:
+#ifdef JSON_PRETTY_OUTPUT
+  virtual void serialize(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+#else
+  virtual void serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const;
+#endif
 
-    boost::property_tree::ptree mParams;
-    
-    int mStatus;
-    std::string mErrorMessage;
-    
-    std::string mInputFile;
-    std::string mOutputFile;
+ private:
+
+  boost::property_tree::ptree mParams;
+
+  int mStatus;
+  std::string mErrorMessage;
+
+  std::string mInputFile;
+  std::string mOutputFile;
 
 };
 
