@@ -24,7 +24,7 @@ Currently this tool needs to be compiled from source to work on your host system
 **Requirements**
 * CMake 3.1+
 * EXIV2 0.26+
-* OpenCV 3.0+
+* OpenCV 3.3+
 * Boost 1.46+
   * core 
   * program options 
@@ -56,9 +56,9 @@ Download the latest version from http://www.exiv2.org/download.html (or use wget
 
 ```bash
 cd ~/
-wget https://github.com/Exiv2/exiv2/archive/fa449a4d2c58d63f0d75ff259f25683a98a44630.zip -O exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
-unzip exiv2-0.26-fa449a4d2c58d63f0d75ff259f25683a98a44630.zip
-cd exiv2-fa449a4d2c58d63f0d75ff259f25683a98a44630
+wget https://github.com/Exiv2/exiv2/archive/v0.26.zip
+unzip v0.26.zip
+cd exiv2-0.26
 mkdir build
 cd build
 cmake ../
@@ -74,12 +74,12 @@ sudo make install
 
 **Install OpenCV**
 
-Arion requires OpenCV 3.0+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
+Arion requires OpenCV 3.3+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
 
 ```bash
-wget https://github.com/opencv/opencv/archive/3.2.0.zip
-unzip 3.2.0.zip
-cd opencv-3.2.0/
+wget https://github.com/opencv/opencv/archive/3.3.1.zip
+unzip 3.3.1.zip
+cd opencv-3.3.1/
 mkdir build
 cd build
 cmake ..
