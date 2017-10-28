@@ -738,8 +738,14 @@ bool Resize::run() {
 
           if (outputExivImage.get() != 0) {
             if (mpExifData) {
+              Exiv2::ExifData mpExifData2 = *mpExifData;
+              Exiv2::ExifData::iterator pos;
+              Exiv2::ExifKey exivKey = Exiv2::ExifKey("Exif.Image.Orientation");
+              if((pos = mpExifData2.findKey(exivKey)) != mpExifData2.end()) {
+                mpExifData2.erase(pos);
+              }
               // Output image inherits input EXIF data
-              outputExivImage->setExifData(*mpExifData);
+              outputExivImage->setExifData(mpExifData2);
             }
 
             if (mpXmpData) {
@@ -748,7 +754,6 @@ bool Resize::run() {
               Exiv2::XmpKey xmpKey = Exiv2::XmpKey("Xmp.photoshop.DocumentAncestors");
               if((pos = mpXmpData2.findKey(xmpKey)) != mpXmpData2.end()) {
                 mpXmpData2.erase(pos);
-                //mpXmpData = &mpXmpData2;
               }
               // Output image inherits input XMP data
               outputExivImage->setXmpData(mpXmpData2);
@@ -780,7 +785,8 @@ bool Resize::run() {
         }
       } else if (mpExifData) {
         //WhiteList for Exif tags
-        string exifWhiteList[] = {"Exif.Image.Orientation", "Exif.Image.InterColorProfile"};
+        //string exifWhiteList[] = {"Exif.Image.Orientation", "Exif.Image.InterColorProfile"};
+        string exifWhiteList[] = {"Exif.Image.InterColorProfile"};
         Exiv2::ExifData whiteListExifData;
         for (unsigned int i = 0; i < (sizeof(exifWhiteList) / sizeof(exifWhiteList[0]));
              i++) {//iterate over and try to find key from whitelist

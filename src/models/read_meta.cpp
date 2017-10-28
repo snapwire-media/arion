@@ -173,7 +173,12 @@ void Read_meta::readIptc() {
       string keyword = md->toString();
 
       if (!keyword.empty()) {
-        mKeywords.push_back(keyword);
+        vector<string> keywords;
+        boost::split(keywords,keyword,boost::is_any_of(","));
+        for (size_t i = 0; i < keywords.size(); i++){
+          boost::algorithm::trim(keywords[i]);
+          mKeywords.push_back(keywords[i]);
+        }
       }
     }
     if (md->key() == iptcSubjectKey) {
