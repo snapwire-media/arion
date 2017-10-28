@@ -168,7 +168,7 @@ bool Arion::setup(const string &inputJson) {
   //   Correct orientation flag
   //--------------------------------
   boost::optional<bool> correct_rotation = mInputTree.get_optional<bool>("correct_rotation");
-  if (correct_rotation) {//Not required
+  if (correct_rotation && mCorrectOrientation == true) {//Not required
     mCorrectOrientation = true;
   } else {
     mCorrectOrientation = false;
@@ -585,7 +585,7 @@ void Arion::extractImageData(const string &imageFilePath) {
 
   if (mIgnoreMetadata) {
     // If the ignore metadata flag is set simply read the image data
-    mSourceImage = cv::imread(imageFilePath);
+    mSourceImage = cv::imread(imageFilePath,cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION);
   } else {
     // If we are taking metadata into account first read the image into memory
     // and then extract pixel and metadata from memory...
@@ -646,7 +646,7 @@ void Arion::extractImageData(const string &imageFilePath) {
     // Now actually decode the bytes
     cv::InputArray buf(buffer);
 
-    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
+    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR|cv::IMREAD_IGNORE_ORIENTATION );
   }
 
   if (mExivImage->iccProfileDefined()) {

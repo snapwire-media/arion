@@ -134,8 +134,15 @@ bool Copy::run() {
         }
 
         if (mpXmpData) {
+          Exiv2::XmpData mpXmpData2 = *mpXmpData;
+          Exiv2::XmpData::iterator pos;
+          Exiv2::XmpKey xmpKey = Exiv2::XmpKey("Xmp.photoshop.DocumentAncestors");
+          if((pos = mpXmpData2.findKey(xmpKey)) != mpXmpData2.end()) {
+            mpXmpData2.erase(pos);
+            //mpXmpData = &mpXmpData2;
+          }
           // Output image inherits input XMP data
-          outputExivImage->setXmpData(*mpXmpData);
+          outputExivImage->setXmpData(mpXmpData2);
         }
 
         if (mpIptcData) {
