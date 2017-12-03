@@ -291,6 +291,8 @@ bool Resize::getJpeg(std::vector<unsigned char> &data) {
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_JPEG_QUALITY);
   compression_params.push_back(mQuality);
+  compression_params.push_back(IMWRITE_JPEG_PROGRESSIVE);
+  compression_params.push_back(1);
 
   return imencode(".jpg", mImageResizedFinal, data, compression_params);
 }
@@ -721,6 +723,8 @@ bool Resize::run() {
     vector<int> compression_params;
     compression_params.push_back(IMWRITE_JPEG_QUALITY);
     compression_params.push_back(mQuality);
+    compression_params.push_back(IMWRITE_JPEG_PROGRESSIVE);
+    compression_params.push_back(1);
 
     if (!imwrite(mOutputFile, mImageResizedFinal, compression_params)) {
       mStatus = ResizeStatusError;
