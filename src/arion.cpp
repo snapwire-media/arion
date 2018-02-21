@@ -426,7 +426,8 @@ void Arion::overrideMeta(const ptree &pt) {
       //Provides a full, publishable name of a country/geographical location referenced by the content of the object, according to guidelines of the provider
       {"Iptc.Application2.LocationName", "location_name", true},
       //Store special instructions about the image (IPTC-specific, more details here http://www.photometadata.org/meta-resources-field-guide-to-metadata#Special%20Instructions)
-      {"Iptc.Application2.SpecialInstructions", "instructions", false},
+      {"Iptc.Application2.SpecialInstructions", "special_instructions", false},
+      {"Iptc.Application2.SpecialInstructions", "instructions", false},//todo remove on 0.5
       //Represented in the form CCYYMMDD to designate the date the intellectual content of the object data was created rather than the date of the creation of the physical representation. Follows ISO 8601 standard.
       {"Iptc.Application2.DateCreated", "date_created", false},
       //Identifies the type of program used to originate the object data.
