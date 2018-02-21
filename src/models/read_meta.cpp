@@ -167,7 +167,7 @@ void Read_meta::readIptc() {
     readIptcStringByKey(md, iptcCountryNameKey, &mCountryName);
     readIptcStringByKey(md, iptcCountryCodeKey, &mCountryCode);
     //readIptcStringByKey(md, iptcSubjectKey, &mSubject);
-    readIptcStringByKey(md, iptcBylineKey, &mByline);
+    //readIptcStringByKey(md, iptcBylineKey, &mByline);
 
     if (md->key() == iptcKeywordsKey) {
       string keyword = md->toString();
@@ -186,6 +186,14 @@ void Read_meta::readIptc() {
 
       if (!subject.empty()) {
         mSubject.push_back(subject);
+      }
+    }
+
+    if (md->key() == iptcBylineKey) {
+      string byline = md->toString();
+
+      if (!byline.empty()) {
+        mByline.push_back(byline);
       }
     }
 
@@ -258,7 +266,15 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) co
     writer.String(mCopyright);
 
     writer.String("byline");
-    writer.String(mByline);
+    writer.StartArray();
+
+    BOOST_FOREACH(
+    const std::string &byline, mByline)
+    {
+      writer.String(byline);
+    }
+
+    writer.EndArray();
 
     writer.String("city");
     writer.String(mCity);

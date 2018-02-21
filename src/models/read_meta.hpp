@@ -109,7 +109,7 @@ class Read_meta : public Operation {
   bool mPropertyReleased;
   std::string mInstructions;
   std::vector <std::string> mSubject;
-  std::string mByline;
+  std::vector <std::string> mByline;
 
   // Location
   std::string mCity;
