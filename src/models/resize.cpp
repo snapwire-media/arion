@@ -210,6 +210,8 @@ void Resize::setInterpolation(const std::string &interpolation) {
     mInterpolation = INTER_AREA;
   } else if (interpolation == "lanczon4") {
     mInterpolation = INTER_LANCZOS4;
+  } else if (interpolation == "linear_exact") {
+    mInterpolation = INTER_LINEAR_EXACT;
   }
 }
 

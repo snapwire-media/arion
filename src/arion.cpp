@@ -482,9 +482,9 @@ void Arion::overrideMeta(const ptree &pt) {
         if (arrayTreeOptional) {
           Exiv2::IptcKey key = Exiv2::IptcKey((metaData[n]).exiv2Key);
 
-          Exiv2::IptcData::iterator pos = mpIptcData->findKey(key);
+          Exiv2::IptcData::iterator pos;
 
-          if (pos != mpIptcData->end()) {
+          while ((pos = mpIptcData->findKey(key)) != mpIptcData->end()) {
             mpIptcData->erase(pos);
           }
 
@@ -648,10 +648,9 @@ void Arion::extractImageData(const string &imageFilePath) {
     cv::InputArray buf(buffer);
 
     mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
-  }
-
-  if (mExivImage->iccProfileDefined()) {
-    mpIccProfile = mExivImage->iccProfile();
+    if (mExivImage->iccProfileDefined()) {
+      mpIccProfile = mExivImage->iccProfile();
+    }
   }
 
   if (mSourceImage.empty()) {
