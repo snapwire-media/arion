@@ -7,6 +7,7 @@ Arion extracts metadata and creates beautiful thumbnails from your images.
 * Resize with height priority, width priority, or square crop
 * Apply user-defined watermark
 * Get md5 hash of pixel data
+* Raw images support
 
 Each parameter is completely configurable via a JSON input and **Arion** can be called through any language that can execute shell commands. See the **[API Documentation](../../wiki/API-Documentation)** for more details.
 
@@ -24,7 +25,8 @@ Currently this tool needs to be compiled from source to work on your host system
 **Requirements**
 * CMake 3.1+
 * EXIV2 0.26+
-* OpenCV 3.3+
+* LibRaw 0.19+
+* OpenCV 3.4+
 * Boost 1.46+
   * core 
   * program options 
@@ -72,9 +74,9 @@ make
 sudo make install
 ```
 
-**Install LibRaw (optional)**
+**Install LibRaw**
 
-Arion  support raw files via (libRaw)[https://www.libraw.org/]. Download latest version from https://www.libraw.org/download
+Arion  support raw files via [libRaw](https://www.libraw.org/). Download latest version from https://www.libraw.org/download
 
 ```bash
 wget https://github.com/LibRaw/LibRaw/archive/0.19.0-Beta2.zip
