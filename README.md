@@ -38,12 +38,12 @@ Currently this tool needs to be compiled from source to work on your host system
 
 ***Ubuntu***
 ```bash
-sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng autoremove automake
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng automake
 ```
 
 ***Amazon linux***
 ```bash
-sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++ autoremove automake
+sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++ automake
 ```
 
 For old version on Amazon linux upgrade cmake to version 3.1+

@@ -10,7 +10,7 @@ compiler:
   - gcc
 
 install:
-  - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev autoremove automake
+  - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev automake
 
 before_script:
   - wget https://github.com/Exiv2/exiv2/archive/v0.26.zip
