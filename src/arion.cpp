@@ -73,6 +73,9 @@
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
+// Lib Raw to handle raw files
+#include "libraw/libraw.h"
+
 // Stdlib
 #include <iostream>
 #include <string>
@@ -583,21 +586,47 @@ bool Arion::parseOperations(const ptree &pt) {
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void Arion::extractImageData(const string &imageFilePath) {
+  // If we are taking metadata into account first read the image into memory
+  // and then extract pixel and metadata from memory...
+  std::ifstream input(imageFilePath.c_str(), std::ios::binary);
 
-  if (mIgnoreMetadata) {
-    // If the ignore metadata flag is set simply read the image data
-    mSourceImage = cv::imread(imageFilePath,cv::IMREAD_COLOR);
-  } else {
-    // If we are taking metadata into account first read the image into memory
-    // and then extract pixel and metadata from memory...
-    std::ifstream input(imageFilePath.c_str(), std::ios::binary);
+  // copies all data into buffer
+  std::vector<char> buffer((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
 
-    // copies all data into buffer
-    std::vector<char> buffer((std::istreambuf_iterator<char>(input)), (std::istreambuf_iterator<char>()));
+  if (buffer.empty()) {
+    throw extractException;
+  }
 
-    if (buffer.empty()) {
+  // Now actually decode the bytes
+  cv::InputArray buf(buffer);
+
+  mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);//TODO optimization with detect supported image types
+
+  if (mSourceImage.empty()) {//maybe openCV not support this image? Try LibRaw
+    LibRaw libRaw;
+    int status = libRaw.open_buffer(static_cast<void *>(buffer.data()), buffer.size());
+    if (status != LIBRAW_SUCCESS) {//only 0 is success
       throw extractException;
     }
+    libRaw.unpack();// decode bayer data
+
+    libRaw.dcraw_process();// white balance, color interpolation, color space conversion
+    // gamma correction, image rotation, 3-component RGB bitmap creation
+    libraw_processed_image_t *rawImage = libRaw.dcraw_make_mem_image();
+
+    // rawImage->type; //TODO ?
+
+
+    mSourceImage = cv::Mat(
+        rawImage->height,
+        rawImage->width,
+        CV_8UC3,
+        rawImage->data
+    );
+    cv::cvtColor(mSourceImage, mSourceImage, CV_RGB2BGR);    //Convert RGB to BGR
+  }
+
+  if (!mIgnoreMetadata) {
 
     try {
       mExivImage = Exiv2::ImageFactory::open((const Exiv2::byte *) &buffer.front(), (long) buffer.size());
@@ -644,18 +673,11 @@ void Arion::extractImageData(const string &imageFilePath) {
       // Not the end of the world if reading EXIF data failed
     }
 
-    // Now actually decode the bytes
-    cv::InputArray buf(buffer);
-
-    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
     if (mExivImage->iccProfileDefined()) {
       mpIccProfile = mExivImage->iccProfile();
     }
   }
 
-  if (mSourceImage.empty()) {
-    throw extractException;
-  }
 }
 
 //------------------------------------------------------------------------------

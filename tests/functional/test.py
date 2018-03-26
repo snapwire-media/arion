@@ -1172,7 +1172,8 @@ class TestArion(unittest.TestCase):
     operations = [operation];
     output = self.call_arion(self.IMAGE_1_PATH, operations)
 
-    self.assertEqual(output['info'][0]['md5'], 'c8d342a627da420e77c2e90a10f75689')
+    self.assertEqual(output['info'][0]['md5'], 'a0c5cee72d1a59a6d0f3f6e76b73cecc') # new libJpeg
+  #  self.assertEqual(output['info'][0]['md5'], 'c8d342a627da420e77c2e90a10f75689')
   # -------------------------------------------------------------------------------
   # -------------------------------------------------------------------------------
   def testInvalidCopyParams(self):

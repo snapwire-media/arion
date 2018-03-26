@@ -10,7 +10,7 @@ compiler:
   - gcc
 
 install:
-  - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev
+  - sudo apt-get --yes --force-yes install cmake wget unzip libboost-dev libboost-program-options-dev libboost-timer-dev libboost-filesystem-dev libboost-system-dev autoremove automake
 
 before_script:
   - wget https://github.com/Exiv2/exiv2/archive/v0.26.zip
@@ -22,9 +22,17 @@ before_script:
   - make -j4
   - sudo make install
   - cd ../..
-  - wget https://github.com/opencv/opencv/archive/3.3.1.zip
-  - unzip 3.3.1.zip
-  - cd opencv-3.3.1
+  - wget https://github.com/LibRaw/LibRaw/archive/0.19.0-Beta2.zip
+  - unzip 0.19.0-Beta2.zip
+  - cd LibRaw-0.19.0-Beta2/
+  - autoreconf --install
+  - ./configure
+  - make -j4
+  - sudo make install
+  - cd ../
+  - wget https://github.com/opencv/opencv/archive/3.4.1.zip
+  - unzip 3.4.1.zip
+  - cd opencv-3.4.1
   - mkdir build
   - cd build
   - cmake -DBUILD_DOCS=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_apps=OFF -DBUILD_opencv_calib3d=OFF -DBUILD_opencv_video=OFF -DBUILD_opencv_videoio=OFF -DBUILD_opencv_java=OFF ..

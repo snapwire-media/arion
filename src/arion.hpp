@@ -47,6 +47,9 @@
 // Exiv2
 #include <exiv2/exiv2.hpp>
 
+// Lib Raw to handle raw files
+#include "libraw/libraw.h"
+
 // Local
 #include "models/operation.hpp"
 #include "carion.h"

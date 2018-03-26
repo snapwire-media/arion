@@ -36,12 +36,12 @@ Currently this tool needs to be compiled from source to work on your host system
 
 ***Ubuntu***
 ```bash
-sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng autoremove automake
 ```
 
 ***Amazon linux***
 ```bash
-sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++
+sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++ autoremove automake
 ```
 
 For old version on Amazon linux upgrade cmake to version 3.1+
@@ -72,14 +72,29 @@ make
 sudo make install
 ```
 
-**Install OpenCV**
+**Install LibRaw (optional)**
 
-Arion requires OpenCV 3.3+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
+Arion  support raw files via (libRaw)[https://www.libraw.org/]. Download latest version from https://www.libraw.org/download
 
 ```bash
-wget https://github.com/opencv/opencv/archive/3.3.1.zip
-unzip 3.3.1.zip
-cd opencv-3.3.1/
+wget https://github.com/LibRaw/LibRaw/archive/0.19.0-Beta2.zip
+unzip 0.19.0-Beta2.zip
+cd LibRaw-0.19.0-Beta2/
+autoreconf --install
+./configure
+make
+sudo make install
+```
+
+
+**Install OpenCV**
+
+Arion requires OpenCV 3.4+ which must be compiled from source.  Download the latest archive from http://opencv.org/downloads.html or use wget latest version
+
+```bash
+wget https://github.com/opencv/opencv/archive/3.4.1.zip
+unzip 3.4.1.zip
+cd opencv-3.4.1/
 mkdir build
 cd build
 cmake ..
