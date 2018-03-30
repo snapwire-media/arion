@@ -597,17 +597,11 @@ void Arion::extractImageData(const string &imageFilePath) {
     throw extractException;
   }
 
-  // Now actually decode the bytes
-  cv::InputArray buf(buffer);
+  LibRaw libRaw;
+  int status = libRaw.open_buffer(static_cast<void *>(buffer.data()), buffer.size());
+  if (status == LIBRAW_SUCCESS) {//only 0 is success
 
-  mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);//TODO optimization with detect supported image types
-
-  if (mSourceImage.empty()) {//maybe openCV not support this image? Try LibRaw
-    LibRaw libRaw;
-    int status = libRaw.open_buffer(static_cast<void *>(buffer.data()), buffer.size());
-    if (status != LIBRAW_SUCCESS) {//only 0 is success
-      throw extractException;
-    }
+//   libRaw.imgdata.idata.raw_count; //TODO support multiple images
     libRaw.unpack();// decode bayer data
 
     libRaw.dcraw_process();// white balance, color interpolation, color space conversion
@@ -616,7 +610,6 @@ void Arion::extractImageData(const string &imageFilePath) {
 
     // rawImage->type; //TODO ?
 
-
     mSourceImage = cv::Mat(
         rawImage->height,
         rawImage->width,
@@ -624,6 +617,15 @@ void Arion::extractImageData(const string &imageFilePath) {
         rawImage->data
     );
     cv::cvtColor(mSourceImage, mSourceImage, CV_RGB2BGR);    //Convert RGB to BGR
+  } else {
+    // Now actually decode the bytes
+    cv::InputArray buf(buffer);
+
+    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
+  }
+
+  if (mSourceImage.empty()) {
+    throw extractException;
   }
 
   if (!mIgnoreMetadata) {
