@@ -38,12 +38,12 @@ Currently this tool needs to be compiled from source to work on your host system
 
 ***Ubuntu***
 ```bash
-sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng automake
+sudo apt-get install cmake wget unzip libexpat1-dev zlib1g-dev libssl-dev build-essential libpng-dev libpng automake libtool
 ```
 
 ***Amazon linux***
 ```bash
-sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++ automake
+sudo yum install cmake wget unzip expat-devel zlib-devel zlib-static openssl-devel openssl-static make glibc-devel gcc gcc-c++ automake libtool
 ```
 
 For old version on Amazon linux upgrade cmake to version 3.1+
@@ -83,7 +83,7 @@ wget https://github.com/LibRaw/LibRaw/archive/0.19.0-Beta2.zip
 unzip 0.19.0-Beta2.zip
 cd LibRaw-0.19.0-Beta2/
 autoreconf --install
-./configure
+./configure --disable-openmp
 make
 sudo make install
 ```
