@@ -113,6 +113,7 @@ Arion::Arion() :
     mTotalOperations(0),
     mFailedOperations(0),
     mResult(false),
+    mDecodeImage(true),
     mIgnoreMetadata(false) {
 }
 
@@ -177,6 +178,14 @@ bool Arion::setup(const string &inputJson) {
     mCorrectOrientation = false;
   }
 
+  //--------------------------------
+  //   Allow Skip decode image
+  //--------------------------------
+  boost::optional<bool> allow_skip_decode_image = mInputTree.get_optional<bool>("allow_skip_decode_image");
+  if (allow_skip_decode_image && allow_skip_decode_image == true) {//Not required
+    mDecodeImage = false;
+  }
+
   return true;
 }
 
@@ -190,6 +199,12 @@ void Arion::setSourceImage(cv::Mat &sourceImage) {
 //------------------------------------------------------------------------------
 void Arion::setIgnoreMetadata(bool ignoreMetadata) {
   mIgnoreMetadata = ignoreMetadata;
+}
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void Arion::setDecodeImage(bool decodeImage) {
+  mDecodeImage = decodeImage;
 }
 
 //------------------------------------------------------------------------------
@@ -545,6 +560,7 @@ bool Arion::parseOperations(const ptree &pt) {
       if (type == "resize") {
         // This is a resize operation so create the corresponding object
         operation = new Resize();
+        mDecodeImage = true;//wee need to decode image
       } else if (type == "read_meta") {
         // This is a read_meta operation so create the corresponding object
         operation = new Read_meta();
@@ -554,6 +570,7 @@ bool Arion::parseOperations(const ptree &pt) {
       } else if (type == "fingerprint") {
         // This is a copy operation so create the corresponding object
         operation = new Fingerprint();
+        mDecodeImage = true;//wee need to decode image
       } else {
         throw operationNotSupportedException;
       }
@@ -597,35 +614,37 @@ void Arion::extractImageData(const string &imageFilePath) {
     throw extractException;
   }
 
-  LibRaw libRaw;
-  int status = libRaw.open_buffer(static_cast<void *>(buffer.data()), buffer.size());
-  if (status == LIBRAW_SUCCESS) {//only 0 is success
+  if (mDecodeImage) {//only read pixels if required by operations
+    LibRaw libRaw;
+    int status = libRaw.open_buffer(static_cast<void *>(buffer.data()), buffer.size());
+    if (status == LIBRAW_SUCCESS) {//only 0 is success
 
 //   libRaw.imgdata.idata.raw_count; //TODO support multiple images
-    libRaw.unpack();// decode bayer data
+      libRaw.unpack();// decode bayer data
 
-    libRaw.dcraw_process();// white balance, color interpolation, color space conversion
-    // gamma correction, image rotation, 3-component RGB bitmap creation
-    libraw_processed_image_t *rawImage = libRaw.dcraw_make_mem_image();
+      libRaw.dcraw_process();// white balance, color interpolation, color space conversion
+      // gamma correction, image rotation, 3-component RGB bitmap creation
+      libraw_processed_image_t *rawImage = libRaw.dcraw_make_mem_image();
 
-    // rawImage->type; //TODO ?
+      // rawImage->type; //TODO ?
 
-    mSourceImage = cv::Mat(
-        rawImage->height,
-        rawImage->width,
-        CV_8UC3,
-        rawImage->data
-    );
-    cv::cvtColor(mSourceImage, mSourceImage, CV_RGB2BGR);    //Convert RGB to BGR
-  } else {
-    // Now actually decode the bytes
-    cv::InputArray buf(buffer);
+      mSourceImage = cv::Mat(
+          rawImage->height,
+          rawImage->width,
+          CV_8UC3,
+          rawImage->data
+      );
+      cv::cvtColor(mSourceImage, mSourceImage, CV_RGB2BGR);    //Convert RGB to BGR
+    } else {
+      // Now actually decode the bytes
+      cv::InputArray buf(buffer);
 
-    mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
-  }
+      mSourceImage = cv::imdecode(buf, cv::IMREAD_COLOR);
+    }
 
-  if (mSourceImage.empty()) {
-    throw extractException;
+    if (mSourceImage.empty()) {
+      throw extractException;
+    }
   }
 
   if (!mIgnoreMetadata) {
@@ -691,8 +710,6 @@ bool Arion::run() {
   //----------------------------------
   if (mInputFile.length()) {
     try {
-      // TODO: only read pixels if required by operations 
-      // (e.g. copy operation does not require read here)
       // We have an input file, so lets read it
       extractImageData(mInputFile);
     }
@@ -721,7 +738,7 @@ bool Arion::run() {
   }
 
   // Make sure we have image data to work with
-  if (mSourceImage.empty()) {
+  if (mDecodeImage && mSourceImage.empty()) {
     mResult = false;
     mErrorMessage = "Input image data is empty";
     constructErrorJson();
@@ -738,13 +755,15 @@ bool Arion::run() {
 #endif
 
   writer.StartObject();
+  if (mDecodeImage) {
+    // Dimensions
+    writer.String("height");
+    writer.Uint(mSourceImage.rows);
 
-  // Dimensions
-  writer.String("height");
-  writer.Uint(mSourceImage.rows);
+    writer.String("width");
+    writer.Uint(mSourceImage.cols);
+  }
 
-  writer.String("width");
-  writer.Uint(mSourceImage.cols);
 
   //----------------------------------
   //       Execute operations

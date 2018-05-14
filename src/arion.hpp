@@ -69,6 +69,7 @@ class Arion {
   bool setInputUrl(const std::string &inputUrl);
   bool setOutputUrl(const std::string &outputUrl);
   void setIgnoreMetadata(bool ignoreMetadata);
+  void setDecodeImage(bool decodeImage);
   void setCorrectOrientation(bool correctOrientation);
   void addResizeOperation(struct ArionResizeOptions options);
 
@@ -113,6 +114,7 @@ class Arion {
 
   // The following describe the result of the operations
   bool mResult;
+  bool mDecodeImage;
   std::string mErrorMessage;
   unsigned mTotalOperations;
   unsigned mFailedOperations;

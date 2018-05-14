@@ -32,11 +32,13 @@ class TestArion(unittest.TestCase):
   # -------------------------------------------------------------------------------
   #  Helper function for calling Arion
   # -------------------------------------------------------------------------------
-  def call_arion(self, input_url, operations):
+  def call_arion(self, input_url, operations, *additional_root_params):
 
     input_dict = {'input_url':        input_url,
                   'correct_rotation': True,
                   'operations':       operations}
+    if (additional_root_params):
+      input_dict = self.merge_two_dicts(input_dict,additional_root_params[0])
 
     input_string = json.dumps(input_dict, separators=(',', ':'))
 
@@ -1258,6 +1260,32 @@ class TestArion(unittest.TestCase):
     self.verifyFailure(self.call_arion(self.IMAGE_1_PATH, [operation]))
 
   # -------------------------------------------------------------------------------
+  # -------------------------------------------------------------------------------
+  def test_allow_skip_decode_image(self):
+
+    # Missing params
+    operation = {
+      'type': 'read_meta',
+      'params': {
+        'info': True
+      }
+    }
+    additional_params = {
+      'allow_skip_decode_image':True
+    }
+    output = self.call_arion(self.IMAGE_1_PATH, [operation], additional_params)
+    self.assertFalse('height' in output)
+    self.assertFalse('width' in output)
+
+  # -------------------------------------------------------------------------------
+  #  Helper to merge dicts
+  # -------------------------------------------------------------------------------
+  @staticmethod
+  def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
+  # -------------------------------------------------------------------------------
   #  Called only once
   # -------------------------------------------------------------------------------
   @classmethod
@@ -1274,7 +1302,6 @@ class TestArion(unittest.TestCase):
           os.unlink(file_path)
       except Exception as e:
         print(e)
-        
 # -------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------
 if __name__ == '__main__':
