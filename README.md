@@ -113,6 +113,27 @@ cmake ../src/
 make
 ```
 
+**Packaging**
+
+A simple `.deb` package can be created using `fpm`.
+
+```bash
+sudo gem install fpm
+
+cd build
+
+mkdir deb
+cd deb
+mkdir -p usr/local/lib/
+mkdir -p usr/local/include
+cp ../libcarion.so usr/local/
+cp ../../src/carion.h usr/local/include/
+cd ..
+
+# Create a .deb package for version 0.3.3
+fpm -s dir -t deb --name arion --version 0.3.3 -C deb .
+```
+
 **Run Examples**
 
 There are two example images provided and a wide range of example operations via a shell script. 
