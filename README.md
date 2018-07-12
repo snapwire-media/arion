@@ -126,7 +126,7 @@ mkdir deb
 cd deb
 mkdir -p usr/local/lib/
 mkdir -p usr/local/include
-cp ../libcarion.so usr/local/
+cp ../libcarion.so usr/local/lib/
 cp ../../src/carion.h usr/local/include/
 cd ..
 
