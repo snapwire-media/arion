@@ -2,7 +2,7 @@
 ==================
  * (update) Update RapidJSON from v1.0.2 to v1.1.0
  * (new) Optional parameter 'allow_skip_decode_image' that allow to skip decode image if in not nessesary.
-
+ * (fix) Use auto white balance for RAW images
 
 0.5.1 / 2018-03-31
 ==================

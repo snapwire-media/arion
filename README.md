@@ -79,9 +79,9 @@ sudo make install
 Arion  support raw files via [libRaw](https://www.libraw.org/). Download latest version from https://www.libraw.org/download
 
 ```bash
-wget https://github.com/LibRaw/LibRaw/archive/0.19.0-Beta2.zip
-unzip 0.19.0-Beta2.zip
-cd LibRaw-0.19.0-Beta2/
+wget https://github.com/LibRaw/LibRaw/archive/0.19.0.zip
+unzip 0.19.0.zip
+cd LibRaw-0.19.0/
 autoreconf --install
 ./configure --disable-openmp
 make

@@ -620,6 +620,7 @@ void Arion::extractImageData(const string &imageFilePath) {
     if (status == LIBRAW_SUCCESS) {//only 0 is success
 
 //   libRaw.imgdata.idata.raw_count; //TODO support multiple images
+      libRaw.imgdata.params.use_camera_wb = 1;
       libRaw.unpack();// decode bayer data
 
       libRaw.dcraw_process();// white balance, color interpolation, color space conversion
