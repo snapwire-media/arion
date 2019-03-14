@@ -1,0 +1,224 @@
+diff --git a/src/arion.cpp b/src/arion.cpp
+index 0c2c6da..392991f 100644
+--- a/src/arion.cpp
++++ b/src/arion.cpp
+@@ -891,3 +891,26 @@ bool Arion::getJpeg(unsigned operationIndex, std::vector<unsigned char> &data) {
+ 
+   return result;
+ }
++
++//------------------------------------------------------------------------------
++//------------------------------------------------------------------------------
++bool Arion::getPNG(unsigned operationIndex, std::vector<unsigned char>& data) {
++
++  if (operationIndex >= mOperations.size()) {
++    mErrorMessage = "Invalid operation to PNG encode";
++    constructErrorJson();
++
++     return false;
++  }
++
++   Operation& operation = mOperations.at(operationIndex);
++
++   bool result = operation.getPNG(data);
++
++  if (!result) {
++    mErrorMessage = "Could not encode PNG";
++    constructErrorJson();
++  }
++
++   return result;
++}
+diff --git a/src/arion.hpp b/src/arion.hpp
+index e71f05f..f660f9e 100644
+--- a/src/arion.hpp
++++ b/src/arion.hpp
+@@ -77,6 +77,7 @@ class Arion {
+   std::string getJson() const;
+ 
+   bool getJpeg(unsigned operationIndex, std::vector<unsigned char> &data);
++  bool getPNG(unsigned operationIndex, std::vector<unsigned char> &data);
+ 
+  private:
+ 
+diff --git a/src/carion.cpp b/src/carion.cpp
+index 83670fe..efd2993 100644
+--- a/src/carion.cpp
++++ b/src/carion.cpp
+@@ -44,6 +44,14 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
+                                      struct ArionResizeOptions resizeOptions) {
+   struct ArionResizeResult result;
+ 
++  // Currently only two output formats are supported, JPEG (0) and PNG (1)
++  if (inputOptions.outputFormat > 1) {
++    result.outputData = 0;
++    result.outputSize = 0;
++    result.returnCode = -1;
++    return result;
++  }
++
+   std::vector<unsigned char> buffer;
+ 
+   Arion arion;
+@@ -83,12 +91,22 @@ struct ArionResizeResult ArionResize(struct ArionInputOptions inputOptions,
+ 
+   result.resultJson = getChars(arion.getJson());
+ 
+-  if (!arion.getJpeg(operation, buffer)) {
+-    result.outputData = 0;
+-    result.outputSize = 0;
+-    result.resultJson = getChars(arion.getJson());
+-    result.returnCode = -1;
+-    return result;
++  if (inputOptions.outputFormat == 0) {
++    if (!arion.getJpeg(operation, buffer)) { // JPEG
++      result.outputData = 0;
++      result.outputSize = 0;
++      result.resultJson = getChars(arion.getJson());
++      result.returnCode = -1;
++      return result;
++    }
++  } else { // PNG
++    if (!arion.getPNG(operation, buffer)) { // JPEG
++      result.outputData = 0;
++      result.outputSize = 0;
++      result.resultJson = getChars(arion.getJson());
++      result.returnCode = -1;
++      return result;
++    }
+   }
+ 
+   result.outputSize = buffer.size();
+diff --git a/src/carion.h b/src/carion.h
+index 6b3602c..fae865a 100644
+--- a/src/carion.h
++++ b/src/carion.h
+@@ -15,6 +15,9 @@ struct ArionInputOptions {
+ 
+   // If an output URL is provided the image will be saved there
+   char *outputUrl;
++
++  // The desired output format. 0 = JPEG, 1 = PNG
++  unsigned outputFormat;
+ };
+ 
+ struct ArionResizeOptions {
+diff --git a/src/models/copy.cpp b/src/models/copy.cpp
+index 2ea925c..fdff213 100644
+--- a/src/models/copy.cpp
++++ b/src/models/copy.cpp
+@@ -219,3 +219,9 @@ void Copy::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) const
+ bool Copy::getJpeg(std::vector<unsigned char> &data) {
+   return false;
+ }
++
++//------------------------------------------------------------------------------
++//------------------------------------------------------------------------------
++bool Copy::getPNG(std::vector<unsigned char> &data) {
++  return false;
++}
+diff --git a/src/models/copy.hpp b/src/models/copy.hpp
+index 491d58a..967e269 100644
+--- a/src/models/copy.hpp
++++ b/src/models/copy.hpp
+@@ -67,6 +67,7 @@ class Copy : public Operation {
+   virtual void setup(const boost::property_tree::ptree &params);
+   virtual bool run();
+   virtual bool getJpeg(std::vector<unsigned char> &data);
++  virtual bool getPNG(std::vector<unsigned char> &data);
+ 
+   std::string getOutputFile() const;
+   bool getStatus() const;
+diff --git a/src/models/fingerprint.cpp b/src/models/fingerprint.cpp
+index c3e5b20..61bb937 100644
+--- a/src/models/fingerprint.cpp
++++ b/src/models/fingerprint.cpp
+@@ -192,3 +192,9 @@ void Fingerprint::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer)
+ bool Fingerprint::getJpeg(std::vector<unsigned char> &data) {
+   return false;
+ }
++
++//------------------------------------------------------------------------------
++//------------------------------------------------------------------------------
++bool Fingerprint::getPNG(std::vector<unsigned char> &data) {
++  return false;
++}
+diff --git a/src/models/fingerprint.hpp b/src/models/fingerprint.hpp
+index 7e67100..390fa55 100644
+--- a/src/models/fingerprint.hpp
++++ b/src/models/fingerprint.hpp
+@@ -72,6 +72,7 @@ class Fingerprint : public Operation {
+   virtual void setup(const boost::property_tree::ptree &params);
+   virtual bool run();
+   virtual bool getJpeg(std::vector<unsigned char> &data);
++  virtual bool getPNG(std::vector<unsigned char> &data);
+ 
+   void setType(const std::string &type);
+   bool getStatus() const;
+diff --git a/src/models/operation.hpp b/src/models/operation.hpp
+index 80fc9de..704712f 100644
+--- a/src/models/operation.hpp
++++ b/src/models/operation.hpp
+@@ -64,6 +64,7 @@ class Operation : boost::noncopyable {
+ 
+   virtual bool run() = 0;
+   virtual bool getJpeg(std::vector<unsigned char> &data) = 0;
++  virtual bool getPNG(std::vector<unsigned char> &data) = 0;
+ 
+   // There is no obvious way to make use of polymorphism for the writer object
+   // so we rely on the preprocessor
+diff --git a/src/models/read_meta.cpp b/src/models/read_meta.cpp
+index 1e9b77e..5e78cb5 100644
+--- a/src/models/read_meta.cpp
++++ b/src/models/read_meta.cpp
+@@ -321,3 +321,9 @@ void Read_meta::serialize(rapidjson::Writer<rapidjson::StringBuffer> &writer) co
+ bool Read_meta::getJpeg(std::vector<unsigned char> &data) {
+   return false;
+ }
++
++//------------------------------------------------------------------------------
++//------------------------------------------------------------------------------
++bool Read_meta::getPNG(std::vector<unsigned char> &data) {
++  return false;
++}
+diff --git a/src/models/read_meta.hpp b/src/models/read_meta.hpp
+index 2daf300..819348f 100644
+--- a/src/models/read_meta.hpp
++++ b/src/models/read_meta.hpp
+@@ -69,6 +69,7 @@ class Read_meta : public Operation {
+   virtual void setup(const boost::property_tree::ptree &params);
+   virtual bool run();
+   virtual bool getJpeg(std::vector<unsigned char> &data);
++  virtual bool getPNG(std::vector<unsigned char> &data);
+ 
+   bool getStatus() const;
+ 
+diff --git a/src/models/resize.cpp b/src/models/resize.cpp
+index 5880745..6bc43da 100644
+--- a/src/models/resize.cpp
++++ b/src/models/resize.cpp
+@@ -299,6 +299,12 @@ bool Resize::getJpeg(std::vector<unsigned char> &data) {
+   return imencode(".jpg", mImageResizedFinal, data, compression_params);
+ }
+ 
++bool Resize::getPNG(std::vector<unsigned char> &data) {
++  vector<int> compression_params;
++
++  return imencode(".png", mImageResizedFinal, data, compression_params);
++}
++
+ //------------------------------------------------------------------------------
+ //------------------------------------------------------------------------------
+ void Resize::readType(const ptree &params) {
+diff --git a/src/models/resize.hpp b/src/models/resize.hpp
+index 9a999f9..d66b9a1 100644
+--- a/src/models/resize.hpp
++++ b/src/models/resize.hpp
+@@ -95,6 +95,7 @@ class Resize : public Operation {
+   virtual void setup(const boost::property_tree::ptree &params);
+   virtual bool run();
+   virtual bool getJpeg(std::vector<unsigned char> &data);
++  virtual bool getPNG(std::vector<unsigned char> &data);
+ 
+   void setType(const std::string &type);
+   void setHeight(unsigned height);

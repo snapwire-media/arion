@@ -1,0 +1,103 @@
+diff --git a/src/models/resize.cpp b/src/models/resize.cpp
+index 5880745..747e51a 100644
+--- a/src/models/resize.cpp
++++ b/src/models/resize.cpp
+@@ -66,6 +66,7 @@ Resize::Resize() :
+     mInterpolation(INTER_AREA),
+     mGravity(ResizeGravitytCenter),
+     mPreFilter(false),
++    mPassThroughFullSize(true),
+     mSharpenAmount(0),
+     mSharpenRadius(0.0),
+     mPreserveMeta(false),
+@@ -617,11 +618,40 @@ bool Resize::run() {
+     return false;
+   }
+ 
++  //---------------------------------------------------
++  //  Validate resize dimensions
++  //---------------------------------------------------
++  if (mHeight == 0)
++  {
++    mStatus = ResizeStatusError;
++    mErrorMessage = "Height cannot be 0";
++    return false;
++  }
++
++  if (mWidth == 0)
++  {
++    mStatus = ResizeStatusError;
++    mErrorMessage = "Width cannot be 0";
++    return false;
++  }
++
++  // Don't attempt to resize an image to a size that's greater than our max
++  if (mHeight * mWidth > ARION_RESIZE_MAX_PIXELS)
++  {
++    mStatus = ResizeStatusError;
++    mErrorMessage = "Desired resize dimensions exceed maximum";
++    return false;
++  }
++
+   //---------------------------------------------------
+   //  Perform the resize operation and write to disk
+   //---------------------------------------------------
+   try {
+-
++    //---------------------------------------------------
++    // Only resize if the requested image size does not
++    // already match the requested image
++    //---------------------------------------------------
++    if (mPassThroughFullSize && !(mHeight == mImage.rows && mWidth == mImage.cols)) {
+     switch (mType) {
+       //--------------------------
+       //      Square resize
+@@ -663,25 +693,6 @@ bool Resize::run() {
+         return false;
+     }
+ 
+-    if (mHeight == 0) {
+-      mStatus = ResizeStatusError;
+-      mErrorMessage = "Height cannot be 0";
+-      return false;
+-    }
+-
+-    if (mWidth == 0) {
+-      mStatus = ResizeStatusError;
+-      mErrorMessage = "Width cannot be 0";
+-      return false;
+-    }
+-
+-    // Don't attempt to resize an image to a size that's greater than our max
+-    if (mHeight * mWidth > ARION_RESIZE_MAX_PIXELS) {
+-      mStatus = ResizeStatusError;
+-      mErrorMessage = "Desired resize dimensions exceed maximum";
+-      return false;
+-    }
+-
+     if (mPreFilter) {
+       double sigma = (double) mImageToResize.cols / 1000.0;
+ 
+@@ -710,6 +721,10 @@ bool Resize::run() {
+       // Assign by reference
+       mImageResizedFinal = mImageResized;
+     }
++    } else {
++      // The image already matches the requested dimensions, so no resize or retouch required.
++      mImageResizedFinal = mImage.clone();
++    }
+ 
+     if (mWatermarkFile.length()) {
+       applyWatermark();
+diff --git a/src/models/resize.hpp b/src/models/resize.hpp
+index 9a999f9..f89302f 100644
+--- a/src/models/resize.hpp
++++ b/src/models/resize.hpp
+@@ -155,6 +155,7 @@ class Resize : public Operation {
+   int mInterpolation;
+   unsigned mGravity;
+   bool mPreFilter;
++  bool mPassThroughFullSize;
+   unsigned mSharpenAmount;
+   float mSharpenRadius;
+   bool mPreserveMeta;
