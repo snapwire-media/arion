@@ -1,0 +1,13 @@
+diff --git a/src/arion.cpp b/src/arion.cpp
+index 0c2c6da..da9b0cb 100644
+--- a/src/arion.cpp
++++ b/src/arion.cpp
+@@ -635,7 +635,7 @@ void Arion::extractImageData(const string &imageFilePath) {
+           CV_8UC3,
+           rawImage->data
+       );
+-      cv::cvtColor(mSourceImage, mSourceImage, CV_RGB2BGR);    //Convert RGB to BGR
++      cv::cvtColor(mSourceImage, mSourceImage, cv::COLOR_RGB2BGR);    //Convert RGB to BGR
+     } else {
+       // Now actually decode the bytes
+       cv::InputArray buf(buffer);
